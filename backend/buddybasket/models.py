@@ -19,3 +19,10 @@ class User(AbstractUser):
             self.username = email_username
         super(User,  self).save(*args, **kwargs)
 
+class List(models.Model):
+    users = models.ManyToManyField(User, related_name='lists')
+    name = models.CharField(max_length=100)
+    items = models.JSONField()
+
+    def __str__(self):
+        return self.name

@@ -1,8 +1,12 @@
 from django.shortcuts import render
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
-from django.utils.http import urlsafe_base64_encode
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode 
 from django.conf import settings
+from django.http import HttpResponseBadRequest
+from django.utils.encoding import force_bytes, force_str
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
 
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework import generics, status
@@ -37,7 +41,7 @@ class PasswordResetEmailVerifyAPIView(generics.RetrieveAPIView):
         user = User.objects.filter(email=email).first()
         
         if user:
-            uuidb64 = urlsafe_base64_encode(str(user.pk).encode()).decode()
+            uuidb64 = urlsafe_base64_encode(force_bytes(user.pk))
             refresh = RefreshToken.for_user(user)
             refresh_token = str(refresh.access_token)
             user.refresh_token = refresh_token
@@ -71,16 +75,41 @@ class PasswordChangeAPIView(generics.CreateAPIView):
     permission_classes = [AllowAny]
     serializer_class = api_serializer.UserSerializer
 
+    def get(self, request, *args, **kwargs):
+        otp = request.GET.get('otp')
+        uuidb64 = request.GET.get('uuidb64')
+
+        if not otp or not uuidb64:
+            return Response({"message": "Invalid or inactive link"}, status=status.HTTP_400_BAD_REQUEST)
+
+        uuidb64 = int(force_str(urlsafe_base64_decode(uuidb64)))
+        user = User.objects.filter(id=uuidb64, otp=otp).first()
+
+        if not user or user.otp != otp:
+            return Response({"message": "Invalid or inactive link"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        return render(request, 'buddybasket/password_reset_form.html', {'otp': otp, 'uuidb64': uuidb64})
+
     def create(self, request, *args, **kwargs):
         otp = request.data['otp']
         uuidb64 = request.data['uuidb64']
+        print(uuidb64)
         password = request.data['password']
+        confirm_password = request.data['confirm_password']
 
-        user = User.objects.get(id=uuidb64, otp=otp)
-        if user:
-            user.set_password(password)
-            user.otp = ""
-            user.save()
+        user = User.objects.filter(id=uuidb64, otp=otp).first()
+        if not user:
+            return Response({"message": "User does not exist"}, status = status.HTTP_404_NOT_FOUND)
+        if password != confirm_password:
+            return Response({"message": "Passwords do not match"}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            validate_password(password, user)
+        except ValidationError as err:
+            return Response({"message": err.messages}, status=status.HTTP_400_BAD_REQUEST)
+        
+        user.set_password(password)
+        user.otp = ""
+        user.save()
 
-            return Response({"message": "Password Changed Successfully"}, status = status.HTTP_201_CREATED)
-        return Response({"message": "User does not exist"}, status = status.HTTP_404_NOT_FOUND)
+        return Response({"message": "Password Changed Successfully"}, status = status.HTTP_201_CREATED)
+        

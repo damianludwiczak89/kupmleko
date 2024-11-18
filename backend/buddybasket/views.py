@@ -1,14 +1,19 @@
 from django.shortcuts import render
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
-from . import serializer as api_serializer
+from django.utils.http import urlsafe_base64_encode
+from django.conf import settings
+
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework import generics, status
 from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
+
+from . import serializer as api_serializer
 from .models import User
-from django.conf import settings
+
+import base64
 import random
 
 class MyTokenObtainPairView(TokenObtainPairView):
@@ -32,7 +37,7 @@ class PasswordResetEmailVerifyAPIView(generics.RetrieveAPIView):
         user = User.objects.filter(email=email).first()
         
         if user:
-            uuidb64 = user.pk
+            uuidb64 = urlsafe_base64_encode(str(user.pk).encode()).decode()
             refresh = RefreshToken.for_user(user)
             refresh_token = str(refresh.access_token)
             user.refresh_token = refresh_token

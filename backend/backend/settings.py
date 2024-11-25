@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'jazzmin',
 	'rest_framework',
     'rest_framework_simplejwt.token_blacklist',
+    'drf_yasg',
     'corsheaders',
     'django.contrib.admin',
     'django.contrib.auth',

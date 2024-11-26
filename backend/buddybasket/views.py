@@ -10,13 +10,13 @@ from django.core.exceptions import ValidationError
 
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework import generics, status
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from . import serializer as api_serializer
-from .models import User, List
+from .models import User, ShoppingList
 
 import random
 
@@ -92,7 +92,6 @@ class PasswordChangeAPIView(APIView):
     def post(self, request, *args, **kwargs):
         otp = request.data['otp']
         uuidb64 = request.data['uuidb64']
-        print(uuidb64)
         password = request.data['password']
         confirm_password = request.data['confirm_password']
 
@@ -116,9 +115,21 @@ class PasswordChangeAPIView(APIView):
         
 class ListsAPIView(APIView):
     serializer_class = api_serializer.ListSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
-    def get(self, request):
-        queryset = List.objects.all()
-        serializer = self.serializer_class(queryset)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+    def get(self, request, *args, **kwargs):
+        queryset = ShoppingList.objects.filter(users=request.user)
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, *args, **kwargs):
+        name = request.data["name"]
+        items = request.data["items"]
+
+        # TODO - add users to the list that creator has chosen
+        
+        users = User.objects.filter(pk=request.user.id)
+        shopping_list = ShoppingList(name=name, items=items)
+        shopping_list.save()
+        shopping_list.users.set(users)
+        return Response({"message": "Shopping List created successfully"}, status=status.HTTP_200_OK)

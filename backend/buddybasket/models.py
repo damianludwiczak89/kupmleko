@@ -26,5 +26,31 @@ class ShoppingList(models.Model):
     name = models.CharField(max_length=100)
     items = models.JSONField()
 
+    '''
+    	Items structure:
+
+            [
+                {
+                    "id": 1,
+                    "name": "Lidl",
+                    "items": [
+                    {
+                        "product_name": "apple",
+                        "amount": 2,
+                        "bought": false
+                    },
+                    {
+                        "product_name": "banana",
+                        "amount": 5,
+                        "bought": true
+                    }
+                    ],
+                        "users": [
+                            1
+                        ]
+                }
+            ]
+    '''
+
     def __str__(self):
         return self.name

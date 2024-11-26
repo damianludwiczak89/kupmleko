@@ -21,7 +21,7 @@ class User(AbstractUser):
             self.username = email_username
         super(User,  self).save(*args, **kwargs)
 
-class List(models.Model):
+class ShoppingList(models.Model):
     users = models.ManyToManyField(User, related_name='lists')
     name = models.CharField(max_length=100)
     items = models.JSONField()

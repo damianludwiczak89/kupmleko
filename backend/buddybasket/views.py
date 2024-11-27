@@ -7,6 +7,7 @@ from django.http import HttpResponseBadRequest
 from django.utils.encoding import force_bytes, force_str
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
+from django.http import Http404
 
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework import generics, status
@@ -152,17 +153,12 @@ class FriendsAPIView(APIView):
         user.friends.add(new_friend)
         return Response({"message": "New friend added successfully"}, status=status.HTTP_200_OK)
     
-class UserSearchAPIView(APIView):
-    permission_classes = [IsAuthenticated]
+class UserSearchAPIView(generics.RetrieveAPIView):
     serializer_class = api_serializer.UserSerializer
+    permission_classes = [IsAuthenticated]
 
-    def get(self, request, email):
-        if not email:
-            return Response({"error": "Email parameter is required."}, status=400)
-        
-        try:
-            user = User.objects.get(email=email)
-            serializer = self.serializer_class(user)
-            return Response(serializer.data)
-        except User.DoesNotExist:
-            return Response({"error": "User not found."}, status=404)
+    def get_object(self):
+        email = self.kwargs.get('email', None)
+        if email:
+            return User.objects.get(email=email)
+        raise Http404 

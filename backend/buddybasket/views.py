@@ -117,7 +117,7 @@ class PasswordChangeAPIView(APIView):
         user.otp = ""
         user.save()
 
-        return Response({"message": "Password Changed Successfully"}, status = status.HTTP_201_CREATED)
+        return Response({"message": "Password Changed Successfully"}, status = status.HTTP_200_OK)
 
 
 class ShoppingListAPIView(APIView):

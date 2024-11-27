@@ -9,5 +9,7 @@ urlpatterns = [
     path("user/password-reset/<email>/", api_views.PasswordResetEmailVerifyAPIView.as_view()),
     path("user/reset-password/", api_views.PasswordChangeAPIView.as_view(), name='password_change'),
 
-    path("lists/", api_views.ListsAPIView.as_view(),)
+    path("shopping_list/", api_views.ShoppingListAPIView.as_view()),
+    path("friends/", api_views.FriendsAPIView.as_view()),
+    path("search/<email>/", api_views.UserSearchAPIView.as_view())
 ]

@@ -113,7 +113,7 @@ class PasswordChangeAPIView(APIView):
 
         return Response({"message": "Password Changed Successfully"}, status = status.HTTP_201_CREATED)
         
-class ListsAPIView(APIView):
+class ShoppingListAPIView(APIView):
     serializer_class = api_serializer.ListSerializer
     permission_classes = [IsAuthenticated]
 
@@ -133,3 +133,36 @@ class ListsAPIView(APIView):
         shopping_list.save()
         shopping_list.users.set(users)
         return Response({"message": "Shopping List created successfully"}, status=status.HTTP_200_OK)
+    
+class FriendsAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = api_serializer.UserSerializer
+
+    def get(self, request, *args, **kwargs):
+        queryset = User.objects.filter(friends=request.user)
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data)
+    
+    def post(self, request, *args, **kwargs):
+        user = User.objects.get(pk=request.user.id)
+
+        # TODO - check if user already is a friend
+
+        new_friend = request.data["friends"]
+        user.friends.add(new_friend)
+        return Response({"message": "New friend added successfully"}, status=status.HTTP_200_OK)
+    
+class UserSearchAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = api_serializer.UserSerializer
+
+    def get(self, request, email):
+        if not email:
+            return Response({"error": "Email parameter is required."}, status=400)
+        
+        try:
+            user = User.objects.get(email=email)
+            serializer = self.serializer_class(user)
+            return Response(serializer.data)
+        except User.DoesNotExist:
+            return Response({"error": "User not found."}, status=404)

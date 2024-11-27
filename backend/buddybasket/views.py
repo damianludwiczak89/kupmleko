@@ -21,16 +21,20 @@ from .models import User, ShoppingList
 
 import random
 
+
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = api_serializer.MyTokenObtainPairSerializer
+
 
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     permission_classes = [AllowAny]
     serializer_class = api_serializer.RegisterSerializer
 
+
 def generate_random_otp(length=7):
     return ''.join([str(random.randint(0, 9)) for _ in range(length)])
+
 
 class PasswordResetEmailVerifyAPIView(APIView):
     permission_classes = [AllowAny]
@@ -72,6 +76,7 @@ class PasswordResetEmailVerifyAPIView(APIView):
 
         return Response({"message": "Password reset email sent successfully"}, status=status.HTTP_200_OK)
     
+
 class PasswordChangeAPIView(APIView):
     permission_classes = [AllowAny]
     serializer_class = api_serializer.UserSerializer
@@ -113,7 +118,8 @@ class PasswordChangeAPIView(APIView):
         user.save()
 
         return Response({"message": "Password Changed Successfully"}, status = status.HTTP_201_CREATED)
-        
+
+
 class ShoppingListAPIView(APIView):
     serializer_class = api_serializer.ListSerializer
     permission_classes = [IsAuthenticated]
@@ -135,6 +141,7 @@ class ShoppingListAPIView(APIView):
         shopping_list.users.set(users)
         return Response({"message": "Shopping List created successfully"}, status=status.HTTP_200_OK)
     
+
 class FriendsAPIView(APIView):
     permission_classes = [IsAuthenticated]
     serializer_class = api_serializer.UserSerializer
@@ -153,6 +160,7 @@ class FriendsAPIView(APIView):
         user.friends.add(new_friend)
         return Response({"message": "New friend added successfully"}, status=status.HTTP_200_OK)
     
+
 class UserSearchAPIView(generics.RetrieveAPIView):
     serializer_class = api_serializer.UserSerializer
     permission_classes = [IsAuthenticated]

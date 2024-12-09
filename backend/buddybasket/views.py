@@ -17,7 +17,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from . import serializer as api_serializer
-from .models import User, ShoppingList
+from .models import User, ShoppingList, Item
 
 import random
 
@@ -121,25 +121,27 @@ class PasswordChangeAPIView(APIView):
 
 
 class ShoppingListAPIView(APIView):
-    serializer_class = api_serializer.ListSerializer
+    serializer_class = api_serializer.ShoppingListSerializer
     permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
-        queryset = ShoppingList.objects.filter(users=request.user)
+        queryset = ShoppingList.objects.filter(users=request.user).prefetch_related('items')
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)
 
     def post(self, request, *args, **kwargs):
-        name = request.data["name"]
-        items = request.data["items"]
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            items_data = serializer.validated_data.pop('items', []) # in case of not providing items at all
+            shopping_list = ShoppingList.objects.create(**serializer.validated_data)
+            shopping_list.users.add(request.user)
 
-        # TODO - add users to the list that creator has chosen
-        
-        users = User.objects.filter(pk=request.user.id)
-        shopping_list = ShoppingList(name=name, items=items)
-        shopping_list.save()
-        shopping_list.users.set(users)
-        return Response({"message": "Shopping List created successfully"}, status=status.HTTP_200_OK)
+            for item_data in items_data:
+                Item.objects.create(shopping_list=shopping_list, **item_data)
+
+            return Response({"message": "Shopping list addedd successfully"}, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 
 class FriendsAPIView(APIView):

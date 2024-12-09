@@ -24,33 +24,15 @@ class User(AbstractUser):
 class ShoppingList(models.Model):
     users = models.ManyToManyField(User, related_name='lists')
     name = models.CharField(max_length=100)
-    items = models.JSONField()
 
-    '''
-    	Items structure:
+    def __str__(self):
+        return self.name
 
-            [
-                {
-                    "id": 1,
-                    "name": "Lidl",
-                    "items": [
-                    {
-                        "product_name": "apple",
-                        "amount": 2,
-                        "bought": false
-                    },
-                    {
-                        "product_name": "banana",
-                        "amount": 5,
-                        "bought": true
-                    }
-                    ],
-                        "users": [
-                            1
-                        ]
-                }
-            ]
-    '''
+class Item(models.Model):
+    shopping_list = models.ForeignKey(ShoppingList, on_delete=models.CASCADE, related_name='items')
+    name = models.CharField(max_length=100)
+    amount = models.IntegerField()
+    bought = models.BooleanField()
 
     def __str__(self):
         return self.name

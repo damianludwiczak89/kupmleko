@@ -2,7 +2,7 @@ from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import Token
 from django.contrib.auth.password_validation import validate_password
-from .models import User, ShoppingList
+from .models import User, ShoppingList, Item
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
@@ -47,8 +47,26 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ['id', 'email', 'username']
 
-class ListSerializer(serializers.ModelSerializer):
+
+class ItemSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Item
+        fields = ['id', 'name', 'amount', 'bought']
+
+class ShoppingListSerializer(serializers.ModelSerializer):
+
+    items = ItemSerializer(many=True, required=False)
 
     class Meta:
         model = ShoppingList
-        fields = '__all__'
+        fields = ['id', 'name', 'items']
+
+    def create(self, validated_data):
+        items_data = validated_data.pop('items', []) # in case of not providing items at all
+        shopping_list = ShoppingList.objects.create(**validated_data)
+
+        for item_data in items_data:
+            Item.objects.create(shopping_list=shopping_list, **item_data)
+        
+        return shopping_list

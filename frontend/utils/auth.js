@@ -1,27 +1,29 @@
 import { useAuthStore } from "../store/auth"
-import axios from './axios'
-import jwt_decode from 'jwt-decode'
+import apiInstance from './axios'
+import { jwtDecode } from 'jwt-decode';
 import { Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const login = async (email, password) => {
     try {
-        const {data, status} = await axios.post('user/token/', {
+        const { data, status } = await apiInstance.post('user/token/', {
             email,
             password,
         });
 
         if (status === 200) {
             setAuthUser(data.access, data.refresh);
-            Alert.alert("Login successfull")
         }
 
-        return {data, error: null};
+        return { data, error: null };
 
     } catch (error) {
+        console.error("Error during login:", error);
+        console.error("Error details:", error.response?.data || error.message);
+
         return {
             data: null,
-            error: error.response.data?.detail || "Something went wrong",
+            error: error.response?.data?.detail || "An error occurred. Please try again.",
         };
     }
 };
@@ -72,23 +74,31 @@ export const setUser = async () => {
     
 };
 
-export const setAuthUser = (access_token, refresh_token) => {
-    AsyncStorage.setItem('@access_token', JSON.stringify({
-        token: access_token,
-        expiresAt: Date.now() + 24 * 60 * 60 * 1000 // 1 day
-      }));
-      AsyncStorage.setItem('@refresh_token', JSON.stringify({
-        token: refresh_token,
-        expiresAt: Date.now() + 7 * 24 * 60 * 60 * 1000 // 7 days
-      }));
 
-    const user = jwt_decode(access_token) ?? null
+export const setAuthUser = async (access_token, refresh_token) => {
+  try {
+    await AsyncStorage.setItem('@access_token', JSON.stringify({
+      token: access_token,
+      expiresAt: Date.now() + 24 * 60 * 60 * 1000, // 1 day
+    }));
+
+    await AsyncStorage.setItem('@refresh_token', JSON.stringify({
+      token: refresh_token,
+      expiresAt: Date.now() + 7 * 24 * 60 * 60 * 1000, // 7 days
+    }));
+
+    const user = jwtDecode(access_token);
 
     if (user) {
-        useAuthStore.getState().setUser(user);
-    } 
-    setAuthUser.getState().setLoading(false);
+      const authStore = useAuthStore.getState();
+      authStore.setUser(user);
+      authStore.setLoading(false);
+    }
+  } catch (error) {
+    console.error('Error in setAuthUser:', error);
+  }
 };
+
 
 export const getRefreshedToken = async () => {
     const refresh_token = AsyncStorage.getItem("refresh_token");
@@ -100,7 +110,7 @@ export const getRefreshedToken = async () => {
 
 export const isAccessTokenExpired = (access_token) => {
     try {
-        const decodedToken = jwt_decode(access_token)
+        const decodedToken = jwtDecode(access_token)
         return decodedToken.exp < Date.now() / 1000
     } catch (error) {
         console.log(error);

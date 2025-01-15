@@ -1,11 +1,13 @@
 import React, {useState} from 'react';
 import {  SafeAreaView, Text, Button, TextInput } from 'react-native';
 import { login } from '../../utils/auth';
-
+import { Routes } from '../../navigation/Routes';
+import { useNavigation } from '@react-navigation/native';
 
 
 
 const Login = () => {
+  const navigation = useNavigation();
 
   const handleSubmit = async (inputUsername, inputPassword) => {
     console.log("Login button clicked"); 
@@ -16,6 +18,8 @@ const Login = () => {
       alert(error);
     } else {
       console.log("Login successful, tokens received");
+      
+      navigation.navigate(Routes.Home)
     }
   };
 

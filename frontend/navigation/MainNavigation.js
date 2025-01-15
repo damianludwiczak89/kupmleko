@@ -8,7 +8,7 @@ const Stack = createStackNavigator();
 
 const MainNavigation = () => {
     return (
-    <Stack.Navigator initialRouteName="Routes.Home">
+    <Stack.Navigator initialRouteName={Routes.Home}>
         <Stack.Screen name={Routes.Login} component={Login} />
         <Stack.Screen name={Routes.Register} component={Register} />
         <Stack.Screen name={Routes.Home} component={Home} />

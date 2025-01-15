@@ -49,9 +49,9 @@ export const register = async (full_name, email, password, password2) => {
 };
 
 export const logout = () => {
-    AsyncStorage.removeItem("access_token");
-    AsyncStorage.removeItem("refresh_token");
-    useAuthStore.getState().getUser(null);
+    AsyncStorage.removeItem("@access_token");
+    AsyncStorage.removeItem("@refresh_token");
+    useAuthStore.getState().setUser(null);
 
     Alert.alert("Logged out successfully")
 };
@@ -92,7 +92,6 @@ export const setAuthUser = async (access_token, refresh_token) => {
     if (user) {
       const authStore = useAuthStore.getState();
       authStore.setUser(user);
-      authStore.setLoading(false);
     }
   } catch (error) {
     console.error('Error in setAuthUser:', error);

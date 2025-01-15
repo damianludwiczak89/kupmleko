@@ -11,18 +11,11 @@ const Home = () => {
 
     const navigation = useNavigation();
 
-  const handleSubmit = async () => {
-    console.log("Login button clicked"); 
-    logout();
-  
-    }
-  
 
     const getFriends = async () => {
         try {
-          // Make the request to the API
-          const response = await apiInstance.get('friends/'); // Your API endpoint here
-          console.log('Friends:', response.data); // Log the response data
+          const response = await apiInstance.get('friends/');
+          console.log('Friends:', response.data);
         } catch (error) {
           console.error('Error fetching friends:', error.response ? error.response.data : error.message);
         }
@@ -33,7 +26,7 @@ const Home = () => {
           const fetchToken = async () => {
             try {
               const token = await AsyncStorage.getItem("@access_token");
-              console.log("Access Token:", token); // This will log the token or null if not found
+              console.log("Access Token:", token);
             } catch (error) {
               console.log("Error fetching token:", error);
             }
@@ -42,11 +35,11 @@ const Home = () => {
           fetchToken();
           getFriends();
     
-          // You can return a cleanup function if needed
+          
           return () => {
             console.log("Home screen unfocused");
           };
-        }, []) // Empty dependency array means this will run on every focus
+        }, [])
       );
 
 

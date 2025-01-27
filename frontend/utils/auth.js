@@ -30,13 +30,12 @@ export const login = async (email, password) => {
 
 export const register = async (full_name, email, password, password2) => {
     try {
-        const {data} = await axios.post('user/register/', {
+        const {data} = await apiInstance.post('user/register/', {
             full_name,
             email,
             password,
             password2,
         });
-
         await login(email, password);
         Alert.alert("Registration successfull");
         return {data, error: null}

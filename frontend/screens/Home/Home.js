@@ -51,6 +51,7 @@ const Home = () => {
             <Text>Hello</Text>
             <Button title="Login Here" onPress={() => navigation.navigate(Routes.Login)} />
             <Button title="Logout" onPress={() => logout()} />
+            <Button title="Register" onPress={() => navigation.navigate(Routes.Register)} />
         </SafeAreaView>
     );
 };

@@ -1,25 +1,31 @@
 import React, {useState} from 'react';
 import {  SafeAreaView, Text, Button, TextInput } from 'react-native';
-import { login } from '../../utils/auth';
+import { login, register } from '../../utils/auth';
+import { Routes } from '../../navigation/Routes';
+import { useNavigation } from '@react-navigation/native';
 
 
 
 const Register = () => {
 
-  const handleSubmit = async (inputUsername, inputPassword) => {
-    console.log("Login button clicked"); 
-    const { error } = await login(inputUsername, inputPassword);
+  const navigation = useNavigation();
+
+  const handleSubmit = async (inputUsername, inputEmail, inputPassword, inputPassword2) => {
+    const { error } = await register(inputUsername, inputEmail, inputPassword, inputPassword2);
   
     if (error) {
-      console.log("Login error:", error);  
+      console.log("Register error:", error);  
       alert(error);
     } else {
-      console.log("Login successful, tokens received");
+      console.log("Registered, logged in, tokens received");
+      navigation.navigate(Routes.Home)
     }
   };
 
   const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   return (
     <SafeAreaView>
@@ -36,13 +42,29 @@ const Register = () => {
 
         <TextInput
             style={{borderWidth: 1, padding: 10, borderRadius: 4}}
+            value={email}
+            onChangeText={value => setEmail(value)}
+            placeholder='Email'
+            autoFocus={false}
+        />
+
+        <TextInput
+            style={{borderWidth: 1, padding: 10, borderRadius: 4}}
             value={password}
             onChangeText={value => setPassword(value)}
             placeholder='Password'
             secureTextEntry={true}
         />
 
-        <Button title="Login" onPress={() => handleSubmit(username, password)} color="#841584" />
+        <TextInput
+            style={{borderWidth: 1, padding: 10, borderRadius: 4}}
+            value={confirmPassword}
+            onChangeText={value => setConfirmPassword(value)}
+            placeholder='Confirm Password'
+            secureTextEntry={true}
+        />
+
+        <Button title="Register" onPress={() => handleSubmit(username, email, password, confirmPassword)} color="#841584" />
 
     </SafeAreaView>
   );

@@ -100,7 +100,7 @@ export const setAuthUser = async (access_token, refresh_token) => {
 
 export const getRefreshedToken = async () => {
     const refresh_token = AsyncStorage.getItem("refresh_token");
-    const response = await axios.post('token/refresh', {
+    const response = await apiInstance.post('token/refresh', {
         refresh: refresh_token,
     });
     return response.data;

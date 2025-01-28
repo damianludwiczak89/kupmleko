@@ -1,57 +1,44 @@
-import React, { useEffect } from 'react';
-import {  SafeAreaView, Text, Button } from 'react-native';
+import { useEffect, useState } from 'react';
+import {  SafeAreaView, Text, View } from 'react-native';
 import { Routes } from '../../navigation/Routes';
 import { useNavigation } from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { logout } from '../../utils/auth';
-import { useFocusEffect } from '@react-navigation/native';
 import apiInstance from '../../utils/axios';
+import ShoppingList from '../../components/ShoppingList/ShoppingList';
+
+// Deal with error messages on invalid register
+// Check if user logged in and manage screens
 
 const Home = () => {
 
     const navigation = useNavigation();
 
+    const [shoppingLists, setShoppingLists] = useState([])
 
-    const getFriends = async () => {
-        try {
-          const response = await apiInstance.get('friends/');
-          console.log('Friends:', response.data);
-        } catch (error) {
-          console.error('Error fetching friends:', error.response ? error.response.data : error.message);
-        }
-      };
-
-    useFocusEffect(
-        React.useCallback(() => {
-          const fetchToken = async () => {
-            try {
-              const token = await AsyncStorage.getItem("@access_token");
-              console.log("Access Token:", token);
-            } catch (error) {
-              console.log("Error fetching token:", error);
-            }
-          };
-    
-          fetchToken();
-          getFriends();
-    
-          
-          return () => {
-            console.log("Home screen unfocused");
-          };
+    useEffect(() => {
+      const getLists = async () => {
+          try {
+            const response = await apiInstance.get('shopping_list/');
+            console.log('Shopping:', response.data);
+            setShoppingLists(response.data);
+          } catch (error) {
+            console.error('Error fetching list:', error.response ? error.response.data : error.message);
+            navigation.navigate(Routes.Login)
+          }
+        };
+        getLists();
         }, [])
-      );
 
-
-
-    console.log("Component Rendered");
+    const lists = shoppingLists.map((list) => (
+      <ShoppingList
+        key={list.id}
+        name={list.name}
+        items={list.items} />
+    ));
 
     return (
         <SafeAreaView>
-            <Text>Hello</Text>
-            <Button title="Login Here" onPress={() => navigation.navigate(Routes.Login)} />
-            <Button title="Logout" onPress={() => logout()} />
-            <Button title="Register" onPress={() => navigation.navigate(Routes.Register)} />
+            <Text>Shopping List</Text>
+              { lists }
         </SafeAreaView>
     );
 };

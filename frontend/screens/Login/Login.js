@@ -49,6 +49,9 @@ const Login = () => {
 
         <Button title="Login" onPress={() => handleSubmit(username, password)} color="#841584" />
 
+        <Text>Do not have an account?</Text>
+        <Button title="Register" onPress={() => navigation.navigate(Routes.Register)} />
+
     </SafeAreaView>
   );
 }

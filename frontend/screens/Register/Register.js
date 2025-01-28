@@ -30,7 +30,6 @@ const Register = () => {
   return (
     <SafeAreaView>
 
-        <Text>Register TODO</Text>
 
         <TextInput
             style={{borderWidth: 1, padding: 10, borderRadius: 4}}
@@ -65,6 +64,8 @@ const Register = () => {
         />
 
         <Button title="Register" onPress={() => handleSubmit(username, email, password, confirmPassword)} color="#841584" />
+        <Text>Already have an account?</Text>
+        <Button title="Login Here" onPress={() => navigation.navigate(Routes.Login)} />
 
     </SafeAreaView>
   );

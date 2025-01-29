@@ -4,9 +4,13 @@ import { Routes } from '../../navigation/Routes';
 import { useNavigation } from '@react-navigation/native';
 import apiInstance from '../../utils/axios';
 import ShoppingList from '../../components/ShoppingList/ShoppingList';
+import ShoppingListForm from '../../components/ShoppingListForm/ShoppingListForm';
 
 // Deal with error messages on invalid register
-// Check if user logged in and manage screens
+// Token refresh - try using useAxios??
+// ScrollView
+// Hide elements
+// Remove item from form on click
 
 const Home = () => {
 
@@ -38,6 +42,7 @@ const Home = () => {
     return (
         <SafeAreaView>
             <Text>Shopping List</Text>
+            <ShoppingListForm />
               { lists }
         </SafeAreaView>
     );

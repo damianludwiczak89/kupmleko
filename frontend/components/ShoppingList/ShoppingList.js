@@ -3,7 +3,6 @@ import {  Text, View } from 'react-native';
 
 
 const ShoppingList = ({ name, items }) => {
-    console.log(items)
     items = items.map((item) => (
         <Item
             key={item.id}

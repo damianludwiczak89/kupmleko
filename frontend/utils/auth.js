@@ -3,6 +3,8 @@ import apiInstance from './axios'
 import { jwtDecode } from 'jwt-decode';
 import { Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from "axios";
+import { API_BASE_URL } from './constants';
 
 export const login = async (email, password) => {
     try {
@@ -47,17 +49,17 @@ export const register = async (full_name, email, password, password2) => {
     }    
 };
 
-export const logout = () => {
-    AsyncStorage.removeItem("@access_token");
-    AsyncStorage.removeItem("@refresh_token");
+export const logout = async () => {
+    await AsyncStorage.removeItem("@access_token");
+    await AsyncStorage.removeItem("@refresh_token");
     useAuthStore.getState().setUser(null);
-
+    console.log('logged out due to old tokens')
     Alert.alert("Logged out successfully")
 };
 
 export const setUser = async () => {
-    const access_token = AsyncStorage.getItem("access_token")
-    const refresh_token = AsyncStorage.getItem("refresh_token")
+    const access_token = await AsyncStorage.getItem("access_token");
+    const refresh_token = await AsyncStorage.getItem("refresh_token");
 
     if (!access_token || !refresh_token) {
         Alert.alert("Tokens do not exist")
@@ -65,7 +67,8 @@ export const setUser = async () => {
     }
 
     if (isAccessTokenExpired(access_token)) {
-        const response = getRefreshedToken(refresh_token);
+        console.log('access token expired')
+        const response = await getRefreshedToken(refresh_token)
         setAuthUser(response.access, response.refresh)
     } else {
         setAuthUser(access_token, refresh_token);
@@ -99,18 +102,44 @@ export const setAuthUser = async (access_token, refresh_token) => {
 
 
 export const getRefreshedToken = async () => {
-    const refresh_token = AsyncStorage.getItem("refresh_token");
-    const response = await apiInstance.post('token/refresh', {
-        refresh: refresh_token,
-    });
-    return response.data;
-}
+    console.log('get refreshed token triggered');
+
+    // Retrieve token from AsyncStorage
+    const storedToken = await AsyncStorage.getItem("@refresh_token");
+
+    // Check if token exists and parse if necessary
+    const refresh_token = storedToken ? JSON.parse(storedToken).token || storedToken : null;
+
+    if (!refresh_token) {
+        console.log('No valid refresh token found.');
+        return null;
+    }
+
+    console.log('Refresh token in refreshToken func:', refresh_token); // Should log a valid token string
+
+    try {
+        const response = await axios.post(`${API_BASE_URL}user/token/refresh/`, {
+            refresh: refresh_token,  // Send correct token format
+        });
+
+        console.log('New access token:', response.data);
+        return response.data;
+    } catch (error) {
+        console.log('Error refreshing token:', error.response?.data || error.message);
+        logout();
+        return null;
+    }
+};
+
 
 export const isAccessTokenExpired = (access_token) => {
     try {
+        console.log('is access token expired, access token:', access_token)
         const decodedToken = jwtDecode(access_token)
+        console.log(decodedToken.exp < Date.now() / 1000)
         return decodedToken.exp < Date.now() / 1000
     } catch (error) {
+        console.log('is access token expired, error catch:')
         console.log(error);
         return true;
     }

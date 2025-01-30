@@ -104,10 +104,8 @@ export const setAuthUser = async (access_token, refresh_token) => {
 export const getRefreshedToken = async () => {
     console.log('get refreshed token triggered');
 
-    // Retrieve token from AsyncStorage
     const storedToken = await AsyncStorage.getItem("@refresh_token");
 
-    // Check if token exists and parse if necessary
     const refresh_token = storedToken ? JSON.parse(storedToken).token || storedToken : null;
 
     if (!refresh_token) {
@@ -115,11 +113,11 @@ export const getRefreshedToken = async () => {
         return null;
     }
 
-    console.log('Refresh token in refreshToken func:', refresh_token); // Should log a valid token string
+    console.log('Refresh token in refreshToken func:', refresh_token);
 
     try {
         const response = await axios.post(`${API_BASE_URL}user/token/refresh/`, {
-            refresh: refresh_token,  // Send correct token format
+            refresh: refresh_token,
         });
 
         console.log('New access token:', response.data);

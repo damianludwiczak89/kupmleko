@@ -35,7 +35,7 @@ const Login = () => {
             style={{borderWidth: 1, padding: 10, borderRadius: 4}}
             value={username}
             onChangeText={value => setUsername(value)}
-            placeholder='Username'
+            placeholder='Email'
             autoFocus={true}
         />
 

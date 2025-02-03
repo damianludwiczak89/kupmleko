@@ -7,6 +7,11 @@ const ShoppingListForm = () => {
     const [name, setName] = useState('')
     const [items, setItems] = useState([{ id: 1, name: '', amount: 1 }]);
 
+    const removeItem = (id) => {
+        console.log('remove id', id)
+        setItems(items.filter(item => item.id != id))
+    }
+
     const addItemField = () => {
         setItems([...items, { id: items.length + 1, name: '', amount: 1 }]);
       };
@@ -59,7 +64,9 @@ const ShoppingListForm = () => {
                     onChangeText={(text) => handleAmountChange(text, item.id)}
                     placeholder='Amount'
                 />
+                <Button title='Remove Item' onPress={() => removeItem(item.id)} />
                 </View>
+                
             ))}
             <Button title="+ Item" onPress={addItemField} />
             <Button title="Save List" onPress={() => saveList( name, items )} />

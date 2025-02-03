@@ -42,9 +42,21 @@ export const register = async (full_name, email, password, password2) => {
         Alert.alert("Registration successfull");
         return {data, error: null}
     } catch (error) {
+
+        if (!error.response || !error.response.data) {
+            return {data: null, error: "Something went wrong"}
+        }
+
+        const { full_name, email, password } = error.response.data;
+
+        const messages = [];
+        if (full_name) messages.push(full_name);
+        if (email) messages.push(email);
+        if (password) messages.push(password);
+
         return {
             data: null,
-            error: error.response.data?.detail || "Something went wrong",
+            error: messages.length > 0 ? messages.join(" - ") : "Something went wrong"
         };
     }    
 };
@@ -53,7 +65,6 @@ export const logout = async () => {
     await AsyncStorage.removeItem("@access_token");
     await AsyncStorage.removeItem("@refresh_token");
     useAuthStore.getState().setUser(null);
-    console.log('logged out due to old tokens')
     Alert.alert("Logged out successfully")
 };
 
@@ -103,16 +114,12 @@ export const setAuthUser = async (access_token, refresh_token) => {
 
 export const getRefreshedToken = async () => {
     console.log('get refreshed token triggered');
-
     const storedToken = await AsyncStorage.getItem("@refresh_token");
-
     const refresh_token = storedToken ? JSON.parse(storedToken).token || storedToken : null;
-
     if (!refresh_token) {
         console.log('No valid refresh token found.');
         return null;
     }
-
     console.log('Refresh token in refreshToken func:', refresh_token);
 
     try {

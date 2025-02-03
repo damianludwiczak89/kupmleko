@@ -1,8 +1,11 @@
 import Item from '../Item/Item';
-import {  Text, View } from 'react-native';
-
+import {  Button, View } from 'react-native';
+import { useState } from 'react';
 
 const ShoppingList = ({ name, items }) => {
+
+    const [displayList, setDisplayList] = useState(false)
+
     items = items.map((item) => (
         <Item
             key={item.id}
@@ -13,8 +16,8 @@ const ShoppingList = ({ name, items }) => {
     ))
     return (
         <View>
-            <Text>{name}</Text>
-                {items}
+            <Button title={name} onPress={() => setDisplayList(!displayList)} />
+                {displayList && items}
         </View>
     )
 }

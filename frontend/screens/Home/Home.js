@@ -1,20 +1,27 @@
 import { useEffect, useState } from 'react';
-import {  SafeAreaView, Text, View } from 'react-native';
+import {  SafeAreaView, Text, View, Button } from 'react-native';
 import { Routes } from '../../navigation/Routes';
 import { useNavigation } from '@react-navigation/native';
 import apiInstance from '../../utils/axios';
 import ShoppingList from '../../components/ShoppingList/ShoppingList';
 import ShoppingListForm from '../../components/ShoppingListForm/ShoppingListForm';
+import { logout } from '../../utils/auth';
 
-// Deal with error messages on invalid register
-// Token refresh - try using useAxios??
 // ScrollView
-// Hide elements
-// Remove item from form on click
+// Update List
+// Check logging out from Home
 
 const Home = () => {
 
     const navigation = useNavigation();
+
+    const [formDisplay, setFormDisplay] = useState(false)
+    const [formButtonTitle, setFormButtonTitle] = useState('Add New List')
+
+    const toggleForm = () => {
+      formDisplay === false ? setFormButtonTitle("Hide") : setFormButtonTitle("Add New List")
+      setFormDisplay(!formDisplay)
+    }
 
     const [shoppingLists, setShoppingLists] = useState([])
 
@@ -42,8 +49,13 @@ const Home = () => {
     return (
         <SafeAreaView>
             <Text>Shopping List</Text>
-            <ShoppingListForm />
+            {formDisplay && <ShoppingListForm />}
+            <Button title={formButtonTitle} onPress={() => toggleForm()} />
               { lists }
+              <Button title="Logout" onPress={async () => {
+                await logout(); 
+                navigation.navigate(Routes.Login);
+              }} />
         </SafeAreaView>
     );
 };

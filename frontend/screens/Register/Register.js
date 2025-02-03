@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import {  SafeAreaView, Text, Button, TextInput } from 'react-native';
-import { login, register } from '../../utils/auth';
+import { register } from '../../utils/auth';
 import { Routes } from '../../navigation/Routes';
 import { useNavigation } from '@react-navigation/native';
 
@@ -14,7 +14,6 @@ const Register = () => {
     const { error } = await register(inputUsername, inputEmail, inputPassword, inputPassword2);
   
     if (error) {
-      console.log("Register error:", error);  
       alert(error);
     } else {
       console.log("Registered, logged in, tokens received");

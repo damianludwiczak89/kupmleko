@@ -1,43 +1,46 @@
-import {  TextInput, View, Button } from 'react-native';
+import {  TextInput, View, Button, Text } from 'react-native';
 import { useState } from 'react';
 import apiInstance from '../../utils/axios';
+import { Alert } from 'react-native';
 
-const ShoppingListForm = () => {
+const ShoppingListForm = ({ updateLists }) => {
 
     const [name, setName] = useState('')
-    const [items, setItems] = useState([{ id: 1, name: '', amount: 1 }]);
+    const [items, setItems] = useState([]);
+
+    const [newItem, setNewItem] = useState('')
+    const [newAmount, setNewAmount] = useState(1)
+
+    const addItem = () => {
+        setItems(prevItems => [
+        ...prevItems,
+        { id: prevItems.length + 1, name: newItem, amount: newAmount }])
+        setNewItem('')
+        setNewAmount(1)
+    }
 
     const removeItem = (id) => {
         console.log('remove id', id)
         setItems(items.filter(item => item.id != id))
     }
 
-    const addItemField = () => {
-        setItems([...items, { id: items.length + 1, name: '', amount: 1 }]);
-      };
-
-    const handleItemChange = (text, id) => {
-        setItems(items.map(item => item.id === id ? { ...item, name: text } : item));
-      };
-    
-      const handleAmountChange = (text, id) => {
-        setItems(items.map(item => item.id === id ? { ...item, amount: text.replace(/[^0-9]/g, '') } : item)); 
-      };
-
-      const saveList = async (name, items) => {
+    const saveList = async (name, items) => {
+        console.log('save')
         try {
             const {data} = await apiInstance.post('shopping_list/', {
                 name,
                 items,
             });
+            console.log('added')
             Alert.alert("List added");
+            updateLists();
             return {data, error: null}
         } catch (error) {
             return {
                 data: null,
                 error: error.response.data?.detail || "Something went wrong",
             };
-        }    
+    }    
     };
 
     return (
@@ -49,26 +52,27 @@ const ShoppingListForm = () => {
                 placeholder='Name'
                 autoFocus={true}
             />
-            {items.map((item, index) => (
+            {items.map((item) => (
                 <View key={item.id}>
-                <TextInput
-                    style={{borderWidth: 1, padding: 10, borderRadius: 4}}
-                    value={item.name}
-                    onChangeText={(text) => handleItemChange(text, item.id)}
-                    placeholder={`Item ${index + 1}`}
-                />
-                <TextInput
-                    style={{borderWidth: 1, padding: 10, borderRadius: 4}}
-                    value={item.amount}
-                    inputMode="numeric"
-                    onChangeText={(text) => handleAmountChange(text, item.id)}
-                    placeholder='Amount'
-                />
+                <Text>{item.name}: {item.amount}</Text>
                 <Button title='Remove Item' onPress={() => removeItem(item.id)} />
                 </View>
                 
             ))}
-            <Button title="+ Item" onPress={addItemField} />
+                <TextInput
+                    style={{borderWidth: 1, padding: 10, borderRadius: 4}}
+                    value={newItem}
+                    onChangeText={(text) => setNewItem(text)}
+                    placeholder='Item'
+                />
+                <TextInput
+                    style={{borderWidth: 1, padding: 10, borderRadius: 4}}
+                    value={newAmount}
+                    inputMode="numeric"
+                    onChangeText={(text) => setNewAmount(text)}
+                    placeholder='Amount'
+                />
+            <Button title="Add item" onPress={() => addItem( name, items )} />
             <Button title="Save List" onPress={() => saveList( name, items )} />
         </View>
     )

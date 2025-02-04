@@ -6,10 +6,10 @@ import apiInstance from '../../utils/axios';
 import ShoppingList from '../../components/ShoppingList/ShoppingList';
 import ShoppingListForm from '../../components/ShoppingListForm/ShoppingListForm';
 import { logout } from '../../utils/auth';
+import { ScrollView } from 'react-native-gesture-handler';
 
 // ScrollView
 // Update List
-// Check logging out from Home
 
 const Home = () => {
 
@@ -25,17 +25,18 @@ const Home = () => {
 
     const [shoppingLists, setShoppingLists] = useState([])
 
+    const getLists = async () => {
+      try {
+        const response = await apiInstance.get('shopping_list/');
+        console.log('Shopping:', response.data);
+        setShoppingLists(response.data);
+      } catch (error) {
+        console.error('Error fetching list:', error.response ? error.response.data : error.message);
+        navigation.navigate(Routes.Login)
+      }
+    };
+
     useEffect(() => {
-      const getLists = async () => {
-          try {
-            const response = await apiInstance.get('shopping_list/');
-            console.log('Shopping:', response.data);
-            setShoppingLists(response.data);
-          } catch (error) {
-            console.error('Error fetching list:', error.response ? error.response.data : error.message);
-            navigation.navigate(Routes.Login)
-          }
-        };
         getLists();
         }, [])
 
@@ -48,14 +49,16 @@ const Home = () => {
 
     return (
         <SafeAreaView>
+          <ScrollView>
             <Text>Shopping List</Text>
-            {formDisplay && <ShoppingListForm />}
+            {formDisplay && <ShoppingListForm updateLists={getLists} />}
             <Button title={formButtonTitle} onPress={() => toggleForm()} />
               { lists }
               <Button title="Logout" onPress={async () => {
                 await logout(); 
                 navigation.navigate(Routes.Login);
               }} />
+          </ScrollView>
         </SafeAreaView>
     );
 };

@@ -7,6 +7,7 @@ import ShoppingList from '../../components/ShoppingList/ShoppingList';
 import ShoppingListForm from '../../components/ShoppingListForm/ShoppingListForm';
 import { logout } from '../../utils/auth';
 import { ScrollView } from 'react-native-gesture-handler';
+import { useAuthStore } from '../../store/auth';
 
 // ScrollView
 // Update List
@@ -32,7 +33,6 @@ const Home = () => {
         setShoppingLists(response.data);
       } catch (error) {
         console.error('Error fetching list:', error.response ? error.response.data : error.message);
-        navigation.navigate(Routes.Login)
       }
     };
 
@@ -56,7 +56,6 @@ const Home = () => {
               { lists }
               <Button title="Logout" onPress={async () => {
                 await logout(); 
-                navigation.navigate(Routes.Login);
               }} />
           </ScrollView>
         </SafeAreaView>

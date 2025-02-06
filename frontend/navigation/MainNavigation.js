@@ -1,19 +1,39 @@
 import { createStackNavigator } from "@react-navigation/stack";
-import { Routes } from './Routes';
-import Home from '../screens/Home/Home';
+import { useState, useEffect } from 'react';
+import { useAuthStore } from '../store/auth'
 import Login from '../screens/Login/Login';
 import Register from '../screens/Register/Register';
+import { isAccessTokenExpired } from "../utils/auth";
+import { getRefreshedToken } from "../utils/auth";
+import { View , ActivityIndicator} from 'react-native';
+import Tabs from "./Tabs";
 
 const Stack = createStackNavigator();
 
 const MainNavigation = () => {
-    return (
-    <Stack.Navigator initialRouteName={Routes.Home}>
-        <Stack.Screen name={Routes.Login} component={Login} />
-        <Stack.Screen name={Routes.Register} component={Register} />
-        <Stack.Screen name={Routes.Home} component={Home} />
+    let { isLoggedIn } = useAuthStore();
+    isLoggedIn = isLoggedIn();
 
-    </Stack.Navigator>
+    console.log(isLoggedIn);
+    if (isLoggedIn === null) {
+        return (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                <ActivityIndicator size="large" color="#0000ff" />
+            </View>
+        );
+    }
+    
+    return (
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+            {isLoggedIn ? (
+                    <Stack.Screen name="Tabs" component={Tabs} />
+            ) : (
+                <>
+                    <Stack.Screen name="Login" component={Login} />
+                    <Stack.Screen name="Register" component={Register} />
+                </>
+            )}
+        </Stack.Navigator>
     );
 };
 

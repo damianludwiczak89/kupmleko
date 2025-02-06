@@ -17,7 +17,6 @@ const Register = () => {
       alert(error);
     } else {
       console.log("Registered, logged in, tokens received");
-      navigation.navigate(Routes.Home)
     }
   };
 

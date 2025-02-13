@@ -8,21 +8,19 @@ import { API_BASE_URL } from './constants';
 
 export const login = async (email, password) => {
     try {
-        const { data, status } = await apiInstance.post('user/token/', {
+        const { data, status } = await axios.post(`${API_BASE_URL}user/token/`, {
             email,
             password,
         });
 
         if (status === 200) {
-            setAuthUser(data.access, data.refresh);
+            setAuthUser(data.access, data.refresh); // Save tokens to AsyncStorage
         }
 
         return { data, error: null };
 
     } catch (error) {
         console.error("Error during login:", error);
-        console.error("Error details:", error.response?.data || error.message);
-
         return {
             data: null,
             error: error.response?.data?.detail || "An error occurred. Please try again.",
@@ -32,7 +30,7 @@ export const login = async (email, password) => {
 
 export const register = async (full_name, email, password, password2) => {
     try {
-        const {data} = await apiInstance.post('user/register/', {
+        const { data } = await axios.post(`${API_BASE_URL}user/register/`, {
             full_name,
             email,
             password,
@@ -114,12 +112,22 @@ export const setAuthUser = async (access_token, refresh_token) => {
 
 export const getRefreshedToken = async () => {
     console.log('get refreshed token triggered');
+
     const storedToken = await AsyncStorage.getItem("@refresh_token");
-    const refresh_token = storedToken ? JSON.parse(storedToken).token || storedToken : null;
+
+    if (!storedToken) {
+        console.log('No refresh token found.');
+        return null;
+    }
+
+    const parsedToken = JSON.parse(storedToken);
+    const refresh_token = parsedToken?.token || storedToken;
+
     if (!refresh_token) {
         console.log('No valid refresh token found.');
         return null;
     }
+
     console.log('Refresh token in refreshToken func:', refresh_token);
 
     try {
@@ -135,6 +143,8 @@ export const getRefreshedToken = async () => {
         return null;
     }
 };
+
+
 
 
 export const isAccessTokenExpired = (access_token) => {

@@ -125,7 +125,16 @@ class ShoppingListAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
+        active = request.query_params.get('active')
+        draft = request.query_params.get('draft')
+        
         queryset = ShoppingList.objects.filter(users=request.user).prefetch_related('items')
+
+        if active is not None:
+            queryset = queryset.filter(active=active.lower() == 'true')
+        if draft is not None:
+            queryset = queryset.filter(draft=active.lower() == 'true')
+            
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)
 

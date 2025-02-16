@@ -24,6 +24,8 @@ class User(AbstractUser):
 class ShoppingList(models.Model):
     users = models.ManyToManyField(User, related_name='lists')
     name = models.CharField(max_length=100)
+    active = models.BooleanField(default=True)
+    draft = models.BooleanField(default=True)
 
     def __str__(self):
         return self.name

@@ -1,7 +1,8 @@
-import {  TextInput, View, Button, Text } from 'react-native';
+import {  TextInput, View, Button, Text, TouchableOpacity } from 'react-native';
 import { useState } from 'react';
 import apiInstance from '../../utils/axios';
 import { Alert } from 'react-native';
+import CheckBox from '@react-native-community/checkbox';
 
 const ShoppingListForm = () => {
 
@@ -10,6 +11,9 @@ const ShoppingListForm = () => {
 
     const [newItem, setNewItem] = useState('')
     const [newAmount, setNewAmount] = useState(1)
+
+    const[activeBox, setActiveBox] = useState(true)
+    const[draftBox, setDraftBox] = useState(false)
 
     const addItem = () => {
         setItems(prevItems => [
@@ -72,6 +76,41 @@ const ShoppingListForm = () => {
                     placeholder='Amount'
                 />
             <Button title="Add item" onPress={() => addItem( name, items )} />
+
+            <View>
+            <TouchableOpacity
+                style={{ flexDirection: 'row', alignItems: 'center' }}
+                onPress={() => setActiveBox(!activeBox)}
+            >
+                <CheckBox
+                    value={activeBox}
+                    onValueChange={null}
+                    disabled={true}
+                    tintColors={{ true: 'blue', false: 'gray' }}
+                    onTintColor="blue"
+                    onCheckColor="blue"
+                />
+                <Text style={{ marginLeft: 8 }}>Add to Active</Text>
+            </TouchableOpacity>
+            </View>
+
+            <View>
+            <TouchableOpacity
+                style={{ flexDirection: 'row', alignItems: 'center' }}
+                onPress={() => setDraftBox(!draftBox)}
+            >
+                <CheckBox
+                    value={draftBox}
+                    onValueChange={null}
+                    disabled={true}
+                    tintColors={{ true: 'blue', false: 'gray' }}
+                    onTintColor="blue"
+                    onCheckColor="blue"
+                />
+                <Text style={{ marginLeft: 8 }}>Add to Drafts</Text>
+            </TouchableOpacity>
+            </View>
+            
             <Button title="Save List" onPress={() => saveList( name, items )} />
         </View>
     )

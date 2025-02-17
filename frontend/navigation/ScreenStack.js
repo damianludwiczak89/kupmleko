@@ -17,7 +17,7 @@ export const ListStack = () => {
 export const HomeStack = () => {
     return (
         <Stack.Navigator screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="Home" component={Home} />
+            <Stack.Screen name="Active" component={Home} />
             <Stack.Screen name="ShoppingListForm" component={ShoppingListForm} />
         </Stack.Navigator>
     )

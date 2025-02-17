@@ -14,12 +14,12 @@ const Lists = () => {
 
     const getAllLists = async () => {
         try {
-          const response = await apiInstance.get('shopping_list/');
-          console.log('All Shopping:', response.data);
+          const response = await apiInstance.get('draft/');
+          console.log('Drafts:', response.data);
           setShoppingLists(response.data);
         } catch (error) {
           console.error(error)
-          console.error('Error fetching all list:', error.response ? error.response.data : error.message);
+          console.error('Error fetching drafts:', error.response ? error.response.data : error.message);
         }
       };
 

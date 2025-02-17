@@ -27,14 +27,12 @@ const Home = () => {
 
   const getActiveLists = async () => {
     try {
-      const response = await apiInstance.get('shopping_list/', {
-        params: {active: true}
-      });
+      const response = await apiInstance.get('shopping_list/');
       console.log('Active Shopping:', response.data);
       setShoppingLists(response.data);
     } catch (error) {
       console.error(error)
-      console.error('Error fetching active list:', error.response ? error.response.data : error.message);
+      console.error('Error fetching shopping list:', error.response ? error.response.data : error.message);
     }
   };
 

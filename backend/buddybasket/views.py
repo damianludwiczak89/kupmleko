@@ -17,8 +17,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from . import serializer as api_serializer
-from .models import User, ShoppingList, Item
-
+from .models import User, ShoppingList, Item, Draft
 import random
 
 
@@ -125,15 +124,8 @@ class ShoppingListAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
-        active = request.query_params.get('active')
-        draft = request.query_params.get('draft')
-        
-        queryset = ShoppingList.objects.filter(users=request.user).prefetch_related('items')
 
-        if active is not None:
-            queryset = queryset.filter(active=active.lower() == 'true')
-        if draft is not None:
-            queryset = queryset.filter(draft=active.lower() == 'true')
+        queryset = ShoppingList.objects.filter(users=request.user).prefetch_related('items')
             
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)
@@ -152,6 +144,31 @@ class ShoppingListAPIView(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
+
+class DraftAPIView(APIView):
+    serializer_class = api_serializer.DraftSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+       
+        queryset = Draft.objects.filter(users=request.user).prefetch_related('items')
+            
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            items_data = serializer.validated_data.pop('items', []) # in case of not providing items at all
+            draft = Draft.objects.create(**serializer.validated_data)
+            draft.users.add(request.user)
+
+            for item_data in items_data:
+                Item.objects.create(shopping_list=draft, **item_data)
+
+            return Response({"message": "Draft addedd successfully"}, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class FriendsAPIView(APIView):
     permission_classes = [IsAuthenticated]

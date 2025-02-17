@@ -15,6 +15,8 @@ import { Routes } from '../../navigation/Routes';
 // Checkbox - mark/unmark as bought
 // Remove ShoppingListForm component? 
 
+// Add a prop to shopping list - if draft is using the component, do now show bought value
+
 const Home = () => {
 
   const navigation = useNavigation();
@@ -25,7 +27,7 @@ const Home = () => {
 
   const [shoppingLists, setShoppingLists] = useState([])
 
-  const getActiveLists = async () => {
+  const getShoppingLists = async () => {
     try {
       const response = await apiInstance.get('shopping_list/');
       console.log('Active Shopping:', response.data);
@@ -37,12 +39,12 @@ const Home = () => {
   };
 
   useEffect(() => {
-      getActiveLists();
+      getShoppingLists();
       }, [])
 
   useFocusEffect(
       React.useCallback(() => {
-          getActiveLists();
+          getShoppingLists();
       }, [])
     );
 

@@ -12,7 +12,7 @@ const Lists = () => {
 
     const [shoppingLists, setShoppingLists] = useState([]);
 
-    const getAllLists = async () => {
+    const getDrafts = async () => {
         try {
           const response = await apiInstance.get('draft/');
           console.log('Drafts:', response.data);
@@ -24,12 +24,12 @@ const Lists = () => {
       };
 
     useEffect(() => {
-        getAllLists();
+        getDrafts();
         }, [])
 
     useFocusEffect(
         React.useCallback(() => {
-            getAllLists();
+            getDrafts();
         }, [])
     );
 

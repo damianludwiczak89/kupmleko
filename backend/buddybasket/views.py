@@ -128,6 +128,7 @@ class ShoppingListAPIView(APIView):
         queryset = ShoppingList.objects.filter(users=request.user).prefetch_related('items')
             
         serializer = self.serializer_class(queryset, many=True)
+        print(serializer.data)
         return Response(serializer.data)
 
     def post(self, request, *args, **kwargs):
@@ -154,6 +155,7 @@ class DraftAPIView(APIView):
         queryset = Draft.objects.filter(users=request.user).prefetch_related('items')
             
         serializer = self.serializer_class(queryset, many=True)
+        print(serializer.data)
         return Response(serializer.data)
 
     def post(self, request, *args, **kwargs):
@@ -163,8 +165,16 @@ class DraftAPIView(APIView):
             draft = Draft.objects.create(**serializer.validated_data)
             draft.users.add(request.user)
 
+            # create also a shopping list with same data if checkbox active was also checked
+            active = request.data.get('activeAndDraft', False)
+            if active:
+                shopping_list = ShoppingList.objects.create(**serializer.validated_data, draft=draft)
+                shopping_list.users.add(request.user)
             for item_data in items_data:
-                Item.objects.create(shopping_list=draft, **item_data)
+                if active:
+                    Item.objects.create(draft=draft, shopping_list = shopping_list, **item_data)
+                else:
+                    Item.objects.create(draft=draft, **item_data)
 
             return Response({"message": "Draft addedd successfully"}, status=status.HTTP_201_CREATED)
 

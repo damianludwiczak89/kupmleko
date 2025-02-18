@@ -1,7 +1,5 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from django.db.models.signals import post_delete
-from django.dispatch import receiver
 
 
 class User(AbstractUser):
@@ -48,11 +46,3 @@ class Item(models.Model):
 
     def __str__(self):
         return self.name
-
-# Delete Item object if it is not related to ShoppingList AND Draft
-@receiver(post_delete, sender=ShoppingList)
-def check_items_after_shopping_list_delete(sender, instance, **kwargs):
-    Item.objects.filter(shopping_list=instance, draft=None).delete()
-@receiver(post_delete, sender=Draft)
-def check_items_after_draft_delete(sender, instance, **kwargs):
-    Item.objects.filter(draft=instance, shopping_list=None).delete()

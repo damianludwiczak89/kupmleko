@@ -10,13 +10,13 @@ const Lists = () => {
 
     const navigation = useNavigation();
 
-    const [shoppingLists, setShoppingLists] = useState([]);
+    const [drafts, setDrafts] = useState([]);
 
     const getDrafts = async () => {
         try {
           const response = await apiInstance.get('draft/');
           console.log('Drafts:', response.data);
-          setShoppingLists(response.data);
+          setDrafts(response.data);
         } catch (error) {
           console.error(error)
           console.error('Error fetching drafts:', error.response ? error.response.data : error.message);
@@ -33,7 +33,7 @@ const Lists = () => {
         }, [])
     );
 
-    const lists = shoppingLists.map((list) => (
+    const lists = drafts.map((list) => (
             <ShoppingList
               key={list.id}
               name={list.name}

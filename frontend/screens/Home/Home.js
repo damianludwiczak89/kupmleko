@@ -14,7 +14,7 @@ import { Routes } from '../../navigation/Routes';
 // Make the list adding more friendly, route after adding list, checkbox for active/draft
 // Checkbox - mark/unmark as bought
 // Remove ShoppingListForm component? 
-
+// Shoppinglistform - data validation, error messages
 // Add a prop to shopping list - if draft is using the component, do now show bought value
 
 const Home = () => {
@@ -33,8 +33,12 @@ const Home = () => {
       console.log('Active Shopping:', response.data);
       setShoppingLists(response.data);
     } catch (error) {
-      console.error(error)
+      console.error('error', error)
       console.error('Error fetching shopping list:', error.response ? error.response.data : error.message);
+      if (error.response) {
+        console.error('Response Data:', error.response.data);
+        console.error('Status:', error.response.status);
+      }
     }
   };
 

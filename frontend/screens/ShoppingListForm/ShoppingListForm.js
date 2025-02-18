@@ -3,8 +3,11 @@ import { useState } from 'react';
 import apiInstance from '../../utils/axios';
 import { Alert } from 'react-native';
 import CheckBox from '@react-native-community/checkbox';
+import { useNavigation } from '@react-navigation/native';
 
 const ShoppingListForm = () => {
+
+    const navigation = useNavigation();
 
     const [name, setName] = useState('')
     const [items, setItems] = useState([]);
@@ -28,15 +31,15 @@ const ShoppingListForm = () => {
         setItems(items.filter(item => item.id != id))
     }
 
-    const saveList = async (name, items) => {
-        console.log('save')
+    const saveList = async (name, items, endpoint, activeAndDraft=false) => {
+        console.log('activeanddraft:', activeAndDraft)
         try {
-            const {data} = await apiInstance.post('shopping_list/', {
+            const {data} = await apiInstance.post(`${endpoint}`, {
                 name,
                 items,
+                activeAndDraft,
             });
-            console.log('added')
-            Alert.alert("List added");
+            console.log('added', endpoint)
             return {data, error: null}
         } catch (error) {
             return {
@@ -45,6 +48,30 @@ const ShoppingListForm = () => {
             };
     }    
     };
+
+    const handleSave = (name, items) => {
+        // TODO add input validation
+        if (activeBox && draftBox) {
+            console.log('active and draft');
+            saveList(name, items, 'draft/', true);
+
+        }
+        else if (draftBox) {
+            console.log('draft');
+            saveList(name, items, 'draft/');
+        }
+        else {
+            console.log('active');
+            saveList(name, items, 'shopping_list/');
+        }
+
+        setName('');
+        setItems([]);
+        setNewItem('');
+        setNewAmount(1);
+        Alert.alert('List saved');
+        navigation.goBack();
+    }
 
     return (
         <View>
@@ -70,12 +97,12 @@ const ShoppingListForm = () => {
                 />
                 <TextInput
                     style={{borderWidth: 1, padding: 10, borderRadius: 4}}
-                    value={newAmount}
+                    value={newAmount.toString()}
                     inputMode="numeric"
-                    onChangeText={(text) => setNewAmount(text)}
+                    onChangeText={(text) => setNewAmount(Number(text) || 1)}
                     placeholder='Amount'
                 />
-            <Button title="Add item" onPress={() => addItem( name, items )} />
+            <Button title="Add item" onPress={() => addItem()} />
 
             <View>
             <TouchableOpacity
@@ -111,7 +138,7 @@ const ShoppingListForm = () => {
             </TouchableOpacity>
             </View>
             
-            <Button title="Save List" onPress={() => saveList( name, items )} />
+            <Button title="Save List" onPress={() => handleSave( name, items )} />
         </View>
     )
 

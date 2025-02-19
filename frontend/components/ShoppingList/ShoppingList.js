@@ -2,7 +2,7 @@ import Item from '../Item/Item';
 import {  Button, View } from 'react-native';
 import { useState } from 'react';
 
-const ShoppingList = ({ name, items }) => {
+const ShoppingList = ({ name, items, active }) => {
 
     const [displayList, setDisplayList] = useState(false)
 
@@ -12,6 +12,7 @@ const ShoppingList = ({ name, items }) => {
             name={item.name}
             amount={item.amount}
             bought={item.bought}
+            active={active}
         />
     ))
     return (

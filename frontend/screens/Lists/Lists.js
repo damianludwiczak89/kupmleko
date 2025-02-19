@@ -37,7 +37,8 @@ const Lists = () => {
             <ShoppingList
               key={list.id}
               name={list.name}
-              items={list.items} />
+              items={list.items}
+              active={false} />
           ));
 
   return (

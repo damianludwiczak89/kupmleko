@@ -4,27 +4,29 @@ import { useState } from 'react';
 
 
 
-const Item = ({name, amount, bought}) => {
+const Item = ({name, amount, bought, active}) => {
     const [boughtState, setBought] = useState(bought);
+    console.log('active', active)
     return (
         <View>
             <Text>{name}: {amount}
-            <View>
-            <TouchableOpacity
-                style={{ flexDirection: 'row', alignItems: 'center' }}
-                onPress={() => setBought(!boughtState)}
-            >
-                <CheckBox
-                    value={boughtState}
-                    onValueChange={null}
-                    disabled={true}
-                    tintColors={{ true: 'blue', false: 'gray' }}
-                    onTintColor="blue"
-                    onCheckColor="blue"
-                />
-            </TouchableOpacity>
-            </View>
-                
+            {active ? (
+                <View>
+                <TouchableOpacity
+                    style={{ flexDirection: 'row', alignItems: 'center' }}
+                    onPress={() => setBought(!boughtState)}
+                >
+                    <CheckBox
+                        value={boughtState}
+                        onValueChange={null}
+                        disabled={true}
+                        tintColors={{ true: 'blue', false: 'gray' }}
+                        onTintColor="blue"
+                        onCheckColor="blue"
+                    />
+                </TouchableOpacity>
+                </View>
+            ) : null }
             </Text>
         </View>
     )

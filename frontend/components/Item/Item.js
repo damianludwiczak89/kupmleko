@@ -1,12 +1,30 @@
 import {  Text, View, TouchableOpacity } from 'react-native';
 import CheckBox from '@react-native-community/checkbox';
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
+import { debounce } from 'lodash';
+import apiInstance from '../../utils/axios';
 
 
 
-const Item = ({name, amount, bought, active}) => {
-    const [boughtState, setBought] = useState(bought);
-    console.log('active', active)
+const Item = ({itemId, name, amount, bought, active}) => {
+    const [boughtState, setBoughtState] = useState(bought);
+
+    const debouncedUpdate = useCallback(
+        debounce(async (newValue, id) => {
+            console.log('debounce')
+            try {
+                await apiInstance.put(`item/${itemId}`, { bought: newValue });
+            } catch (error) {
+                console.error('Error updating item:', error);
+                setBoughtState(!newValue); 
+            }
+        }, 500), []);
+
+    const handleCheckboxChange = (newValue, itemId) => {
+        setBoughtState(newValue);
+        debouncedUpdate(newValue, itemId);
+    };
+
     return (
         <View>
             <Text>{name}: {amount}
@@ -14,7 +32,7 @@ const Item = ({name, amount, bought, active}) => {
                 <View>
                 <TouchableOpacity
                     style={{ flexDirection: 'row', alignItems: 'center' }}
-                    onPress={() => setBought(!boughtState)}
+                    onPress={() => handleCheckboxChange(!boughtState, itemId)}
                 >
                     <CheckBox
                         value={boughtState}

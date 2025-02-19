@@ -9,6 +9,7 @@ const ShoppingList = ({ name, items, active }) => {
     items = items.map((item) => (
         <Item
             key={item.id}
+            itemId={item.id}
             name={item.name}
             amount={item.amount}
             bought={item.bought}

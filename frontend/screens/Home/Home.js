@@ -12,10 +12,7 @@ import { Routes } from '../../navigation/Routes';
 
 // in Home - mark as completed, in Lists - option to activate list
 // Make the list adding more friendly, route after adding list, checkbox for active/draft
-// Checkbox - mark/unmark as bought
-// Remove ShoppingListForm component? 
 // Shoppinglistform - data validation, error messages
-// Add a prop to shopping list - if draft is using the component, do now show bought value
 
 const Home = () => {
 
@@ -41,10 +38,6 @@ const Home = () => {
       }
     }
   };
-
-  useEffect(() => {
-      getShoppingLists();
-      }, [])
 
   useFocusEffect(
       React.useCallback(() => {

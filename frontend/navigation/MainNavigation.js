@@ -36,7 +36,12 @@ const MainNavigation = () => {
     
                     if (refreshedToken && refreshedToken.access) {
                         console.log("Token refreshed successfully.");
-                        await AsyncStorage.setItem("@access_token", refreshedToken.access);
+                        console.log("new access:, ", refreshedToken);
+                        console.log(".access:, ", refreshedToken.access);
+                        await AsyncStorage.setItem('@access_token', JSON.stringify({
+                            token: refreshedToken.access,
+                            expiresAt: Date.now() + 24 * 60 * 60 * 1000, // 1 day
+                          }));
                         const user = jwtDecode(refreshedToken.access);
                         setUser(user);
                     } else {

@@ -23,10 +23,6 @@ const Lists = () => {
         }
       };
 
-    useEffect(() => {
-        getDrafts();
-        }, [])
-
     useFocusEffect(
         React.useCallback(() => {
             getDrafts();

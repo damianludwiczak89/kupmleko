@@ -123,13 +123,21 @@ class ShoppingListAPIView(APIView):
     serializer_class = api_serializer.ShoppingListSerializer
     permission_classes = [IsAuthenticated]
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request, id=None, *args, **kwargs):
+
+        if id:
+            shopping_list = get_object_or_404(ShoppingList, id=id, users=request.user)
+            serializer = self.serializer_class(shopping_list)
+            return Response(serializer.data)
 
         queryset = ShoppingList.objects.filter(users=request.user).prefetch_related('items')
-            
         serializer = self.serializer_class(queryset, many=True)
-        print(serializer.data)
         return Response(serializer.data)
+    
+    def delete(self, request, id, *args, **kwargs):
+        shopping_list = get_object_or_404(ShoppingList, id=id)
+        shopping_list.delete()
+        return Response({"message": "Shopping list deleted successfully"}, status=status.HTTP_202_ACCEPTED) 
 
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
@@ -151,13 +159,20 @@ class DraftAPIView(APIView):
     serializer_class = api_serializer.DraftSerializer
     permission_classes = [IsAuthenticated]
 
-    def get(self, request, *args, **kwargs):
-       
+    def get(self, request, id=None, *args, **kwargs):
+        if id:
+            shopping_list = get_object_or_404(Draft, id=id, users=request.user)
+            serializer = self.serializer_class(shopping_list)
+            return Response(serializer.data)
+        
         queryset = Draft.objects.filter(users=request.user).prefetch_related('items')
-            
         serializer = self.serializer_class(queryset, many=True)
-        print(serializer.data)
         return Response(serializer.data)
+    
+    def delete(self, request, id, *args, **kwargs):
+        draft = get_object_or_404(Draft, id=id)
+        draft.delete()
+        return Response({"message": "Draft list deleted successfully"}, status=status.HTTP_202_ACCEPTED) 
 
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
@@ -185,8 +200,8 @@ class ItemAPIView(APIView):
     permission_classes = [IsAuthenticated]
     serializer_class = api_serializer.ItemSerializer
 
-    def put(self, request, *args, **kwargs):
-        item = get_object_or_404(Item, id=kwargs['id'])
+    def put(self, request, id, *args, **kwargs):
+        item = get_object_or_404(Item, id=id)
         bought = request.data.get('bought')
         item.bought = bought
         item.save()

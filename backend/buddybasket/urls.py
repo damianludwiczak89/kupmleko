@@ -10,8 +10,10 @@ urlpatterns = [
     path("user/reset-password/", api_views.PasswordChangeAPIView.as_view(), name='password_change'),
 
     path("shopping_list/", api_views.ShoppingListAPIView.as_view()),
+    path("shopping_list/<int:id>/", api_views.ShoppingListAPIView.as_view()),
     path("draft/", api_views.DraftAPIView.as_view()),
-    path("item/<int:id>", api_views.ItemAPIView.as_view()),
+    path("draft/<int:id>/", api_views.DraftAPIView.as_view()),
+    path("item/<int:id>/", api_views.ItemAPIView.as_view()),
     path("friends/", api_views.FriendsAPIView.as_view()),
     path("search/<email>/", api_views.UserSearchAPIView.as_view())
 ]

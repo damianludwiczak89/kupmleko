@@ -10,10 +10,10 @@ const Item = ({itemId, name, amount, bought, active}) => {
     const [boughtState, setBoughtState] = useState(bought);
 
     const debouncedUpdate = useCallback(
-        debounce(async (newValue, id) => {
+        debounce(async (newValue, itemId) => {
             console.log('debounce')
             try {
-                await apiInstance.put(`item/${itemId}`, { bought: newValue });
+                await apiInstance.put(`item/${itemId}/`, { bought: newValue });
             } catch (error) {
                 console.error('Error updating item:', error);
                 setBoughtState(!newValue); 

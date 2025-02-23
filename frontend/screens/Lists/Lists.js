@@ -31,10 +31,12 @@ const Lists = () => {
 
     const lists = drafts.map((list) => (
             <ShoppingList
+              id={list.id}
               key={list.id}
               name={list.name}
               items={list.items}
-              active={false} />
+              active={false}
+              update={getDrafts} />
           ));
 
   return (

@@ -48,9 +48,12 @@ const Home = () => {
   const lists = shoppingLists.map((list) => (
     <ShoppingList
       key={list.id}
+      id={list.id}
       name={list.name}
       items={list.items}
-      active={true} />
+      active={true}
+      update={getShoppingLists} />
+
   ));
 
   return (

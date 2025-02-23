@@ -1,10 +1,28 @@
 import Item from '../Item/Item';
 import {  Button, View } from 'react-native';
 import { useState } from 'react';
+import apiInstance from '../../utils/axios';
 
-const ShoppingList = ({ name, items, active }) => {
+const ShoppingList = ({ id, name, items, active, update }) => {
 
     const [displayList, setDisplayList] = useState(false)
+
+    const [completed, setCompleted] = useState(false);
+
+    const handleCheckboxChange = () => {
+        setCompleted(!completed)
+    }
+
+    const deleteList = async (id) => {
+        const endpoint = active ? "shopping_list" : "draft";
+        try {
+            await apiInstance.delete(`${endpoint}/${id}/`)
+            update();
+        }
+        catch (error) {
+            console.log('error deleting list')
+        }
+    }
 
     items = items.map((item) => (
         <Item
@@ -16,10 +34,17 @@ const ShoppingList = ({ name, items, active }) => {
             active={active}
         />
     ))
+
     return (
         <View>
             <Button title={name} onPress={() => setDisplayList(!displayList)} />
-                {displayList && items}
+            {displayList && (
+                <View>
+                    {items}
+                    <Button title={active ? "Completed" : "Delete"} onPress={() => deleteList(id)} />
+                </View>
+            )}
+
         </View>
     )
 }

@@ -23,7 +23,7 @@ class User(AbstractUser):
 
     
 class Draft(models.Model):
-    users = models.ManyToManyField(User, related_name='drafts')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='drafts')
     name = models.CharField(max_length=100)
 
     def __str__(self):

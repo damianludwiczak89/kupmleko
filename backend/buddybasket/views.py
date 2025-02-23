@@ -126,7 +126,7 @@ class ShoppingListAPIView(APIView):
     def get(self, request, id=None, *args, **kwargs):
 
         if id:
-            shopping_list = get_object_or_404(ShoppingList, id=id, users=request.user)
+            shopping_list = get_object_or_404(ShoppingList.objects.prefetch_related('items'), id=id)
             serializer = self.serializer_class(shopping_list)
             return Response(serializer.data)
 
@@ -161,11 +161,11 @@ class DraftAPIView(APIView):
 
     def get(self, request, id=None, *args, **kwargs):
         if id:
-            shopping_list = get_object_or_404(Draft, id=id, users=request.user)
-            serializer = self.serializer_class(shopping_list)
+            draft = get_object_or_404(Draft.objects.prefetch_related('items'), id=id, user=request.user).prefetch_related('items')
+            serializer = self.serializer_class(draft)
             return Response(serializer.data)
         
-        queryset = Draft.objects.filter(users=request.user).prefetch_related('items')
+        queryset = Draft.objects.filter(user=request.user).prefetch_related('items')
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)
     
@@ -178,8 +178,7 @@ class DraftAPIView(APIView):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
             items_data = serializer.validated_data.pop('items', []) # in case of not providing items at all
-            draft = Draft.objects.create(**serializer.validated_data)
-            draft.users.add(request.user)
+            draft = Draft.objects.create(**serializer.validated_data, user=request.user)
 
             # create also a shopping list with same data if checkbox active was also checked
             active = request.data.get('activeAndDraft', False)
@@ -195,6 +194,23 @@ class DraftAPIView(APIView):
             return Response({"message": "Draft addedd successfully"}, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def put(self, request, id, *args, **kwargs):
+        draft = get_object_or_404(Draft.objects.prefetch_related('items'), id=id, user=request.user)
+        serializer = self.serializer_class(draft).data
+
+        new_shopping_list = ShoppingList.objects.create(name=serializer.get('name'), draft=draft)
+        new_shopping_list.users.add(request.user)
+
+
+        items = [int(x['id']) for x in serializer.get('items')]
+        items = Item.objects.filter(id__in=items)
+        for item in items:
+            item.shopping_list = new_shopping_list
+            item.save()
+
+        
+        return Response({"message": "Draft addedd successfully"}, status=status.HTTP_201_CREATED)
     
 class ItemAPIView(APIView):
     permission_classes = [IsAuthenticated]

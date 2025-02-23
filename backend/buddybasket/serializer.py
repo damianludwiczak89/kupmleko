@@ -60,7 +60,7 @@ class ShoppingListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ShoppingList
-        fields = ['id', 'name', 'items', 'draft']
+        fields = '__all__'
 
     def create(self, validated_data):
         items_data = validated_data.pop('items', []) # in case of not providing items at all
@@ -77,7 +77,7 @@ class DraftSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Draft
-        fields = ['id', 'name', 'items']
+        fields = '__all__'
 
     def create(self, validated_data):
         items_data = validated_data.pop('items', []) # in case of not providing items at all

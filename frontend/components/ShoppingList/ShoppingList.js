@@ -24,6 +24,14 @@ const ShoppingList = ({ id, name, items, active, update }) => {
         }
     }
 
+    const activate = async (id) => {
+        try {
+            await apiInstance.put(`draft/${id}/`)
+        }
+        catch (error) {
+            console.log('error activating list')
+        }
+    }
     items = items.map((item) => (
         <Item
             key={item.id}
@@ -41,6 +49,7 @@ const ShoppingList = ({ id, name, items, active, update }) => {
             {displayList && (
                 <View>
                     {items}
+                    {!active && <Button title="Activate" onPress={() => activate(id)} />}
                     <Button title={active ? "Completed" : "Delete"} onPress={() => deleteList(id)} />
                 </View>
             )}

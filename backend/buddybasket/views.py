@@ -152,7 +152,28 @@ class ShoppingListAPIView(APIView):
             return Response({"message": "Shopping list addedd successfully"}, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def put(self, request, id, *args, **kwargs):
+        shopping_list = get_object_or_404(ShoppingList.objects.prefetch_related('items'), id=id)
+        serializer = self.serializer_class(shopping_list).data
+        new_data = self.serializer_class(data=request.data)
+        if new_data.is_valid():
+            # unattach old items from the shopping list
+            for item in serializer['items']:
+                old_item = Item.objects.get(id=item['id'])
+                old_item.shopping_list = None
+                if old_item.draft or old_item.shopping_list:
+                    old_item.save()
+                else:
+                    old_item.delete()
 
+            # Create new items and relate them to the shopping list
+            new_data = new_data.validated_data
+            for item in new_data['items']:
+                new_item = Item(name=item['name'], amount=item['amount'], bought=item['bought'], shopping_list=shopping_list)
+                new_item.save()
+
+        return Response({"message": "Shopping list changed successfully"}, status=status.HTTP_202_ACCEPTED) 
 
 
 class DraftAPIView(APIView):
@@ -175,6 +196,7 @@ class DraftAPIView(APIView):
         return Response({"message": "Draft list deleted successfully"}, status=status.HTTP_202_ACCEPTED) 
 
     def post(self, request, *args, **kwargs):
+        print('post')
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
             items_data = serializer.validated_data.pop('items', []) # in case of not providing items at all
@@ -192,25 +214,51 @@ class DraftAPIView(APIView):
                     Item.objects.create(draft=draft, **item_data)
 
             return Response({"message": "Draft addedd successfully"}, status=status.HTTP_201_CREATED)
-
+        else:
+            print(serializer.errors)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     def put(self, request, id, *args, **kwargs):
         draft = get_object_or_404(Draft.objects.prefetch_related('items'), id=id, user=request.user)
         serializer = self.serializer_class(draft).data
 
-        new_shopping_list = ShoppingList.objects.create(name=serializer.get('name'), draft=draft)
-        new_shopping_list.users.add(request.user)
+        # Create a shopping list from a draft (activate)
+        if request.data.get('activate'):
+            new_shopping_list = ShoppingList.objects.create(name=serializer.get('name'), draft=draft)
+            new_shopping_list.users.add(request.user)
 
 
-        items = [int(x['id']) for x in serializer.get('items')]
-        items = Item.objects.filter(id__in=items)
-        for item in items:
-            item.shopping_list = new_shopping_list
-            item.save()
+            items = [int(x['id']) for x in serializer.get('items')]
+            items = Item.objects.filter(id__in=items)
+            for item in items:
+                # Creating new Item instead of adding shoppinglist to existing Item, in case of activating 1 draft multiple times
+                new_item = Item(name=item.name, amount=item.amount, shopping_list=new_shopping_list)
+                new_item.save()
+                return Response({"message": "Draft addedd successfully"}, status=status.HTTP_201_CREATED)
+        # Edit draft
+        else:
+            print(serializer)
+            new_data = self.serializer_class(data=request.data)
+            if new_data.is_valid():
+                # Unattach old items from draft
+                for item in serializer['items']:
+                    old_item = Item.objects.get(id=item['id'])
+                    old_item.draft = None
+                    if old_item.draft or old_item.shopping_list:
+                        old_item.save()
+                    else:
+                        old_item.delete()
+                        
+
+                # Create new items and relate them to the draft
+                new_data = new_data.validated_data
+                for item in new_data['items']:
+                    new_item = Item(name=item['name'], amount=item['amount'], bought=item['bought'], draft=draft)
+                    new_item.save()
+
+            return Response({"message": "Draft edited successfully"}, status=status.HTTP_201_CREATED)
 
         
-        return Response({"message": "Draft addedd successfully"}, status=status.HTTP_201_CREATED)
     
 class ItemAPIView(APIView):
     permission_classes = [IsAuthenticated]

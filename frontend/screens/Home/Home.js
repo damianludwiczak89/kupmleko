@@ -10,9 +10,10 @@ import { useNavigation } from '@react-navigation/native';
 import { Routes } from '../../navigation/Routes';
 
 
-// in Home - mark as completed, in Lists - option to activate list
 // Make the list adding more friendly, route after adding list, checkbox for active/draft
 // Shoppinglistform - data validation, error messages
+// Edit active list
+// Start friends - look up, add
 
 const Home = () => {
 

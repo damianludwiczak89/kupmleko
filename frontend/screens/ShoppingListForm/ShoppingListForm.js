@@ -1,11 +1,15 @@
 import {  TextInput, View, Button, Text, TouchableOpacity } from 'react-native';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import apiInstance from '../../utils/axios';
 import { Alert } from 'react-native';
 import CheckBox from '@react-native-community/checkbox';
 import { useNavigation } from '@react-navigation/native';
 
-const ShoppingListForm = () => {
+// Consider what to do with active/draft checkboxes if editing existing list
+// probably add a prop to check if editing and hide them
+// -- also need to edit a draft
+
+const ShoppingListForm = (existingValues) => {
 
     const navigation = useNavigation();
 
@@ -17,11 +21,24 @@ const ShoppingListForm = () => {
 
     const[activeBox, setActiveBox] = useState(true)
     const[draftBox, setDraftBox] = useState(false)
+    console.log(existingValues.route.params.active)
+    // If user is editing an existing list, populate fields with existing data
+    useEffect(() => {
+        if (existingValues?.route?.params?.name) {
+            setName(existingValues.route.params.name);
+            existingValues.route.params.items.map((item) => {
+                console.log(item)
+                setItems(prevItems => [
+                    ...prevItems,
+                    { id: prevItems.length + 1, name: item['name'], amount: item['amount'], bought: item['bought'] }])
+            })
+        }
+    }, [existingValues]);
 
     const addItem = () => {
         setItems(prevItems => [
         ...prevItems,
-        { id: prevItems.length + 1, name: newItem, amount: newAmount }])
+        { id: prevItems.length + 1, name: newItem, amount: newAmount, bought: false }])
         setNewItem('')
         setNewAmount(1)
     }
@@ -32,7 +49,25 @@ const ShoppingListForm = () => {
     }
 
     const saveList = async (name, items, endpoint, activeAndDraft=false) => {
-        console.log('activeanddraft:', activeAndDraft)
+        // if edit
+        if (existingValues?.route?.params?.id) {
+            existingValues.route.params.active === true ? endpoint = "shopping_list/" : endpoint = "draft/"
+            try {
+                const id = existingValues?.route?.params?.id
+                console.log(endpoint)
+                const {data} = await apiInstance.put(`${endpoint}${id}/`, {
+                    name,
+                    items,
+                });
+                console.log('changed')
+                return {data, error: null}
+            } catch (error) {
+                return {
+                    data: null,
+                    error: error.response.data?.detail || "Something went wrong",
+                };
+            }}
+        // if adding new
         try {
             const {data} = await apiInstance.post(`${endpoint}`, {
                 name,
@@ -52,16 +87,13 @@ const ShoppingListForm = () => {
     const handleSave = (name, items) => {
         // TODO add input validation
         if (activeBox && draftBox) {
-            console.log('active and draft');
             saveList(name, items, 'draft/', true);
 
         }
         else if (draftBox) {
-            console.log('draft');
             saveList(name, items, 'draft/');
         }
         else {
-            console.log('active');
             saveList(name, items, 'shopping_list/');
         }
 
@@ -70,7 +102,9 @@ const ShoppingListForm = () => {
         setNewItem('');
         setNewAmount(1);
         Alert.alert('List saved');
-        navigation.goBack();
+        setTimeout(() => {
+            navigation.goBack();
+        }, 1000);
     }
 
     return (
@@ -103,40 +137,43 @@ const ShoppingListForm = () => {
                     placeholder='Amount'
                 />
             <Button title="Add item" onPress={() => addItem()} />
+            {!existingValues?.route?.params?.id && (
+            <>
+                <View>
+                <TouchableOpacity
+                    style={{ flexDirection: 'row', alignItems: 'center' }}
+                    onPress={() => setActiveBox(!activeBox)}
+                >
+                    <CheckBox
+                        value={activeBox}
+                        onValueChange={null}
+                        disabled={true}
+                        tintColors={{ true: 'blue', false: 'gray' }}
+                        onTintColor="blue"
+                        onCheckColor="blue"
+                    />
+                    <Text style={{ marginLeft: 8 }}>Add to Active</Text>
+                </TouchableOpacity>
+                </View>
 
-            <View>
-            <TouchableOpacity
-                style={{ flexDirection: 'row', alignItems: 'center' }}
-                onPress={() => setActiveBox(!activeBox)}
-            >
-                <CheckBox
-                    value={activeBox}
-                    onValueChange={null}
-                    disabled={true}
-                    tintColors={{ true: 'blue', false: 'gray' }}
-                    onTintColor="blue"
-                    onCheckColor="blue"
-                />
-                <Text style={{ marginLeft: 8 }}>Add to Active</Text>
-            </TouchableOpacity>
-            </View>
-
-            <View>
-            <TouchableOpacity
-                style={{ flexDirection: 'row', alignItems: 'center' }}
-                onPress={() => setDraftBox(!draftBox)}
-            >
-                <CheckBox
-                    value={draftBox}
-                    onValueChange={null}
-                    disabled={true}
-                    tintColors={{ true: 'blue', false: 'gray' }}
-                    onTintColor="blue"
-                    onCheckColor="blue"
-                />
-                <Text style={{ marginLeft: 8 }}>Add to Drafts</Text>
-            </TouchableOpacity>
-            </View>
+                <View>
+                <TouchableOpacity
+                    style={{ flexDirection: 'row', alignItems: 'center' }}
+                    onPress={() => setDraftBox(!draftBox)}
+                >
+                    <CheckBox
+                        value={draftBox}
+                        onValueChange={null}
+                        disabled={true}
+                        tintColors={{ true: 'blue', false: 'gray' }}
+                        onTintColor="blue"
+                        onCheckColor="blue"
+                    />
+                    <Text style={{ marginLeft: 8 }}>Add to Drafts</Text>
+                </TouchableOpacity>
+                </View></>
+            )}
+            
             
             <Button title="Save List" onPress={() => handleSave( name, items )} />
         </View>

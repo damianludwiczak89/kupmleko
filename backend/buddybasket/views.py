@@ -15,14 +15,32 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.exceptions import AuthenticationFailed
 
 from . import serializer as api_serializer
 from .models import User, ShoppingList, Item, Draft
 import random
 
 
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework.exceptions import AuthenticationFailed
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
 class MyTokenObtainPairView(TokenObtainPairView):
-    serializer_class = api_serializer.MyTokenObtainPairSerializer
+    def post(self, request, *args, **kwargs):
+        email = request.data.get('email')
+        password = request.data.get('password')
+        user = User.objects.filter(email=email).first()
+
+        # Custom message on a wrong password because on default it returned 'no active account' msg
+        if user:
+            if not user.check_password(password):
+                raise AuthenticationFailed("Incorrect password")
+
+        return super().post(request, *args, **kwargs)
+
 
 
 class RegisterView(generics.CreateAPIView):

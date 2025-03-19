@@ -1,6 +1,6 @@
 from rest_framework.test import APITestCase
 from rest_framework.test import APIClient
-from .models import Draft, ShoppingList
+from .models import Draft, ShoppingList, Item
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from rest_framework import status
@@ -105,3 +105,82 @@ class LoginSuite(APITestCase):
         })
         self.assertEqual(str(response.data["detail"]), "No active account found with the given credentials")
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+class ShoppingListSuite(APITestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.shopping_list_url = reverse('shopping_list')
+
+        self.user1 = User.objects.create_user(username="test1", email="test1@test.com", password="Test123$", is_active=True)
+
+        self.client.force_authenticate(user=self.user1)
+
+        self.shopping_list = ShoppingList.objects.create(name="Lidl")
+        self.shopping_list.users.add(self.user1)
+
+        Item.objects.create(name="Milk", amount=3, bought=False, shopping_list=self.shopping_list)
+        Item.objects.create(name="Cookies", amount=5, bought=False, shopping_list=self.shopping_list)
+
+    def test_shopping_list_get(self):
+        response = self.client.get(self.shopping_list_url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]['name'], "Lidl")
+        self.assertEqual(len(response.data[0]['items']), 2)
+
+    def test_shopping_list_post(self):
+        response = self.client.post(self.shopping_list_url, {
+            'name': 'Kaufland',
+            "items": [{'name': 'Eggs', 'amount': 3, 'bought': False}, {'name': 'Water', 'amount': 6, 'bought': False}]
+        }, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        response = self.client.get(self.shopping_list_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 2)
+        self.assertEqual(response.data[1]['name'], "Kaufland")
+        self.assertEqual(len(response.data[1]['items']), 2)
+
+    def test_shopping_list_delete(self):
+        shopping_list_url = reverse("shopping_list_detail", args=[1])
+        response = self.client.delete(shopping_list_url)
+        
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
+
+        response = self.client.get(self.shopping_list_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 0)
+        
+    def test_shopping_list_put(self):
+
+        response = self.client.get(self.shopping_list_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]['name'], "Lidl")
+
+        shopping_list_url = reverse("shopping_list_detail", args=[1])
+        response = self.client.put(shopping_list_url, {
+            "name": "Intermarche",
+            "items": [{"name": "apple", "amount": 1, "bought": False}]
+        }, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
+
+        response = self.client.get(self.shopping_list_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]['name'], "Intermarche")
+        self.assertEqual(len(response.data[0]['items']), 1)
+
+
+
+
+
+
+    
+
+
+
+

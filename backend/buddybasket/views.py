@@ -153,8 +153,14 @@ class ShoppingListAPIView(APIView):
         return Response(serializer.data)
     
     def delete(self, request, id, *args, **kwargs):
-        print(id)
-        shopping_list = get_object_or_404(ShoppingList, id=id)
+        shopping_list = get_object_or_404(ShoppingList.objects.prefetch_related('items'), id=id)
+        serializer = self.serializer_class(shopping_list).data
+        for item in serializer['items']:
+            query_item = Item.objects.get(**item)
+            query_item.shopping_list = None
+            query_item.save()
+            if not query_item.draft and not query_item.shopping_list:
+                query_item.delete()
         shopping_list.delete()
         return Response({"message": "Shopping list deleted successfully"}, status=status.HTTP_202_ACCEPTED) 
 
@@ -212,7 +218,14 @@ class DraftAPIView(APIView):
         return Response(serializer.data)
     
     def delete(self, request, id, *args, **kwargs):
-        draft = get_object_or_404(Draft, id=id)
+        draft = get_object_or_404(Draft.objects.prefetch_related('items'), id=id)
+        serializer = self.serializer_class(draft).data
+        for item in serializer['items']:
+            query_item = Item.objects.get(**item)
+            query_item.shopping_list = None
+            query_item.save()
+            if not query_item.draft and not query_item.shopping_list:
+                query_item.delete()
         draft.delete()
         return Response({"message": "Draft list deleted successfully"}, status=status.HTTP_202_ACCEPTED) 
 

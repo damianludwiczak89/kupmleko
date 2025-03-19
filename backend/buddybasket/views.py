@@ -153,6 +153,7 @@ class ShoppingListAPIView(APIView):
         return Response(serializer.data)
     
     def delete(self, request, id, *args, **kwargs):
+        print(id)
         shopping_list = get_object_or_404(ShoppingList, id=id)
         shopping_list.delete()
         return Response({"message": "Shopping list deleted successfully"}, status=status.HTTP_202_ACCEPTED) 
@@ -176,6 +177,8 @@ class ShoppingListAPIView(APIView):
         serializer = self.serializer_class(shopping_list).data
         new_data = self.serializer_class(data=request.data)
         if new_data.is_valid():
+            shopping_list.name = new_data.validated_data['name']
+            shopping_list.save()
             # unattach old items from the shopping list
             for item in serializer['items']:
                 old_item = Item.objects.get(id=item['id'])

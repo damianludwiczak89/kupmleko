@@ -152,6 +152,9 @@ class ShoppingListSuite(APITestCase):
         response = self.client.get(self.shopping_list_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 0)
+
+        items = Item.objects.all()
+        self.assertEqual(len(items), 0)
         
     def test_shopping_list_put(self):
 
@@ -174,6 +177,75 @@ class ShoppingListSuite(APITestCase):
         self.assertEqual(response.data[0]['name'], "Intermarche")
         self.assertEqual(len(response.data[0]['items']), 1)
 
+class DraftSuite(APITestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.draft_url = reverse('draft')
+
+        self.user1 = User.objects.create_user(username="test1", email="test1@test.com", password="Test123$", is_active=True)
+
+        self.client.force_authenticate(user=self.user1)
+
+        self.draft = Draft.objects.create(name="Lidl", user=self.user1)
+
+        Item.objects.create(name="Milk", amount=3, bought=False, draft=self.draft)
+        Item.objects.create(name="Cookies", amount=5, bought=False, draft=self.draft)
+
+    def test_draft_get(self):
+        response = self.client.get(self.draft_url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]['name'], "Lidl")
+        self.assertEqual(len(response.data[0]['items']), 2)
+
+    def test_draft_post(self):
+        response = self.client.post(self.draft_url, {
+            'name': 'Kaufland',
+            "items": [{'name': 'Eggs', 'amount': 3, 'bought': False}, {'name': 'Water', 'amount': 6, 'bought': False}]
+        }, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        response = self.client.get(self.draft_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 2)
+        self.assertEqual(response.data[1]['name'], "Kaufland")
+        self.assertEqual(len(response.data[1]['items']), 2)
+
+    def test_draft_delete(self):
+        draft_url = reverse("draft_detail", args=[1])
+        response = self.client.delete(draft_url)
+        
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
+
+        response = self.client.get(self.draft_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 0)
+
+        items = Item.objects.all()
+        self.assertEqual(len(items), 0)
+        
+    def test_draft_put(self):
+
+        response = self.client.get(self.draft_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]['name'], "Lidl")
+
+        draft_url = reverse("draft_detail", args=[1])
+        response = self.client.put(draft_url, {
+            "name": "Intermarche",
+            "items": [{"name": "apple", "amount": 1, "bought": False}]
+        }, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
+
+        response = self.client.get(self.draft_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]['name'], "Intermarche")
+        self.assertEqual(len(response.data[0]['items']), 1)
 
 
 

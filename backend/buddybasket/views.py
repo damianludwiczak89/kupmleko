@@ -222,7 +222,7 @@ class DraftAPIView(APIView):
         serializer = self.serializer_class(draft).data
         for item in serializer['items']:
             query_item = Item.objects.get(**item)
-            query_item.shopping_list = None
+            query_item.draft = None
             query_item.save()
             if not query_item.draft and not query_item.shopping_list:
                 query_item.delete()
@@ -268,12 +268,13 @@ class DraftAPIView(APIView):
                 # Creating new Item instead of adding shoppinglist to existing Item, in case of activating 1 draft multiple times
                 new_item = Item(name=item.name, amount=item.amount, shopping_list=new_shopping_list)
                 new_item.save()
-                return Response({"message": "Draft addedd successfully"}, status=status.HTTP_201_CREATED)
+            return Response({"message": "Draft addedd successfully"}, status=status.HTTP_202_ACCEPTED)
         # Edit draft
         else:
-            print(serializer)
             new_data = self.serializer_class(data=request.data)
             if new_data.is_valid():
+                draft.name = new_data.validated_data['name']
+                draft.save()
                 # Unattach old items from draft
                 for item in serializer['items']:
                     old_item = Item.objects.get(id=item['id'])
@@ -290,7 +291,7 @@ class DraftAPIView(APIView):
                     new_item = Item(name=item['name'], amount=item['amount'], bought=item['bought'], draft=draft)
                     new_item.save()
 
-            return Response({"message": "Draft edited successfully"}, status=status.HTTP_201_CREATED)
+            return Response({"message": "Draft edited successfully"}, status=status.HTTP_202_ACCEPTED)
 
         
     

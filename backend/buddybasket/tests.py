@@ -5,6 +5,7 @@ from django.contrib.auth import get_user_model
 from django.urls import reverse
 from rest_framework import status
 
+
 User = get_user_model()
 
 class RegisterSuite(APITestCase):
@@ -112,6 +113,9 @@ class ShoppingListSuite(APITestCase):
         self.shopping_list_url = reverse('shopping_list')
 
         self.user1 = User.objects.create_user(username="test1", email="test1@test.com", password="Test123$", is_active=True)
+        self.user2 = User.objects.create_user(username="test2", email="test2@test.com", password="Test123$", is_active=True)
+
+        self.user2.friends.add(self.user1)
 
         self.client.force_authenticate(user=self.user1)
 
@@ -121,6 +125,7 @@ class ShoppingListSuite(APITestCase):
         Item.objects.create(name="Milk", amount=3, bought=False, shopping_list=self.shopping_list)
         Item.objects.create(name="Cookies", amount=5, bought=False, shopping_list=self.shopping_list)
 
+
     def test_shopping_list_get(self):
         response = self.client.get(self.shopping_list_url)
 
@@ -128,6 +133,14 @@ class ShoppingListSuite(APITestCase):
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]['name'], "Lidl")
         self.assertEqual(len(response.data[0]['items']), 2)
+
+
+    def test_shopping_list_get_by_id(self):
+        shopping_list_url = reverse("shopping_list_detail", args=[1])
+        response = self.client.get(shopping_list_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['name'], "Lidl")
+        self.assertEqual(len(response.data['items']), 2)
 
     def test_shopping_list_post(self):
         response = self.client.post(self.shopping_list_url, {
@@ -142,6 +155,34 @@ class ShoppingListSuite(APITestCase):
         self.assertEqual(len(response.data), 2)
         self.assertEqual(response.data[1]['name'], "Kaufland")
         self.assertEqual(len(response.data[1]['items']), 2)
+
+        response = self.client.post(self.shopping_list_url, {
+            'name': 'Intermarche',
+            "items": []
+        }, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        response = self.client.get(self.shopping_list_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 3)
+        self.assertEqual(response.data[2]['name'], "Intermarche")
+        self.assertEqual(len(response.data[2]['items']), 0)
+
+        self.client.force_authenticate(user=self.user2)
+        response = self.client.post(self.shopping_list_url, {
+            'name': 'Polo Market',
+            "items": [{'name': 'Flour', 'amount': 8, 'bought': False}]
+        }, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        self.client.force_authenticate(user=self.user1)
+        response = self.client.get(self.shopping_list_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 4)
+        self.assertEqual(response.data[3]['name'], "Polo Market")
+        self.assertEqual(len(response.data[3]['items']), 1)
+
 
     def test_shopping_list_delete(self):
         shopping_list_url = reverse("shopping_list_detail", args=[1])
@@ -177,6 +218,7 @@ class ShoppingListSuite(APITestCase):
         self.assertEqual(response.data[0]['name'], "Intermarche")
         self.assertEqual(len(response.data[0]['items']), 1)
 
+
 class DraftSuite(APITestCase):
     def setUp(self):
         self.client = APIClient()
@@ -198,6 +240,27 @@ class DraftSuite(APITestCase):
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]['name'], "Lidl")
         self.assertEqual(len(response.data[0]['items']), 2)
+    
+    def test_draft_get_by_id(self):
+        draft_url = reverse("draft_detail", args=[1])
+        response = self.client.get(draft_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['name'], "Lidl")
+        self.assertEqual(len(response.data['items']), 2)
+
+    def test_draft_activate_to_shopping_list(self):
+        draft_url = reverse("draft_detail", args=[1])
+        response = self.client.put(draft_url, {
+            'activate': True,
+        }, format='json')
+
+        shopping_list_url = reverse('shopping_list')
+        response = self.client.get(shopping_list_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]['name'], "Lidl")
+        self.assertEqual(len(response.data[0]['items']), 2)
+
 
     def test_draft_post(self):
         response = self.client.post(self.draft_url, {
@@ -212,6 +275,19 @@ class DraftSuite(APITestCase):
         self.assertEqual(len(response.data), 2)
         self.assertEqual(response.data[1]['name'], "Kaufland")
         self.assertEqual(len(response.data[1]['items']), 2)
+
+        response = self.client.post(self.draft_url, {
+            'name': 'Intermarche',
+            "items": []
+        }, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        response = self.client.get(self.draft_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 3)
+        self.assertEqual(response.data[2]['name'], "Intermarche")
+        self.assertEqual(len(response.data[2]['items']), 0)
 
     def test_draft_delete(self):
         draft_url = reverse("draft_detail", args=[1])
@@ -246,6 +322,56 @@ class DraftSuite(APITestCase):
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]['name'], "Intermarche")
         self.assertEqual(len(response.data[0]['items']), 1)
+
+class FriendsSuite(APITestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.friends_url = reverse('friends')
+
+        self.user1 = User.objects.create_user(username="test1", email="test1@test.com", password="Test123$", is_active=True)
+        self.user2 = User.objects.create_user(username="test2", email="test2@test.com", password="Test123$", is_active=True)
+        self.user3 = User.objects.create_user(username="test3", email="test3@test.com", password="Test123$", is_active=True)
+
+        self.user1.friends.add(self.user2)
+
+        self.client.force_authenticate(user=self.user1)
+
+        self.shopping_list = ShoppingList.objects.create(name="Lidl")
+        self.shopping_list.users.add(self.user3)
+
+        Item.objects.create(name="Milk", amount=3, bought=False, shopping_list=self.shopping_list)
+        Item.objects.create(name="Cookies", amount=5, bought=False, shopping_list=self.shopping_list)
+
+    def test_friends_get(self):
+        response = self.client.get(self.friends_url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]['username'], 'test2')
+
+
+
+    def test_friends_post(self):
+        response = self.client.post(self.friends_url, {'email': 'test3@test.com'})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        response = self.client.post(self.friends_url, {'email': 'test2@test.com'})
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+
+        response = self.client.get(self.friends_url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 2)
+        self.assertEqual(response.data[1]['username'], 'test3')
+
+        # Check if after befriending user3, user1 sees user3's shopping list
+        shopping_list_url = reverse('shopping_list')
+        response = self.client.get(shopping_list_url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]['name'], "Lidl")
+        self.assertEqual(len(response.data[0]['items']), 2)
 
 
 

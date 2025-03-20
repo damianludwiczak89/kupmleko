@@ -209,7 +209,7 @@ class DraftAPIView(APIView):
 
     def get(self, request, id=None, *args, **kwargs):
         if id:
-            draft = get_object_or_404(Draft.objects.prefetch_related('items'), id=id, user=request.user).prefetch_related('items')
+            draft = get_object_or_404(Draft.objects.prefetch_related('items'), id=id, user=request.user)
             serializer = self.serializer_class(draft)
             return Response(serializer.data)
         
@@ -230,7 +230,6 @@ class DraftAPIView(APIView):
         return Response({"message": "Draft list deleted successfully"}, status=status.HTTP_202_ACCEPTED) 
 
     def post(self, request, *args, **kwargs):
-        print('post')
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
             items_data = serializer.validated_data.pop('items', []) # in case of not providing items at all

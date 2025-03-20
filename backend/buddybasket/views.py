@@ -170,12 +170,14 @@ class ShoppingListAPIView(APIView):
             items_data = serializer.validated_data.pop('items', []) # in case of not providing items at all
             shopping_list = ShoppingList.objects.create(**serializer.validated_data)
             shopping_list.users.add(request.user)
-
+            friends = User.objects.get(id=request.user.id).friends.all()
+            for friend in friends:
+                shopping_list.users.add(friend)
             for item_data in items_data:
                 Item.objects.create(shopping_list=shopping_list, **item_data)
 
             return Response({"message": "Shopping list addedd successfully"}, status=status.HTTP_201_CREATED)
-
+        print(serializer.errors)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     def put(self, request, id, *args, **kwargs):
@@ -318,10 +320,18 @@ class FriendsAPIView(APIView):
     def post(self, request, *args, **kwargs):
         user = User.objects.get(pk=request.user.id)
 
-        # TODO - check if user already is a friend
-
-        new_friend = request.data["friends"]
+        new_friend = request.data["email"]
+        new_friend = User.objects.get(email=new_friend)
+        if new_friend in user.friends.all():
+            return Response({"message": "Already a friend"}, status=status.HTTP_409_CONFLICT)
         user.friends.add(new_friend)
+
+        for shopping_list in user.lists.all():
+            shopping_list.users.add(new_friend)
+
+        for shopping_list in new_friend.lists.all():
+            shopping_list.users.add(user)
+            
         return Response({"message": "New friend added successfully"}, status=status.HTTP_200_OK)
     
 

@@ -1,6 +1,6 @@
 from rest_framework.test import APITestCase
 from rest_framework.test import APIClient
-from .models import Draft, ShoppingList, Item
+from .models import Draft, ShoppingList, Item, Invite
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from rest_framework import status
@@ -373,12 +373,107 @@ class FriendsSuite(APITestCase):
         self.assertEqual(response.data[0]['name'], "Lidl")
         self.assertEqual(len(response.data[0]['items']), 2)
 
+    def test_friends_delete(self):
+        friends_url = reverse("friends_delete", args=[2])
+        response = self.client.delete(friends_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['message'], 'Friend removed successfully')
+
+        response = self.client.delete(friends_url)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data['error'], 'User is not your friend')
+
+        friends_url = reverse("friends_delete", args=[20])
+        response = self.client.delete(friends_url)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.data['error'], 'User not found')
 
 
 
+class SearchSuite(APITestCase):
+    def setUp(self):
+        self.client = APIClient()
 
-    
+        self.user1 = User.objects.create_user(username="test1", email="test1@test.com", password="Test123$", is_active=True)
+        self.user2 = User.objects.create_user(username="test2", email="test2@test.com", password="Test123$", is_active=True)
 
+        self.client.force_authenticate(user=self.user1)
 
+    def test_search_get(self):
+        search_url = reverse("search", args=['test2@test.com'])
+        response = self.client.get(search_url)
 
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['username'], "test2")
+        self.assertEqual(response.data['email'], "test2@test.com")
 
+class InviteSuite(APITestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.invite_url = reverse('invite')
+
+        self.user1 = User.objects.create_user(username="test1", email="test1@test.com", password="Test123$", is_active=True)
+        self.user2 = User.objects.create_user(username="test2", email="test2@test.com", password="Test123$", is_active=True)
+        self.user3 = User.objects.create_user(username="test3", email="test3@test.com", password="Test123$", is_active=True)
+        self.user4 = User.objects.create_user(username="test4", email="test4@test.com", password="Test123$", is_active=True)
+
+        Invite.objects.create(from_user=self.user3, to_user=self.user1)
+        self.user1.friends.add(self.user4)
+        self.client.force_authenticate(user=self.user1)
+
+    def test_invites_get(self):
+        response = self.client.get(self.invite_url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data[0]['from_user']['email'], 'test3@test.com')
+        
+    def test_invites_send(self):
+        response = self.client.post(self.invite_url)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data['error'], 'Email is required')
+        
+        response = self.client.post(self.invite_url, {'email': 'test2@test.com'})
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['message'], 'Invite sent!')
+
+        response = self.client.post(self.invite_url, {'email': 'test2@test.com'})
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertEqual(response.data['error'], 'Invite already sent')
+
+        response = self.client.post(self.invite_url, {'email': 'test4@test.com'})
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertEqual(response.data['error'], 'Already a friend')
+        
+    def test_invite_accept(self):
+        invite_url = reverse("accept_invite")
+        response = self.client.post(invite_url)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data['error'], 'Invite ID is required')
+
+        response = self.client.post(invite_url, {'id': 10})
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.data['error'], 'Invite not found')
+
+        response = self.client.post(invite_url, {'id': 1})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        friends_url = reverse('friends')
+        response = self.client.get(friends_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 2)
+        self.assertEqual(response.data[1]['username'], 'test3')
+
+        Invite.objects.create(from_user=self.user4, to_user=self.user1)
+        response = self.client.post(invite_url, {'id': 2})
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertEqual(response.data['error'], 'Already a friend')
+
+    def test_invite_reject(self):
+        invite_url = reverse("reject_invite", args=[1])
+        response = self.client.delete(invite_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['message'], 'Friend request rejected!')
+
+        response = self.client.delete(invite_url)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.data['error'], 'Invite not found')

@@ -8,6 +8,7 @@ from django.utils.encoding import force_bytes, force_str
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.http import Http404
+from django.db import IntegrityError
 
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework import generics, status
@@ -18,7 +19,7 @@ from rest_framework.views import APIView
 from rest_framework.exceptions import AuthenticationFailed
 
 from . import serializer as api_serializer
-from .models import User, ShoppingList, Item, Draft
+from .models import User, ShoppingList, Item, Draft, Invite
 import random
 
 
@@ -27,6 +28,10 @@ from rest_framework.exceptions import AuthenticationFailed
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
+
+# Create Invite model with from:to foreign keys to user?
+# add history of completed shopping lists
+# Consider removing draft field from shopping list model
 
 class MyTokenObtainPairView(TokenObtainPairView):
     def post(self, request, *args, **kwargs):
@@ -318,7 +323,7 @@ class FriendsAPIView(APIView):
         return Response(serializer.data)
     
     def post(self, request, *args, **kwargs):
-        user = User.objects.get(pk=request.user.id)
+        user = request.user
 
         new_friend = request.data["email"]
         new_friend = User.objects.get(email=new_friend)
@@ -334,6 +339,20 @@ class FriendsAPIView(APIView):
             
         return Response({"message": "New friend added successfully"}, status=status.HTTP_200_OK)
     
+    def delete(self, request, id, *args, **kwargs):
+        if not id:
+            return Response({"error": "Friend ID is required"}, status=400)
+        try:
+            remove_user = User.objects.get(pk=id)
+        except User.DoesNotExist:
+            return Response({"error": "User not found"}, status=404)
+        
+        user = request.user
+        if user.remove_friend(remove_user):
+            return Response({"message": "Friend removed successfully"}, status=200)
+        return Response({"error": "User is not your friend"}, status=400)
+
+    
 
 class UserSearchAPIView(generics.RetrieveAPIView):
     serializer_class = api_serializer.UserSerializer
@@ -344,3 +363,60 @@ class UserSearchAPIView(generics.RetrieveAPIView):
         if email:
             return User.objects.get(email=email)
         raise Http404 
+    
+class IntiveAPIView(APIView):
+
+    permission_classes = [IsAuthenticated]
+    serializer_class = api_serializer.InviteSerializer
+
+    def get(self,request, *args, **kwargs):
+        queryset = Invite.objects.filter(to_user=request.user)
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, *args, **kwargs): 
+        email = request.data.get('email')
+        if not email:
+            return Response({"error": "Email is required"}, status=400)
+        user = get_object_or_404(User, email=email)
+
+        if Invite.objects.filter(from_user=request.user, to_user=user).exists():
+                    return Response({"error": "Invite already sent"}, status=status.HTTP_409_CONFLICT)
+        if request.user in user.friends.all():
+            return Response({"error": "Already a friend"}, status=status.HTTP_409_CONFLICT)
+
+        Invite.objects.create(from_user=request.user, to_user=user)
+        return Response({"message": "Invite sent!"}, status=201)
+    
+class AcceptInviteAPIView(APIView):
+    
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        invite_id = request.data.get('id')
+        if not invite_id:
+            return Response({"error": "Invite ID is required"}, status=400)
+        try:
+            invite = Invite.objects.get(id=invite_id, to_user=request.user)
+        except Invite.DoesNotExist:
+            return Response({"error": "Invite not found"}, status=404)
+        
+        user = request.user
+        if invite.from_user in user.friends.all():
+            return Response({"error": "Already a friend"}, status=status.HTTP_409_CONFLICT)
+        
+        invite.accept()
+
+        return Response({"message": "Friend request accepted!"}, status=200)
+    
+class RejectInviteAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, id, *args, **kwargs):
+        try:
+            invite = Invite.objects.get(id=id, to_user=request.user)
+        except Invite.DoesNotExist:
+            return Response({"error": "Invite not found"}, status=404)
+
+        invite.delete()
+        return Response({"message": "Friend request rejected!"}, status=200)

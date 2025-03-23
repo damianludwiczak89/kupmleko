@@ -21,6 +21,12 @@ class User(AbstractUser):
             self.username = email_username
         super(User,  self).save(*args, **kwargs)
 
+    def remove_friend(self, friend):
+        if friend in self.friends.all():
+            self.friends.remove(friend)
+            return True
+        return False
+
     
 class Draft(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='drafts')
@@ -46,3 +52,17 @@ class Item(models.Model):
 
     def __str__(self):
         return self.name
+    
+class Invite(models.Model):
+    from_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="sent_invites")
+    to_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="received_invites")
+
+    class Meta:
+        unique_together = ('from_user', 'to_user')
+
+    def accept(self):
+        self.from_user.friends.add(self.to_user)
+        self.delete()
+
+    def __str__(self):
+        return f"{self.from_user.username} invited {self.to_user.username}"

@@ -469,7 +469,7 @@ class InviteSuite(APITestCase):
         self.assertEqual(response.data['error'], 'Already a friend')
 
     def test_invite_reject(self):
-        invite_url = reverse("reject_invite", args=[1])
+        invite_url = reverse("invite", args=[1])
         response = self.client.delete(invite_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['message'], 'Friend request rejected!')

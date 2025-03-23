@@ -388,6 +388,15 @@ class IntiveAPIView(APIView):
         Invite.objects.create(from_user=request.user, to_user=user)
         return Response({"message": "Invite sent!"}, status=201)
     
+    def delete(self, request, id, *args, **kwargs):
+        try:
+            invite = Invite.objects.get(id=id, to_user=request.user)
+        except Invite.DoesNotExist:
+            return Response({"error": "Invite not found"}, status=404)
+
+        invite.delete()
+        return Response({"message": "Friend request rejected!"}, status=200)
+    
 class AcceptInviteAPIView(APIView):
     
     permission_classes = [IsAuthenticated]
@@ -408,15 +417,3 @@ class AcceptInviteAPIView(APIView):
         invite.accept()
 
         return Response({"message": "Friend request accepted!"}, status=200)
-    
-class RejectInviteAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def delete(self, request, id, *args, **kwargs):
-        try:
-            invite = Invite.objects.get(id=id, to_user=request.user)
-        except Invite.DoesNotExist:
-            return Response({"error": "Invite not found"}, status=404)
-
-        invite.delete()
-        return Response({"message": "Friend request rejected!"}, status=200)

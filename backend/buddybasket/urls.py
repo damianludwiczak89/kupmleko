@@ -19,5 +19,5 @@ urlpatterns = [
     path("search/<email>/", api_views.UserSearchAPIView.as_view(), name="search"),
     path("invite/", api_views.IntiveAPIView.as_view(), name="invite"),
     path("invite/accept/", api_views.AcceptInviteAPIView.as_view(), name="accept_invite"),
-    path("invite/reject/<int:id>/", api_views.RejectInviteAPIView.as_view(), name="reject_invite"),
+    path("invite/<int:id>/", api_views.IntiveAPIView.as_view(), name="invite"),
 ]

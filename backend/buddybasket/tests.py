@@ -242,17 +242,15 @@ class DraftSuite(APITestCase):
         self.assertEqual(len(response.data[0]['items']), 2)
     
     def test_draft_get_by_id(self):
-        draft_url = reverse("draft_detail", args=[1])
-        response = self.client.get(draft_url)
+        activate_draft_url = reverse("draft_detail", args=[1])
+        response = self.client.get(activate_draft_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['name'], "Lidl")
         self.assertEqual(len(response.data['items']), 2)
 
     def test_draft_activate_to_shopping_list(self):
-        draft_url = reverse("draft_detail", args=[1])
-        response = self.client.put(draft_url, {
-            'activate': True,
-        }, format='json')
+        draft_url = reverse("draft_activate")
+        response = self.client.post(draft_url, {'id': 1,})
 
         shopping_list_url = reverse('shopping_list')
         response = self.client.get(shopping_list_url)

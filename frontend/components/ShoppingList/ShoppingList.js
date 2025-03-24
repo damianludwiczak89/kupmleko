@@ -30,7 +30,7 @@ const ShoppingList = ({ id, name, items, active, update }) => {
 
     const activate = async (id) => {
         try {
-            await apiInstance.put(`draft/${id}/`, {activate: true})
+            await apiInstance.post('draft/activate/', {id: id})
         }
         catch (error) {
             console.log('error activating list')

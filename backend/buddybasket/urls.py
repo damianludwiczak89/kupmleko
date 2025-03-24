@@ -13,6 +13,7 @@ urlpatterns = [
     path("shopping_list/<int:id>/", api_views.ShoppingListAPIView.as_view(), name="shopping_list_detail"),
     path("draft/", api_views.DraftAPIView.as_view(), name="draft"),
     path("draft/<int:id>/", api_views.DraftAPIView.as_view(), name="draft_detail"),
+    path("draft/activate/", api_views.DraftActivateAPIView.as_view(), name="draft_activate"),
     path("item/<int:id>/", api_views.ItemAPIView.as_view(), name="item"),
     path("friends/", api_views.FriendsAPIView.as_view(), name="friends"),
     path("friends/<int:id>/", api_views.FriendsAPIView.as_view(), name="friends_delete"),

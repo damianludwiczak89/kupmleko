@@ -485,6 +485,8 @@ class HistorySuite(APITestCase):
         self.client.force_authenticate(user=self.user1)
         self.shopping_list = ShoppingList.objects.create(name="Lidl", archived=True)
         self.shopping_list2 = ShoppingList.objects.create(name="Kaufland", archived=False)
+        Item.objects.create(name="Milk", amount=3, bought=False, shopping_list=self.shopping_list)
+        Item.objects.create(name="Cookies", amount=5, bought=False, shopping_list=self.shopping_list)
         self.shopping_list.users.add(self.user1)
         self.shopping_list2.users.add(self.user1)
 
@@ -496,6 +498,8 @@ class HistorySuite(APITestCase):
         self.assertEqual(response.data[0]['name'], "Lidl")
 
     def test_max_10_history_objects(self):
+        items = Item.objects.all()
+        self.assertEqual(len(items), 2)
         for i in range(9):
             shopping_list = ShoppingList.objects.create(name="Lidl", archived=True)
             shopping_list.users.add(self.user1)
@@ -515,7 +519,10 @@ class HistorySuite(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
 
         response = self.client.get(self.history_url)
-
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 10)
         self.assertNotIn(self.shopping_list, response.data)
+
+        # Check if items of the removed archived list are deleted
+        items = Item.objects.all()
+        self.assertEqual(len(items), 0)

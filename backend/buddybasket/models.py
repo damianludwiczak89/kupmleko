@@ -38,7 +38,7 @@ class Draft(models.Model):
 class ShoppingList(models.Model):
     users = models.ManyToManyField(User, related_name='lists')
     name = models.CharField(max_length=100)
-    draft = models.ForeignKey(Draft, on_delete=models.SET_NULL, related_name='draft', null=True, blank=True)
+    archived = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name
@@ -66,3 +66,4 @@ class Invite(models.Model):
 
     def __str__(self):
         return f"{self.from_user.username} invited {self.to_user.username}"
+

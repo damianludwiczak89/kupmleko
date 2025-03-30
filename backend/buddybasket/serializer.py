@@ -60,7 +60,7 @@ class ShoppingListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ShoppingList
-        fields = ['id', 'name', 'items', 'draft']
+        exclude = ['users', 'archived']
 
     
 class DraftSerializer(serializers.ModelSerializer):

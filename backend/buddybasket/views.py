@@ -153,21 +153,26 @@ class ShoppingListAPIView(APIView):
             serializer = self.serializer_class(shopping_list)
             return Response(serializer.data)
 
-        queryset = ShoppingList.objects.filter(users=request.user).prefetch_related('items')
+        queryset = ShoppingList.objects.filter(users=request.user, archived=False).prefetch_related('items')
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)
     
     def delete(self, request, id, *args, **kwargs):
         shopping_list = get_object_or_404(ShoppingList.objects.prefetch_related('items'), id=id)
-        serializer = self.serializer_class(shopping_list).data
-        for item in serializer['items']:
-            query_item = Item.objects.get(**item)
-            query_item.shopping_list = None
-            query_item.save()
-            if not query_item.draft and not query_item.shopping_list:
-                query_item.delete()
-        shopping_list.delete()
-        return Response({"message": "Shopping list deleted successfully"}, status=status.HTTP_202_ACCEPTED) 
+        shopping_list.archived = True
+        shopping_list.save()
+        print(len(ShoppingList.objects.filter(users=request.user, archived=True)))
+        if len(ShoppingList.objects.filter(users=request.user, archived=True)) > 10:
+            archived_to_be_removed = ShoppingList.objects.filter(users=request.user, archived=True).prefetch_related('items').order_by('id')[0]
+            serializer = self.serializer_class(archived_to_be_removed).data
+            for item in serializer['items']:
+                query_item = Item.objects.get(**item)
+                query_item.shopping_list = None
+                query_item.save()
+                if not query_item.draft and not query_item.shopping_list:
+                    query_item.delete()
+            archived_to_be_removed.delete()
+        return Response({"message": "Shopping list archived successfully"}, status=status.HTTP_202_ACCEPTED) 
 
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
@@ -291,7 +296,7 @@ class DraftActivateAPIView(APIView):
         id = request.data.get('id')
         draft = get_object_or_404(Draft.objects.prefetch_related('items'), id=id, user=request.user)
         serializer = self.serializer_class(draft).data
-        new_shopping_list = ShoppingList.objects.create(name=serializer.get('name'), draft=draft)
+        new_shopping_list = ShoppingList.objects.create(name=serializer.get('name'))
         new_shopping_list.users.add(request.user)
 
 
@@ -303,7 +308,14 @@ class DraftActivateAPIView(APIView):
             new_item.save()
         return Response({"message": "Draft activated successfully"}, status=status.HTTP_202_ACCEPTED)
 
-
+class HistoryAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = api_serializer.ShoppingListSerializer
+    
+    def get(self, request, *args, **kwargs):
+        queryset = ShoppingList.objects.filter(users=request.user, archived=True).prefetch_related('items')
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data)
     
 class ItemAPIView(APIView):
     permission_classes = [IsAuthenticated]

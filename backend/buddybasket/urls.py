@@ -21,4 +21,5 @@ urlpatterns = [
     path("invite/", api_views.IntiveAPIView.as_view(), name="invite"),
     path("invite/accept/", api_views.AcceptInviteAPIView.as_view(), name="accept_invite"),
     path("invite/<int:id>/", api_views.IntiveAPIView.as_view(), name="invite"),
+    path("history/", api_views.HistoryAPIView.as_view(), name="history"),
 ]

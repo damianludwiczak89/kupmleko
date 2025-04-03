@@ -434,6 +434,10 @@ class InviteSuite(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data['message'], 'Invite sent!')
 
+        response = self.client.post(self.invite_url, {'email': 'test1@test.com'})
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertEqual(response.data['error'], 'Cannot invite yourself')
+
         response = self.client.post(self.invite_url, {'email': 'test2@test.com'})
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
         self.assertEqual(response.data['error'], 'Invite already sent')

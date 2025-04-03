@@ -161,7 +161,6 @@ class ShoppingListAPIView(APIView):
         shopping_list = get_object_or_404(ShoppingList.objects.prefetch_related('items'), id=id)
         shopping_list.archived = True
         shopping_list.save()
-        print(len(ShoppingList.objects.filter(users=request.user, archived=True)))
         if len(ShoppingList.objects.filter(users=request.user, archived=True)) > 10:
             archived_to_be_removed = ShoppingList.objects.filter(users=request.user, archived=True).prefetch_related('items').order_by('id')[0]
             serializer = self.serializer_class(archived_to_be_removed).data
@@ -380,7 +379,7 @@ class UserSearchAPIView(generics.RetrieveAPIView):
             return User.objects.get(email=email)
         raise Http404 
     
-class IntiveAPIView(APIView):
+class InviteAPIView(APIView):
 
     permission_classes = [IsAuthenticated]
     serializer_class = api_serializer.InviteSerializer
@@ -396,6 +395,9 @@ class IntiveAPIView(APIView):
             return Response({"error": "Email is required"}, status=400)
         user = get_object_or_404(User, email=email)
 
+        if user == request.user:
+            return Response({"error": "Cannot invite yourself"}, status=status.HTTP_409_CONFLICT)
+        
         if Invite.objects.filter(from_user=request.user, to_user=user).exists():
                     return Response({"error": "Invite already sent"}, status=status.HTTP_409_CONFLICT)
         if request.user in user.friends.all():

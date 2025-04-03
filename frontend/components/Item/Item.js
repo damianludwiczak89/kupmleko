@@ -6,7 +6,7 @@ import apiInstance from '../../utils/axios';
 
 
 
-const Item = ({itemId, name, amount, bought, active}) => {
+const Item = ({itemId, name, amount, bought, active, history=false}) => {
     const [boughtState, setBoughtState] = useState(bought);
 
     const debouncedUpdate = useCallback(
@@ -32,6 +32,7 @@ const Item = ({itemId, name, amount, bought, active}) => {
                 <View>
                 <TouchableOpacity
                     style={{ flexDirection: 'row', alignItems: 'center' }}
+                    disabled = {history}
                     onPress={() => handleCheckboxChange(!boughtState, itemId)}
                 >
                     <CheckBox

@@ -76,6 +76,7 @@ class DraftSerializer(serializers.ModelSerializer):
 class InviteSerializer(serializers.ModelSerializer):
 
     from_user = UserSerializer(read_only=True)
+    to_user = UserSerializer(read_only=True)
 
     class Meta:
         model = Invite

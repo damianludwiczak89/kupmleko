@@ -5,7 +5,7 @@ import apiInstance from '../../utils/axios';
 import { useNavigation } from '@react-navigation/native';
 import { Routes } from '../../navigation/Routes';
 
-const ShoppingList = ({ id, name, items, active, update }) => {
+const ShoppingList = ({ id, name, items, active=true, update, history=false }) => {
 
     const navigation = useNavigation();
 
@@ -49,6 +49,7 @@ const ShoppingList = ({ id, name, items, active, update }) => {
             amount={item.amount}
             bought={item.bought}
             active={active}
+            history={history}
         />
     ))
 
@@ -59,10 +60,14 @@ const ShoppingList = ({ id, name, items, active, update }) => {
             <Button title={name} onPress={() => setDisplayList(!displayList)} />
             {displayList && (
                 <View>
-                    {itemComponents}
-                    {!active && <Button title="Activate" onPress={() => activate(id)} />}
-                    <Button title={active ? "Completed" : "Delete"} onPress={() => deleteList(id)} />
-                    <Button title="Edit" onPress={() => edit(id, name, items, active)} />
+                    {itemComponents} 
+                        {!history && ( 
+                            <>
+                                {!active && <Button title="Activate" onPress={() => activate(id)} />}
+                                <Button title={active ? "Completed" : "Delete"} onPress={() => deleteList(id)} />
+                                <Button title="Edit" onPress={() => edit(id, name, items, active)} />
+                            </>
+                        )}           
                 </View>
             )}
 

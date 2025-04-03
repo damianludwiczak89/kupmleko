@@ -21,7 +21,6 @@ const ShoppingListForm = (existingValues) => {
 
     const[activeBox, setActiveBox] = useState(true)
     const[draftBox, setDraftBox] = useState(false)
-    console.log(existingValues.route.params.active)
     // If user is editing an existing list, populate fields with existing data
     useEffect(() => {
         if (existingValues?.route?.params?.name) {

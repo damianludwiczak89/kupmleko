@@ -287,6 +287,31 @@ class DraftSuite(APITestCase):
         self.assertEqual(response.data[2]['name'], "Intermarche")
         self.assertEqual(len(response.data[2]['items']), 0)
 
+    def test_draft_and_shopping_list(self):
+        response = self.client.post(self.draft_url, {
+            'name': 'Kaufland',
+            "items": [{'name': 'Eggs', 'amount': 3, 'bought': False}, {'name': 'Water', 'amount': 6, 'bought': False}],
+            "activeAndDraft": True
+        }, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        response = self.client.get(self.draft_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 2)
+        self.assertEqual(response.data[1]['name'], "Kaufland")
+        self.assertEqual(len(response.data[1]['items']), 2)
+
+        shopping_list_url = reverse('shopping_list')
+        response = self.client.get(shopping_list_url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]['name'], "Kaufland")
+        self.assertEqual(len(response.data[0]['items']), 2)
+
+
+
     def test_draft_delete(self):
         draft_url = reverse("draft_detail", args=[1])
         response = self.client.delete(draft_url)

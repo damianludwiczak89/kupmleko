@@ -4,12 +4,15 @@ import apiInstance from '../../utils/axios';
 import { Alert } from 'react-native';
 import CheckBox from '@react-native-community/checkbox';
 import { useNavigation } from '@react-navigation/native';
+import { useRefreshStore } from '../../store/auth';
 
 // Consider what to do with active/draft checkboxes if editing existing list
 // probably add a prop to check if editing and hide them
 // -- also need to edit a draft
 
 const ShoppingListForm = (existingValues) => {
+
+    const triggerRefresh = useRefreshStore(state => state.triggerRefresh);
 
     const navigation = useNavigation();
 
@@ -85,6 +88,7 @@ const ShoppingListForm = (existingValues) => {
 
     const handleSave = (name, items) => {
         // TODO add input validation
+        console.log(activeBox, draftBox)
         if (activeBox && draftBox) {
             saveList(name, items, 'draft/', true);
 
@@ -100,10 +104,16 @@ const ShoppingListForm = (existingValues) => {
         setItems([]);
         setNewItem('');
         setNewAmount(1);
+
         Alert.alert('List saved');
+        
+        // this double timeout makes sure that previous screen is mounted, and current data fetched
         setTimeout(() => {
             navigation.goBack();
-        }, 1000);
+            setTimeout(() => {
+              triggerRefresh();
+            }, 300);
+          }, 1000);
     }
 
     return (

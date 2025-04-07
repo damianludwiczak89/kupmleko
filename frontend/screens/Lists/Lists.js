@@ -5,8 +5,11 @@ import { Routes } from '../../navigation/Routes';
 import { useNavigation } from '@react-navigation/native';
 import { useFocusEffect } from '@react-navigation/native';
 import ShoppingList from '../../components/ShoppingList/ShoppingList';
+import { useRefreshStore } from '../../store/auth';
 
 const Lists = () => {
+
+    const refreshToken = useRefreshStore(state => state.refreshToken);
 
     const navigation = useNavigation();
 
@@ -23,11 +26,9 @@ const Lists = () => {
         }
       };
 
-    useFocusEffect(
-        React.useCallback(() => {
-            getDrafts();
-        }, [])
-    );
+  useEffect(() => {
+          getDrafts();
+      }, [refreshToken])
 
     const lists = drafts.map((list) => (
             <ShoppingList

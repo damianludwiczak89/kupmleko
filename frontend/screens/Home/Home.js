@@ -2,20 +2,24 @@ import React, { useState, useEffect } from 'react';
 import {  SafeAreaView, Text, View, Button } from 'react-native';
 import apiInstance from '../../utils/axios';
 import ShoppingList from '../../components/ShoppingList/ShoppingList';
-import { logout } from '../../utils/auth';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useAuthStore } from '../../store/auth';
 import { useFocusEffect } from '@react-navigation/native';
 import { useNavigation } from '@react-navigation/native';
 import { Routes } from '../../navigation/Routes';
+import { useRefreshStore } from '../../store/auth';
 
 
 // Make the list adding more friendly, route after adding list, checkbox for active/draft
 // Shoppinglistform - data validation, error messages
-// Edit active list
 // Start friends - look up, add
+// Consider refresh button instead of focus effect to lower traffic (then change focus to normal effect on render)
+// Consider deleting search user api, invite directly
 
 const Home = () => {
+
+  const refreshToken = useRefreshStore(state => state.refreshToken);
+  console.log('refreshToken value:', refreshToken);
 
   const navigation = useNavigation();
 
@@ -40,11 +44,9 @@ const Home = () => {
     }
   };
 
-  useFocusEffect(
-      React.useCallback(() => {
+  useEffect(() => {
           getShoppingLists();
-      }, [])
-    );
+      }, [refreshToken])
 
   const lists = shoppingLists.map((list) => (
     <ShoppingList
@@ -63,9 +65,6 @@ const Home = () => {
           <Text>Active Lists</Text>
             { lists }
             <Button title="Add New List" onPress={() => navigation.navigate(Routes.ShoppingListForm)} />
-            <Button title="Logout" onPress={async () => {
-              await logout(); 
-            }} />
         </ScrollView>
       </SafeAreaView>
   );

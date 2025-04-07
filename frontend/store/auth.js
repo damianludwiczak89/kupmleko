@@ -1,6 +1,7 @@
 import {create} from 'zustand';
 
-const useAuthStore = create((set, get ) => ({
+
+export const useAuthStore = create((set, get ) => ({
     allUserData: null,
     loading: false,
 
@@ -19,4 +20,8 @@ const useAuthStore = create((set, get ) => ({
 }));
 
 
-export {useAuthStore};
+export const useRefreshStore = create(set => ({
+    refreshToken: 0,
+    triggerRefresh: () =>
+      set(state => ({ refreshToken: state.refreshToken + 1 })),
+  }));

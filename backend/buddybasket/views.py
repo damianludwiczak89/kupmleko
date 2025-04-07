@@ -249,7 +249,7 @@ class DraftAPIView(APIView):
             # create also a shopping list with same data if checkbox active was also checked
             active = request.data.get('activeAndDraft', False)
             if active:
-                shopping_list = ShoppingList.objects.create(**serializer.validated_data, draft=draft)
+                shopping_list = ShoppingList.objects.create(**serializer.validated_data)
                 shopping_list.users.add(request.user)
             for item_data in items_data:
                 if active:

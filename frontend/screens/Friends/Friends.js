@@ -2,15 +2,14 @@ import React, {useState} from 'react';
 import {  SafeAreaView, Text, Button, TextInput } from 'react-native';
 import apiInstance from '../../utils/axios';
 import { useFocusEffect } from '@react-navigation/native';
-import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
 
 const Friends = () => {
 
     const [email, setEmail] = useState('');
-    const [invites, setInvites] = useState('');
-    const [friends, setFriends] = useState('');
+    const [invites, setInvites] = useState([]);
+    const [friends, setFriends] = useState([]);
 
-    const handleClick = async (email) => {
+    const sendInvite = async (email) => {
       try {
         const response = await apiInstance.post('invite/', {email: email});
         console.log(response.data);
@@ -62,6 +61,14 @@ const Friends = () => {
       }, [])
     );
 
+  const mapped_invites = invites.map(item => (
+    <Text key={item.id}>{item.from_user.username} ({item.from_user.email})</Text>
+  )) 
+
+  const mapped_friends = friends.map(item => (
+    <Text key={item.id}>{item.username} ({item.email})</Text>
+  ))
+
   return (
     <SafeAreaView>
       <Text>Friends</Text>
@@ -74,9 +81,11 @@ const Friends = () => {
               autoFocus={true}
           />
 
-          <Button title="Invite" onPress={() => handleClick(email)} color="#841584" />
+          <Button title="Invite" onPress={() => sendInvite(email)} color="#841584" />
         <Text>Invites</Text>
+        { mapped_invites }
         <Text>Friends</Text>
+        { mapped_friends }
 
           
     </SafeAreaView>

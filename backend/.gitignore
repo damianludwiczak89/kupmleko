@@ -6,6 +6,8 @@ __pycache__
 db.sqlite3
 media
 
+buddybasket-firebase-adminsdk-fbsvc-2ad439059d.json
+
 # Django migration files
 */migrations/*
 !*/migrations/__init__.py

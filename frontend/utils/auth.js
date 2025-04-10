@@ -1,10 +1,11 @@
 import { useAuthStore } from "../store/auth"
-import apiInstance from './axios'
 import { jwtDecode } from 'jwt-decode';
 import { Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from "axios";
 import { API_BASE_URL } from './constants';
+import messaging from '@react-native-firebase/messaging';
+import apiInstance from './axios';
 
 export const login = async (email, password) => {
     try {
@@ -12,9 +13,12 @@ export const login = async (email, password) => {
             email,
             password,
         });
-
+        console.log('status is', status)
         if (status === 200) {
+            console.log('logged in 200')
             setAuthUser(data.access, data.refresh); // Save tokens to AsyncStorage
+            console.log('tokens saved')
+            await FCMTokenUpdate(); // Update token for push notification
         }
 
         return { data, error: null };
@@ -157,5 +161,15 @@ export const isAccessTokenExpired = (access_token) => {
         console.log('is access token expired, error catch:')
         console.log(error);
         return true;
+    }
+}
+
+export const FCMTokenUpdate = async () => {
+    console.log('fcm')
+    const fcmToken = await messaging().getToken();
+    try {
+        await apiInstance.post('update_fcm_token/', {fcm_token: fcmToken});
+    } catch (error) {
+        console.log(error)
     }
 }

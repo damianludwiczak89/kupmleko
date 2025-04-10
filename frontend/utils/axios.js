@@ -16,6 +16,7 @@ const apiInstance = axios.create({
 
 apiInstance.interceptors.request.use(
   async (config) => {
+    console.log('apiinterceptor');
     try {
       const accessToken = await AsyncStorage.getItem('@access_token');
       if (!accessToken) {

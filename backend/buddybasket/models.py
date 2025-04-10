@@ -8,6 +8,7 @@ class User(AbstractUser):
     otp = models.CharField(max_length=50, null=True, blank=True)
     refresh_token = models.CharField(max_length=1000, null=True, blank=True)
     friends = models.ManyToManyField("self", symmetrical=True, blank=True)
+    fcm_token = models.CharField(max_length=255, blank=True, null=True)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']

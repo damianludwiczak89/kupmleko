@@ -1,1 +1,1 @@
-default_app_config = 'buddybasket.apps.YourAppConfig'
+default_app_config = 'buddybasket.apps.BuddybasketConfig'

@@ -35,7 +35,7 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
-    'buddybasket',
+    'buddybasket.apps.BuddybasketConfig',
     'jazzmin',
 	'rest_framework',
     'rest_framework_simplejwt.token_blacklist',

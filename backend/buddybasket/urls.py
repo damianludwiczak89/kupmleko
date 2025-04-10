@@ -22,4 +22,5 @@ urlpatterns = [
     path("invite/accept/", api_views.AcceptInviteAPIView.as_view(), name="accept_invite"),
     path("invite/<int:id>/", api_views.InviteAPIView.as_view(), name="invite"),
     path("history/", api_views.HistoryAPIView.as_view(), name="history"),
+    path("update_fcm_token/", api_views.UpdateFCMTokenView.as_view()),
 ]

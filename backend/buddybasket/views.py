@@ -435,3 +435,16 @@ class AcceptInviteAPIView(APIView):
         invite.accept()
 
         return Response({"message": "Friend request accepted!"}, status=200)
+    
+class UpdateFCMTokenView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        print('POST FCM')
+        token = request.data.get('fcm_token')
+        if not token:
+            return Response({'error': 'No token provided'}, status=400)
+
+        request.user.fcm_token = token
+        request.user.save()
+        return Response({'status': 'FCM token updated'})

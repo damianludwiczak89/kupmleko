@@ -60,7 +60,8 @@ class ShoppingListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ShoppingList
-        exclude = ['users', 'archived']
+        fields = '__all__'
+        read_only_fields = ['created_by', 'users', 'archived'] 
 
     
 class DraftSerializer(serializers.ModelSerializer):

@@ -37,6 +37,7 @@ class Draft(models.Model):
         return self.name
     
 class ShoppingList(models.Model):
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_lists') 
     users = models.ManyToManyField(User, related_name='lists')
     name = models.CharField(max_length=100)
     archived = models.BooleanField(default=False)

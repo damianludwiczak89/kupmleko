@@ -177,7 +177,7 @@ class ShoppingListAPIView(APIView):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
             items_data = serializer.validated_data.pop('items', []) # in case of not providing items at all
-            shopping_list = ShoppingList.objects.create(**serializer.validated_data)
+            shopping_list = ShoppingList.objects.create(**serializer.validated_data, created_by=request.user)
             shopping_list.users.add(request.user)
             friends = User.objects.get(id=request.user.id).friends.all()
             for friend in friends:
@@ -249,7 +249,7 @@ class DraftAPIView(APIView):
             # create also a shopping list with same data if checkbox active was also checked
             active = request.data.get('activeAndDraft', False)
             if active:
-                shopping_list = ShoppingList.objects.create(**serializer.validated_data)
+                shopping_list = ShoppingList.objects.create(**serializer.validated_data, created_by=request.user)
                 shopping_list.users.add(request.user)
             for item_data in items_data:
                 if active:
@@ -295,7 +295,7 @@ class DraftActivateAPIView(APIView):
         id = request.data.get('id')
         draft = get_object_or_404(Draft.objects.prefetch_related('items'), id=id, user=request.user)
         serializer = self.serializer_class(draft).data
-        new_shopping_list = ShoppingList.objects.create(name=serializer.get('name'))
+        new_shopping_list = ShoppingList.objects.create(name=serializer.get('name'), created_by=request.user)
         new_shopping_list.users.add(request.user)
 
 

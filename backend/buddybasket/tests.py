@@ -119,7 +119,7 @@ class ShoppingListSuite(APITestCase):
 
         self.client.force_authenticate(user=self.user1)
 
-        self.shopping_list = ShoppingList.objects.create(name="Lidl")
+        self.shopping_list = ShoppingList.objects.create(name="Lidl", created_by=self.user1)
         self.shopping_list.users.add(self.user1)
 
         Item.objects.create(name="Milk", amount=3, bought=False, shopping_list=self.shopping_list)
@@ -359,7 +359,7 @@ class FriendsSuite(APITestCase):
 
         self.client.force_authenticate(user=self.user1)
 
-        self.shopping_list = ShoppingList.objects.create(name="Lidl")
+        self.shopping_list = ShoppingList.objects.create(name="Lidl", created_by=self.user3)
         self.shopping_list.users.add(self.user3)
 
         Item.objects.create(name="Milk", amount=3, bought=False, shopping_list=self.shopping_list)
@@ -512,8 +512,8 @@ class HistorySuite(APITestCase):
 
         self.user1 = User.objects.create_user(username="test1", email="test1@test.com", password="Test123$", is_active=True)
         self.client.force_authenticate(user=self.user1)
-        self.shopping_list = ShoppingList.objects.create(name="Lidl", archived=True)
-        self.shopping_list2 = ShoppingList.objects.create(name="Kaufland", archived=False)
+        self.shopping_list = ShoppingList.objects.create(name="Lidl", created_by=self.user1, archived=True)
+        self.shopping_list2 = ShoppingList.objects.create(name="Kaufland", created_by=self.user1, archived=False)
         Item.objects.create(name="Milk", amount=3, bought=False, shopping_list=self.shopping_list)
         Item.objects.create(name="Cookies", amount=5, bought=False, shopping_list=self.shopping_list)
         self.shopping_list.users.add(self.user1)
@@ -530,7 +530,7 @@ class HistorySuite(APITestCase):
         items = Item.objects.all()
         self.assertEqual(len(items), 2)
         for i in range(9):
-            shopping_list = ShoppingList.objects.create(name="Lidl", archived=True)
+            shopping_list = ShoppingList.objects.create(name="Lidl", archived=True, created_by=self.user1)
             shopping_list.users.add(self.user1)
 
         response = self.client.get(self.history_url)
@@ -540,7 +540,7 @@ class HistorySuite(APITestCase):
 
          # Create shopping list, not archived, delete it, check if archive length did not exceeded 10, and oldest is deleted
 
-        shopping_list = ShoppingList.objects.create(name="Lidl")
+        shopping_list = ShoppingList.objects.create(name="Lidl", created_by=self.user1)
         shopping_list.users.add(self.user1)
         shopping_list_url = reverse("shopping_list_detail", args=[shopping_list.id])
         response = self.client.delete(shopping_list_url)

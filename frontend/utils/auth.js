@@ -4,7 +4,8 @@ import { Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from "axios";
 import { API_BASE_URL } from './constants';
-import messaging from '@react-native-firebase/messaging';
+import { getApp } from '@react-native-firebase/app';
+import { getMessaging } from '@react-native-firebase/messaging';
 import apiInstance from './axios';
 
 export const login = async (email, password) => {
@@ -165,8 +166,10 @@ export const isAccessTokenExpired = (access_token) => {
 }
 
 export const FCMTokenUpdate = async () => {
+    const app = getApp(); 
+    const messaging = getMessaging(app);
     console.log('fcm')
-    const fcmToken = await messaging().getToken();
+    const fcmToken = await messaging.getToken();
     try {
         await apiInstance.post('update_fcm_token/', {fcm_token: fcmToken});
     } catch (error) {

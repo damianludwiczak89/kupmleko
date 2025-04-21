@@ -5,8 +5,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from "axios";
 import { API_BASE_URL } from './constants';
 import { getApp } from '@react-native-firebase/app';
+import { getAuth, signInWithCredential, GoogleAuthProvider } from '@react-native-firebase/auth';
 import { getMessaging } from '@react-native-firebase/messaging';
 import apiInstance from './axios';
+import auth from '@react-native-firebase/auth';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 
 export const login = async (email, password) => {
     try {
@@ -176,3 +179,57 @@ export const FCMTokenUpdate = async () => {
         console.log(error)
     }
 }
+
+  export const googleLogin = async () => {
+
+    console.log('googlelogin called')
+    try {
+
+      const userInfo = await GoogleSignin.signIn();
+      const idToken = userInfo.data.idToken;
+
+      const app = getApp();
+      const auth = getAuth(app);
+      const googleCredential = GoogleAuthProvider.credential(idToken);
+
+      await signInWithCredential(auth, googleCredential);
+
+      const currentUser = auth.currentUser;
+
+      console.log('current user', currentUser);
+
+      const firebaseToken = await currentUser.getIdToken();
+
+      console.log('firebase token', firebaseToken)
+
+      try {
+        const { data, status } = await axios.post(`${API_BASE_URL}user/google-login/`, {
+            idToken: firebaseToken,
+        });
+        console.log('status is', status)
+        if (status === 200) {
+            console.log('logged in 200')
+            setAuthUser(data.access, data.refresh);
+            console.log('tokens saved')
+            await FCMTokenUpdate(); // Update token for push notification
+        }
+        console.log("User signed in with Google");
+        return { data, error: null };
+
+    } catch (error) {
+        console.error("Error during login:", error);
+        return {
+            data: null,
+            error: error.response?.data?.detail || "An error occurred. Please try again.",
+        };
+    }
+
+    } catch (error) {
+        if (error instanceof Error) {
+            console.error('Firebase error:', error.message);
+          } else {
+            console.error('Unknown error:', error);
+          }
+          
+    }
+  };

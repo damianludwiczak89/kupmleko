@@ -8,6 +8,7 @@ urlpatterns = [
     path("user/register/", api_views.RegisterView.as_view(), name="register"),
     path("user/password-reset/<email>/", api_views.PasswordResetEmailVerifyAPIView.as_view(), name="reset_password"),
     path("user/reset-password/", api_views.PasswordChangeAPIView.as_view(), name='password_change'),
+    path("user/google-login/", api_views.GoogleLoginView.as_view(), name='google_login'),
 
     path("shopping_list/", api_views.ShoppingListAPIView.as_view(), name="shopping_list"),
     path("shopping_list/<int:id>/", api_views.ShoppingListAPIView.as_view(), name="shopping_list_detail"),

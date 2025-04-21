@@ -17,14 +17,16 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.exceptions import AuthenticationFailed
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework.exceptions import AuthenticationFailed
 
 from . import serializer as api_serializer
 from .models import User, ShoppingList, Item, Draft, Invite
 import random
+from firebase_admin import auth as firebase_auth
 
 
-from rest_framework_simplejwt.views import TokenObtainPairView
-from rest_framework.exceptions import AuthenticationFailed
+
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
@@ -52,6 +54,33 @@ class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     permission_classes = [AllowAny]
     serializer_class = api_serializer.RegisterSerializer
+
+class GoogleLoginView(APIView):
+    def post(self, request):
+        id_token = request.data.get('idToken')
+
+        if not id_token:
+            return Response({'error': 'ID token is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            decoded_token = firebase_auth.verify_id_token(id_token)
+            email = decoded_token.get('email', '')
+            name = decoded_token.get('name', '')
+
+            user, created = User.objects.get_or_create(email=email, defaults={'username': email, 'first_name': name})
+            
+            if created:
+                user.set_unusable_password()
+                user.save()
+
+            refresh = RefreshToken.for_user(user)
+            return Response({
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+            })
+
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 def generate_random_otp(length=7):

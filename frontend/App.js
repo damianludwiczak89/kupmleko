@@ -3,7 +3,7 @@ import { Platform, PermissionsAndroid } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import MainNavigation from './navigation/MainNavigation';
 import { getApp } from '@react-native-firebase/app';
-import { getMessaging, onMessage, requestPermission, AuthorizationStatus } from '@react-native-firebase/messaging';
+import { getMessaging, onMessage } from '@react-native-firebase/messaging';
 
 
 const App = () => {

@@ -1,13 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import {  SafeAreaView, Text, View, Button } from 'react-native';
+import {  SafeAreaView, Text, View, Button, TouchableOpacity } from 'react-native';
 import apiInstance from '../../utils/axios';
 import ShoppingList from '../../components/ShoppingList/ShoppingList';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useAuthStore } from '../../store/auth';
-import { useFocusEffect } from '@react-navigation/native';
 import { useNavigation } from '@react-navigation/native';
 import { Routes } from '../../navigation/Routes';
 import { useRefreshStore } from '../../store/auth';
+import {FontAwesomeIcon} from "@fortawesome/react-native-fontawesome";
+import {faPlus} from "@fortawesome/free-solid-svg-icons";
+import { faArrowsRotate } from '@fortawesome/free-solid-svg-icons';
+import style from './style';
+import screenStyle from '../screenStyle';
 
 
 // Make the list adding more friendly, route after adding list, checkbox for active/draft
@@ -20,6 +24,8 @@ const Home = () => {
 
   const refreshToken = useRefreshStore(state => state.refreshToken);
   console.log('refreshToken value:', refreshToken);
+
+  const triggerRefresh = useRefreshStore(state => state.triggerRefresh);
 
   const navigation = useNavigation();
 
@@ -60,13 +66,20 @@ const Home = () => {
   ));
 
   return (
-      <SafeAreaView>
+    <View style={style.fullscreen}>
+      <SafeAreaView style={style.container}>
         <ScrollView>
-          <Text>Active Lists</Text>
+          <Text style={style.text}>Active Lists</Text>
             { lists }
-            <Button title="Add New List" onPress={() => navigation.navigate(Routes.ShoppingListForm)} />
         </ScrollView>
       </SafeAreaView>
+      <TouchableOpacity style={screenStyle.refreshIcon} onPress={() => triggerRefresh}>
+        <FontAwesomeIcon icon={faArrowsRotate} style={screenStyle.icon} size={42}/>
+      </TouchableOpacity>
+      <TouchableOpacity style={screenStyle.addIcon} onPress={() => navigation.navigate(Routes.ShoppingListForm)}>
+        <FontAwesomeIcon icon={faPlus} style={screenStyle.icon} size={48}/>
+      </TouchableOpacity> 
+    </View>
   );
 };
 

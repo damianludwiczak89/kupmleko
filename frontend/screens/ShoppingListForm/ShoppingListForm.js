@@ -88,7 +88,7 @@ const ShoppingListForm = (existingValues) => {
 
     const handleSave = (name, items) => {
         // TODO add input validation
-        console.log(activeBox, draftBox)
+        
         if (activeBox && draftBox) {
             saveList(name, items, 'draft/', true);
 
@@ -104,7 +104,6 @@ const ShoppingListForm = (existingValues) => {
         setItems([]);
         setNewItem('');
         setNewAmount(1);
-
         Alert.alert('List saved');
         
         // this double timeout makes sure that previous screen is mounted, and current data fetched

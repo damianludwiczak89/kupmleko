@@ -1,11 +1,14 @@
-import { Text, SafeAreaView, Button } from 'react-native';
+import { Text, SafeAreaView, View, TouchableOpacity } from 'react-native';
 import React, { useState, useEffect} from 'react';
 import apiInstance from '../../utils/axios';
 import { Routes } from '../../navigation/Routes';
 import { useNavigation } from '@react-navigation/native';
-import { useFocusEffect } from '@react-navigation/native';
 import ShoppingList from '../../components/ShoppingList/ShoppingList';
 import { useRefreshStore } from '../../store/auth';
+import {FontAwesomeIcon} from "@fortawesome/react-native-fontawesome";
+import {faCirclePlus} from "@fortawesome/free-solid-svg-icons";
+import style from './style';
+import screenStyle from '../screenStyle';
 
 const Lists = () => {
 
@@ -41,11 +44,15 @@ const Lists = () => {
           ));
 
   return (
-    <SafeAreaView>
-        <Text>Your Lists</Text>
-        { lists }
-        <Button title="Add New List" onPress={() => navigation.navigate(Routes.ShoppingListForm)} />
-    </SafeAreaView>
+    <View style={style.fullscreen}>
+      <SafeAreaView style={style.container}>
+          <Text>Your Lists</Text>
+          { lists }
+          <TouchableOpacity style={screenStyle.addIcon} onPress={() => navigation.navigate(Routes.ShoppingListForm)}>
+            <FontAwesomeIcon icon={faCirclePlus} style={screenStyle.icon} size={48}/>
+          </TouchableOpacity>
+      </SafeAreaView>
+    </View>
   );
 }
 

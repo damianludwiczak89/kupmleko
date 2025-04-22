@@ -19,7 +19,6 @@ const Tabs = () => {
                 tabBarIcon: ({ focused, color, size }) => {
                 let icon;
 
-                // Decide which icon to show for each route
                 if (route.name === 'Shopping') {
                     icon = faBasketShopping;
                 } else if (route.name === 'List') {
@@ -39,10 +38,10 @@ const Tabs = () => {
                     color={focused ? 'dodgerblue' : 'gray'}
                     style={{
                       shadowColor: 'dodgerblue',
-                      shadowOffset: { width: 0, height: focused ? 5 : 0 },  // Apply shadow when focused
+                      shadowOffset: { width: 0, height: focused ? 5 : 0 },
                       shadowOpacity: 0.5,
                       shadowRadius: 5,
-                      elevation: focused ? 10 : 0,  // For Android shadow
+                      elevation: focused ? 10 : 0,
                     }}
                   />
                 );

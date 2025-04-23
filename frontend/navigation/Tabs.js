@@ -15,7 +15,16 @@ const Tab = createBottomTabNavigator();
 const Tabs = () => {
     return (
         <Tab.Navigator
+
             screenOptions={({ route }) => ({
+                headerTitleAlign: 'center',
+                headerStyle: {
+                  height: 40,
+                  backgroundColor: 'white',
+                },
+                headerTitleStyle: {
+                  fontSize: 16,
+                },
                 tabBarIcon: ({ focused, color, size }) => {
                 let icon;
 

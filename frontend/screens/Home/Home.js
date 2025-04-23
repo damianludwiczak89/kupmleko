@@ -10,7 +10,7 @@ import { useRefreshStore } from '../../store/auth';
 import {FontAwesomeIcon} from "@fortawesome/react-native-fontawesome";
 import {faPlus} from "@fortawesome/free-solid-svg-icons";
 import { faArrowsRotate } from '@fortawesome/free-solid-svg-icons';
-import style from './style';
+import styles from './styles';
 import screenStyle from '../screenStyle';
 
 
@@ -66,14 +66,13 @@ const Home = () => {
   ));
 
   return (
-    <View style={style.fullscreen}>
-      <SafeAreaView style={style.container}>
+    <View style={styles.fullscreen}>
+      <SafeAreaView style={styles.container}>
         <ScrollView>
-          <Text style={style.text}>Active Lists</Text>
             { lists }
         </ScrollView>
       </SafeAreaView>
-      <TouchableOpacity style={screenStyle.refreshIcon} onPress={() => triggerRefresh}>
+      <TouchableOpacity style={screenStyle.refreshIcon} onPress={() => triggerRefresh()}>
         <FontAwesomeIcon icon={faArrowsRotate} style={screenStyle.icon} size={42}/>
       </TouchableOpacity>
       <TouchableOpacity style={screenStyle.addIcon} onPress={() => navigation.navigate(Routes.ShoppingListForm)}>

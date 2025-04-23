@@ -44,7 +44,6 @@ const History = () => {
   return (
     <SafeAreaView>
         <ScrollView>
-            <Text>History</Text>
             { lists }
         </ScrollView>
     </SafeAreaView>

@@ -7,7 +7,7 @@ import ShoppingList from '../../components/ShoppingList/ShoppingList';
 import { useRefreshStore } from '../../store/auth';
 import {FontAwesomeIcon} from "@fortawesome/react-native-fontawesome";
 import {faCirclePlus} from "@fortawesome/free-solid-svg-icons";
-import style from './style';
+import styles from './styles';
 import screenStyle from '../screenStyle';
 
 const Lists = () => {
@@ -44,9 +44,8 @@ const Lists = () => {
           ));
 
   return (
-    <View style={style.fullscreen}>
-      <SafeAreaView style={style.container}>
-          <Text>Your Lists</Text>
+    <View style={styles.fullscreen}>
+      <SafeAreaView style={styles.container}>
           { lists }
           <TouchableOpacity style={screenStyle.addIcon} onPress={() => navigation.navigate(Routes.ShoppingListForm)}>
             <FontAwesomeIcon icon={faCirclePlus} style={screenStyle.icon} size={48}/>

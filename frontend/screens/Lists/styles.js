@@ -1,6 +1,6 @@
 import { StyleSheet } from "react-native";
 
-const style = StyleSheet.create({
+const styles = StyleSheet.create({
     fullscreen: {
         flex: 1
     },
@@ -9,4 +9,4 @@ const style = StyleSheet.create({
     },
 })
 
-export default style;
+export default styles;

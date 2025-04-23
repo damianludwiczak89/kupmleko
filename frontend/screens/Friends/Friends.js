@@ -71,14 +71,12 @@ const Friends = () => {
 
   return (
     <SafeAreaView>
-      <Text>Friends</Text>
-
           <TextInput
               style={{borderWidth: 1, padding: 10, borderRadius: 4}}
               value={email}
               onChangeText={value => setEmail(value)}
               placeholder='Email'
-              autoFocus={true}
+              autoFocus={false}
           />
 
           <Button title="Invite" onPress={() => sendInvite(email)} color="#841584" />

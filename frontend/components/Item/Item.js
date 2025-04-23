@@ -3,6 +3,7 @@ import CheckBox from '@react-native-community/checkbox';
 import { useState, useCallback } from 'react';
 import { debounce } from 'lodash';
 import apiInstance from '../../utils/axios';
+import styles from './styles';
 
 
 
@@ -24,29 +25,30 @@ const Item = ({itemId, name, amount, bought, active, history=false}) => {
         setBoughtState(newValue);
         debouncedUpdate(newValue, itemId);
     };
+    
 
     return (
-        <View>
-            <Text>{name}: {amount}
-            {active ? (
-                <View>
-                <TouchableOpacity
-                    style={{ flexDirection: 'row', alignItems: 'center' }}
-                    disabled = {history}
-                    onPress={() => handleCheckboxChange(!boughtState, itemId)}
-                >
-                    <CheckBox
-                        value={boughtState}
-                        onValueChange={null}
-                        disabled={true}
-                        tintColors={{ true: 'blue', false: 'gray' }}
-                        onTintColor="blue"
-                        onCheckColor="blue"
-                    />
-                </TouchableOpacity>
-                </View>
-            ) : null }
-            </Text>
+        <View style={styles.itemRow}>
+        <Text style={styles.itemText}>
+            {name}: {amount}
+        </Text>
+
+        {active && (
+            <TouchableOpacity
+            style={styles.checkboxTouchable}
+            disabled={history}
+            onPress={() => handleCheckboxChange(!boughtState, itemId)}
+            >
+            <CheckBox
+                value={boughtState}
+                onValueChange={null}
+                disabled={true}
+                tintColors={{ true: 'blue', false: 'gray' }}
+                onTintColor="blue"
+                onCheckColor="blue"
+            />
+            </TouchableOpacity>
+        )}
         </View>
     )
 

@@ -1,11 +1,16 @@
 import Item from '../Item/Item';
-import {  Button, View } from 'react-native';
+import {  Button, View, Pressable, Text } from 'react-native';
 import { useState } from 'react';
 import apiInstance from '../../utils/axios';
 import { useNavigation } from '@react-navigation/native';
 import { Routes } from '../../navigation/Routes';
+import styles from './style';
+import { useRefreshStore } from '../../store/auth';
+import { Alert } from 'react-native';
 
 const ShoppingList = ({ id, name, items, active=true, update, history=false }) => {
+
+    const triggerRefresh = useRefreshStore(state => state.triggerRefresh);
 
     const navigation = useNavigation();
 
@@ -31,6 +36,8 @@ const ShoppingList = ({ id, name, items, active=true, update, history=false }) =
     const activate = async (id) => {
         try {
             await apiInstance.post('draft/activate/', {id: id})
+            triggerRefresh();
+            Alert.alert('List activated');
         }
         catch (error) {
             console.log('error activating list')
@@ -56,21 +63,32 @@ const ShoppingList = ({ id, name, items, active=true, update, history=false }) =
 
 
     return (
-        <View>
-            <Button title={name} onPress={() => setDisplayList(!displayList)} />
-            {displayList && (
-                <View>
-                    {itemComponents} 
-                        {!history && ( 
-                            <>
-                                {!active && <Button title="Activate" onPress={() => activate(id)} />}
-                                <Button title={active ? "Completed" : "Delete"} onPress={() => deleteList(id)} />
-                                <Button title="Edit" onPress={() => edit(id, name, items, active)} />
-                            </>
-                        )}           
+        <View style={styles.card}>
+        <Pressable onPress={() => setDisplayList(!displayList)} style={styles.cardHeader}>
+            <Text style={styles.cardHeaderText}>{name}</Text>
+        </Pressable>
+
+        {displayList && (
+            <View style={styles.cardContent}>
+            {itemComponents}
+
+            {!history && (
+                <View style={styles.buttonRow}>
+                {!active && (
+                    <Pressable style={styles.customButton} onPress={() => activate(id)}>
+                    <Text style={styles.customButtonText}>Activate</Text>
+                    </Pressable>
+                )}
+                <Pressable style={styles.customButton} onPress={() => deleteList(id)}>
+                    <Text style={styles.customButtonText}>{active ? 'Completed' : 'Delete'}</Text>
+                </Pressable>
+                <Pressable style={styles.customButton} onPress={() => edit(id, name, items, active)}>
+                    <Text style={styles.customButtonText}>Edit</Text>
+                </Pressable>
                 </View>
             )}
-
+            </View>
+        )}
         </View>
     )
 }

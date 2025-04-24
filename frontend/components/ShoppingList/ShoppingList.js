@@ -4,7 +4,7 @@ import { useState } from 'react';
 import apiInstance from '../../utils/axios';
 import { useNavigation } from '@react-navigation/native';
 import { Routes } from '../../navigation/Routes';
-import styles from './style';
+import styles from './styles';
 import { useRefreshStore } from '../../store/auth';
 import { Alert } from 'react-native';
 

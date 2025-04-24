@@ -1,10 +1,19 @@
-import {  TextInput, View, Button, Text, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  Button,
+  ScrollView,
+} from 'react-native';
 import { useState, useEffect } from 'react';
 import apiInstance from '../../utils/axios';
 import { Alert } from 'react-native';
 import CheckBox from '@react-native-community/checkbox';
 import { useNavigation } from '@react-navigation/native';
 import { useRefreshStore } from '../../store/auth';
+import styles from './styles';
+import uuid from 'react-native-uuid';
 
 // Consider what to do with active/draft checkboxes if editing existing list
 // probably add a prop to check if editing and hide them
@@ -32,7 +41,7 @@ const ShoppingListForm = (existingValues) => {
                 console.log(item)
                 setItems(prevItems => [
                     ...prevItems,
-                    { id: prevItems.length + 1, name: item['name'], amount: item['amount'], bought: item['bought'] }])
+                    { id: uuid.v4(), name: item['name'], amount: item['amount'], bought: item['bought'] }])
             })
         }
     }, [existingValues]);
@@ -40,9 +49,10 @@ const ShoppingListForm = (existingValues) => {
     const addItem = () => {
         setItems(prevItems => [
         ...prevItems,
-        { id: prevItems.length + 1, name: newItem, amount: newAmount, bought: false }])
+        { id: uuid.v4(), name: newItem, amount: newAmount, bought: false }])
         setNewItem('')
         setNewAmount(1)
+        console.log(items)
     }
 
     const removeItem = (id) => {
@@ -116,77 +126,82 @@ const ShoppingListForm = (existingValues) => {
     }
 
     return (
-        <View>
-            <TextInput
-                style={{borderWidth: 1, padding: 10, borderRadius: 4}}
-                value={name}
-                onChangeText={value => setName(value)}
-                placeholder='Name'
-                autoFocus={true}
-            />
-            {items.map((item) => (
-                <View key={item.id}>
-                <Text>{item.name}: {item.amount}</Text>
-                <Button title='Remove Item' onPress={() => removeItem(item.id)} />
-                </View>
-                
-            ))}
-                <TextInput
-                    style={{borderWidth: 1, padding: 10, borderRadius: 4}}
-                    value={newItem}
-                    onChangeText={(text) => setNewItem(text)}
-                    placeholder='Item'
-                />
-                <TextInput
-                    style={{borderWidth: 1, padding: 10, borderRadius: 4}}
-                    value={newAmount.toString()}
-                    inputMode="numeric"
-                    onChangeText={(text) => setNewAmount(Number(text) || 1)}
-                    placeholder='Amount'
-                />
-            <Button title="Add item" onPress={() => addItem()} />
-            {!existingValues?.route?.params?.id && (
+        <View style={styles.container}>
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          <TextInput
+            style={styles.input}
+            value={name}
+            onChangeText={setName}
+            placeholder='List name'
+            autoFocus
+          />
+    
+          {items.map(item => (
+            <View key={item.id} style={styles.itemRow}>
+                <Text style={styles.itemText}>
+                    {item.name}: {item.amount}
+                </Text>
+                    <TouchableOpacity onPress={() => removeItem(item.id)}>
+                <Text style={styles.deleteText}>🗑</Text>
+                </TouchableOpacity>
+            </View>
+          ))}
+    
+          {!existingValues?.route?.params?.id && (
             <>
-                <View>
-                <TouchableOpacity
-                    style={{ flexDirection: 'row', alignItems: 'center' }}
-                    onPress={() => setActiveBox(!activeBox)}
-                >
-                    <CheckBox
-                        value={activeBox}
-                        onValueChange={null}
-                        disabled={true}
-                        tintColors={{ true: 'blue', false: 'gray' }}
-                        onTintColor="blue"
-                        onCheckColor="blue"
-                    />
-                    <Text style={{ marginLeft: 8 }}>Add to Active</Text>
+              <View style={styles.checkboxRow}>
+                <TouchableOpacity onPress={() => setActiveBox(!activeBox)} style={styles.checkboxRow}>
+                  <CheckBox
+                    value={activeBox}
+                    disabled={true}
+                    tintColors={{ true: 'blue', false: 'gray' }}
+                  />
+                  <Text style={styles.checkboxText}>Add to Active</Text>
                 </TouchableOpacity>
-                </View>
-
-                <View>
-                <TouchableOpacity
-                    style={{ flexDirection: 'row', alignItems: 'center' }}
-                    onPress={() => setDraftBox(!draftBox)}
-                >
-                    <CheckBox
-                        value={draftBox}
-                        onValueChange={null}
-                        disabled={true}
-                        tintColors={{ true: 'blue', false: 'gray' }}
-                        onTintColor="blue"
-                        onCheckColor="blue"
-                    />
-                    <Text style={{ marginLeft: 8 }}>Add to Drafts</Text>
+              </View>
+    
+              <View style={styles.checkboxRow}>
+                <TouchableOpacity onPress={() => setDraftBox(!draftBox)} style={styles.checkboxRow}>
+                  <CheckBox
+                    value={draftBox}
+                    disabled={true}
+                    tintColors={{ true: 'blue', false: 'gray' }}
+                  />
+                  <Text style={styles.checkboxText}>Add to Drafts</Text>
                 </TouchableOpacity>
-                </View></>
-            )}
-            
-            
-            <Button title="Save List" onPress={() => handleSave( name, items )} />
+              </View>
+            </>
+          )}
+    
+          <View style={styles.saveButton}>
+            <Button title="Save List" onPress={() => handleSave(name, items)} />
+          </View>
+        </ScrollView>
+    
+        <View style={styles.bottomBar}>
+          <TextInput
+            style={styles.itemInput}
+            value={newItem}
+            onChangeText={setNewItem}
+            placeholder="Item"
+          />
+          <TouchableOpacity onPress={() => setNewAmount(Math.max(1, newAmount - 1))}>
+            <Text style={styles.stepperText}>➖</Text>
+          </TouchableOpacity>
+          <TextInput
+            style={styles.amountInput}
+            value={newAmount.toString()}
+            inputMode="numeric"
+            onChangeText={text => setNewAmount(Number(text) || 1)}
+          />
+          <TouchableOpacity onPress={() => setNewAmount(newAmount + 1)}>
+            <Text style={styles.stepperText}>➕</Text>
+          </TouchableOpacity>
+          <Button title="Add" onPress={addItem} disabled={newItem ? false : true} />
         </View>
+      </View>
     )
+    };
 
-}
 
 export default ShoppingListForm;

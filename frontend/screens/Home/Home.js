@@ -8,7 +8,7 @@ import { useNavigation } from '@react-navigation/native';
 import { Routes } from '../../navigation/Routes';
 import { useRefreshStore } from '../../store/auth';
 import {FontAwesomeIcon} from "@fortawesome/react-native-fontawesome";
-import {faPlus} from "@fortawesome/free-solid-svg-icons";
+import {faCirclePlus} from "@fortawesome/free-solid-svg-icons";
 import { faArrowsRotate } from '@fortawesome/free-solid-svg-icons';
 import styles from './styles';
 import screenStyle from '../screenStyle';
@@ -76,7 +76,7 @@ const Home = () => {
         <FontAwesomeIcon icon={faArrowsRotate} style={screenStyle.icon} size={42}/>
       </TouchableOpacity>
       <TouchableOpacity style={screenStyle.addIcon} onPress={() => navigation.navigate(Routes.ShoppingListForm)}>
-        <FontAwesomeIcon icon={faPlus} style={screenStyle.icon} size={48}/>
+        <FontAwesomeIcon icon={faCirclePlus} style={screenStyle.icon} size={48}/>
       </TouchableOpacity> 
     </View>
   );

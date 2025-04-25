@@ -17,8 +17,6 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.exceptions import AuthenticationFailed
-from rest_framework_simplejwt.views import TokenObtainPairView
-from rest_framework.exceptions import AuthenticationFailed
 
 from . import serializer as api_serializer
 from .models import User, ShoppingList, Item, Draft, Invite
@@ -98,13 +96,10 @@ class PasswordResetEmailVerifyAPIView(APIView):
             return Response({"message": "User not found"}, status=status.HTTP_404_NOT_FOUND)
         
         uuidb64 = urlsafe_base64_encode(force_bytes(user.pk))
-        refresh = RefreshToken.for_user(user)
-        refresh_token = str(refresh.access_token)
-        user.refresh_token = refresh_token
         user.otp = generate_random_otp()
         user.save()
 
-        link = f"http://localhost:8000/api/user/reset-password/?otp={user.otp}&uuidb64={uuidb64}&=refresh_token={refresh_token}"
+        link = f"http://localhost:8000/api/user/reset-password/?otp={user.otp}&uuidb64={uuidb64}"
         
         email_data = {
             "link": link,

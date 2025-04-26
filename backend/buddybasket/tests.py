@@ -1,6 +1,6 @@
 from rest_framework.test import APITestCase
 from rest_framework.test import APIClient
-from .models import Draft, ShoppingList, Item, Invite
+from .models import Draft, ShoppingList, Item, Invite, Category
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from rest_framework import status
@@ -145,7 +145,11 @@ class ShoppingListSuite(APITestCase):
     def test_shopping_list_post(self):
         response = self.client.post(self.shopping_list_url, {
             'name': 'Kaufland',
-            "items": [{'name': 'Eggs', 'amount': 3, 'bought': False}, {'name': 'Water', 'amount': 6, 'bought': False}]
+            "items": [{'name': 'Eggs', 'amount': 3, 'bought': False}, {'name': 'Water', 'amount': 6, 'bought': False}],
+            "categories": [{
+                "name": "Warzywa", 
+                "bought": False,
+                "items": [{'name': 'ogorek', 'amount': 1, 'bought': False}, {'name': 'pomidor', 'amount': 1, 'bought': False}]}],
         }, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -154,7 +158,9 @@ class ShoppingListSuite(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 2)
         self.assertEqual(response.data[1]['name'], "Kaufland")
+        print(response.data[1])
         self.assertEqual(len(response.data[1]['items']), 2)
+        self.assertEqual(len(response.data[1]['categories']), 1)
 
         response = self.client.post(self.shopping_list_url, {
             'name': 'Intermarche',
@@ -555,3 +561,4 @@ class HistorySuite(APITestCase):
         # Check if items of the removed archived list are deleted
         items = Item.objects.all()
         self.assertEqual(len(items), 0)
+  

@@ -45,9 +45,19 @@ class ShoppingList(models.Model):
     def __str__(self):
         return self.name
 
+class Category(models.Model):
+    name = models.CharField(max_length=100)
+    shopping_list = models.ForeignKey(ShoppingList, on_delete=models.SET_NULL, related_name='categories', null=True, blank=True)
+    draft = models.ForeignKey(Draft, on_delete=models.SET_NULL, related_name='categories', null=True, blank=True)
+    bought = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.name
+
 class Item(models.Model):
     shopping_list = models.ForeignKey(ShoppingList, on_delete=models.SET_NULL, related_name='items', null=True, blank=True)
     draft = models.ForeignKey(Draft, on_delete=models.SET_NULL, related_name='items', null=True, blank=True)
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, related_name='items', null=True, blank=True)
     name = models.CharField(max_length=100)
     amount = models.IntegerField(default=1)
     bought = models.BooleanField(default=False)

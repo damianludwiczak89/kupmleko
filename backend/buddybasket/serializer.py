@@ -2,7 +2,7 @@ from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import Token
 from django.contrib.auth.password_validation import validate_password
-from .models import User, ShoppingList, Item, Draft, Invite
+from .models import User, ShoppingList, Item, Draft, Invite, Category
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
@@ -54,9 +54,27 @@ class ItemSerializer(serializers.ModelSerializer):
         model = Item
         fields = '__all__'
 
+class CategorySerializer(serializers.ModelSerializer):
+
+    items = ItemSerializer(many=True, required=False)
+
+    class Meta:
+        model = Category
+        fields = '__all__'
+
+    def create(self, validated_data):
+        items_data = validated_data.pop('items', [])
+        category = Category.objects.create(**validated_data)
+
+        for item_data in items_data:
+            Item.objects.create(category=category, **item_data)
+
+        return category
+
 class ShoppingListSerializer(serializers.ModelSerializer):
 
     items = ItemSerializer(many=True, required=False)
+    categories = CategorySerializer(many=True, required=False)
 
     class Meta:
         model = ShoppingList
@@ -67,10 +85,11 @@ class ShoppingListSerializer(serializers.ModelSerializer):
 class DraftSerializer(serializers.ModelSerializer):
 
     items = ItemSerializer(many=True, required=False)
+    categories = CategorySerializer(many=True, required=False)
 
     class Meta:
         model = Draft
-        fields = ['id', 'name', 'items']
+        fields = ['id', 'name', 'items', 'categories']
 
 
     

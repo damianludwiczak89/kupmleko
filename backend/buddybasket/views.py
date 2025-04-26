@@ -19,7 +19,7 @@ from rest_framework.views import APIView
 from rest_framework.exceptions import AuthenticationFailed
 
 from . import serializer as api_serializer
-from .models import User, ShoppingList, Item, Draft, Invite
+from .models import User, ShoppingList, Item, Draft, Invite, Category
 import random
 from firebase_admin import auth as firebase_auth
 
@@ -173,20 +173,20 @@ class ShoppingListAPIView(APIView):
     def get(self, request, id=None, *args, **kwargs):
 
         if id:
-            shopping_list = get_object_or_404(ShoppingList.objects.prefetch_related('items'), id=id)
+            shopping_list = get_object_or_404(ShoppingList.objects.prefetch_related('items', 'categories'), id=id)
             serializer = self.serializer_class(shopping_list)
             return Response(serializer.data)
 
-        queryset = ShoppingList.objects.filter(users=request.user, archived=False).prefetch_related('items')
+        queryset = ShoppingList.objects.filter(users=request.user, archived=False).prefetch_related('items', 'categories')
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)
     
     def delete(self, request, id, *args, **kwargs):
-        shopping_list = get_object_or_404(ShoppingList.objects.prefetch_related('items'), id=id)
+        shopping_list = get_object_or_404(ShoppingList.objects.prefetch_related('items', 'categories'), id=id)
         shopping_list.archived = True
         shopping_list.save()
         if len(ShoppingList.objects.filter(users=request.user, archived=True)) > 10:
-            archived_to_be_removed = ShoppingList.objects.filter(users=request.user, archived=True).prefetch_related('items').order_by('id')[0]
+            archived_to_be_removed = ShoppingList.objects.filter(users=request.user, archived=True).prefetch_related('items', 'categories').order_by('id')[0]
             serializer = self.serializer_class(archived_to_be_removed).data
             for item in serializer['items']:
                 query_item = Item.objects.get(**item)
@@ -199,8 +199,10 @@ class ShoppingListAPIView(APIView):
 
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
+        
         if serializer.is_valid():
             items_data = serializer.validated_data.pop('items', []) # in case of not providing items at all
+            categories_data = serializer.validated_data.pop('categories', []) # in case of not providing items at all
             shopping_list = ShoppingList.objects.create(**serializer.validated_data, created_by=request.user)
             shopping_list.users.add(request.user)
             friends = User.objects.get(id=request.user.id).friends.all()
@@ -208,6 +210,14 @@ class ShoppingListAPIView(APIView):
                 shopping_list.users.add(friend)
             for item_data in items_data:
                 Item.objects.create(shopping_list=shopping_list, **item_data)
+            for category_data in categories_data:
+                category_data['shopping_list'] = shopping_list.id
+                category_serializer = api_serializer.CategorySerializer(data=category_data)
+                if category_serializer.is_valid():
+                    category_serializer.save()
+                else:
+                    print(category_serializer.errors)
+                    
 
             return Response({"message": "Shopping list addedd successfully"}, status=status.HTTP_201_CREATED)
         print(serializer.errors)
@@ -248,12 +258,12 @@ class DraftAPIView(APIView):
             serializer = self.serializer_class(draft)
             return Response(serializer.data)
         
-        queryset = Draft.objects.filter(user=request.user).prefetch_related('items')
+        queryset = Draft.objects.filter(user=request.user).prefetch_related('items', 'categories')
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)
     
     def delete(self, request, id, *args, **kwargs):
-        draft = get_object_or_404(Draft.objects.prefetch_related('items'), id=id)
+        draft = get_object_or_404(Draft.objects.prefetch_related('items', 'categories'), id=id)
         serializer = self.serializer_class(draft).data
         for item in serializer['items']:
             query_item = Item.objects.get(**item)
@@ -330,7 +340,8 @@ class DraftActivateAPIView(APIView):
             new_item = Item(name=item.name, amount=item.amount, shopping_list=new_shopping_list)
             new_item.save()
         return Response({"message": "Draft activated successfully"}, status=status.HTTP_202_ACCEPTED)
-
+    
+    
 class HistoryAPIView(APIView):
     permission_classes = [IsAuthenticated]
     serializer_class = api_serializer.ShoppingListSerializer

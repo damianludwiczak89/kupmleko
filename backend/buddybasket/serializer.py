@@ -3,6 +3,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import Token
 from django.contrib.auth.password_validation import validate_password
 from .models import User, ShoppingList, Item, Draft, Invite
+from .utils import update_and_delete_items
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
@@ -69,44 +70,28 @@ class ShoppingListSerializer(serializers.ModelSerializer):
 
         shopping_list = ShoppingList.objects.create(**validated_data, created_by=created_by)
         shopping_list.users.add(created_by)
-
         
         friends = created_by.friends.all()
         for friend in friends:
             shopping_list.users.add(friend)
 
-        
-        for item_data in items_data:
-            Item.objects.create(shopping_list=shopping_list, **item_data)
+        create_items = []
 
-        
+        for item_data in items_data:
+            create_items.append(Item(shopping_list=shopping_list, **item_data))
+
+        Item.objects.bulk_create(create_items)
 
         return shopping_list
     
     def update(self, instance, validated_data):
         instance.name = validated_data.get('name', instance.name)
         instance.save()
+        update_and_delete_items(instance)
 
-        new_items_data = validated_data.pop('items', [])
-
-        items_to_save = []
-        items_to_delete = []
-
-        for item in instance.items.all():
-            item.shopping_list = None
-            if item.draft or item.shopping_list:
-                items_to_save.append(item)
-            else:
-                items_to_delete.append(item)
-
-        if items_to_save:
-            Item.objects.bulk_update(items_to_save, ['shopping_list'])
-
-        if items_to_delete:
-            Item.objects.filter(id__in=[item.id for item in items_to_delete]).delete()
-
-        items_to_create = []
         # Create new items attached to shopping_list
+        new_items_data = validated_data.pop('items', [])
+        items_to_create = []
         for item_data in new_items_data:
             items_to_create.append(Item(
                 name=item_data['name'],
@@ -127,7 +112,47 @@ class DraftSerializer(serializers.ModelSerializer):
         model = Draft
         fields = ['id', 'name', 'items']
 
+    def create(self, validated_data):
+        user = self.context['user']
+        active = self.context['active']
 
+        items_data = validated_data.pop('items', []) # in case of not providing items at all
+        draft = Draft.objects.create(**validated_data, user=user)
+
+        # create also a shopping list with same data if checkbox active was also checked
+        if active:
+            shopping_list = ShoppingList.objects.create(**validated_data, created_by=user)
+            shopping_list.users.add(user)
+        
+        create_items = []
+        for item_data in items_data:
+            if active:
+                create_items.append(Item(draft=draft, shopping_list = shopping_list, **item_data))
+            else:
+                create_items.append(Item(draft=draft, **item_data))
+
+        Item.objects.bulk_create(create_items)
+
+        return draft
+    
+    def update(self, instance, validated_data):
+        instance.name = validated_data['name']
+        instance.save()
+        update_and_delete_items(instance)
+        
+        # Create new items attached to the draft
+        new_items_data = validated_data.pop('items', [])
+        items_to_create = []
+        for item_data in new_items_data:
+            items_to_create.append(Item(
+                name=item_data['name'],
+                amount=item_data['amount'],
+                bought=item_data['bought'],
+                draft=instance
+            ))
+        Item.objects.bulk_create(items_to_create)
+
+        return instance
     
 class InviteSerializer(serializers.ModelSerializer):
 

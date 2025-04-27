@@ -22,6 +22,7 @@ from . import serializer as api_serializer
 from .models import User, ShoppingList, Item, Draft, Invite
 import random
 from firebase_admin import auth as firebase_auth
+from .utils import update_and_delete_items
 
 
 
@@ -182,18 +183,17 @@ class ShoppingListAPIView(APIView):
         return Response(serializer.data)
     
     def delete(self, request, id, *args, **kwargs):
+        '''
+        Deleting a shopping list actually means to put it in archive but only 10 objects
+        are kept there, so the 11th object is deleted
+        '''
         shopping_list = get_object_or_404(ShoppingList.objects.prefetch_related('items'), id=id)
         shopping_list.archived = True
         shopping_list.save()
+
         if len(ShoppingList.objects.filter(users=request.user, archived=True)) > 10:
             archived_to_be_removed = ShoppingList.objects.filter(users=request.user, archived=True).prefetch_related('items').order_by('id')[0]
-            serializer = self.serializer_class(archived_to_be_removed).data
-            for item in serializer['items']:
-                query_item = Item.objects.get(**item)
-                query_item.shopping_list = None
-                query_item.save()
-                if not query_item.draft and not query_item.shopping_list:
-                    query_item.delete()
+            update_and_delete_items(archived_to_be_removed)
             archived_to_be_removed.delete()
         return Response({"message": "Shopping list archived successfully"}, status=status.HTTP_202_ACCEPTED) 
 
@@ -231,33 +231,17 @@ class DraftAPIView(APIView):
     
     def delete(self, request, id, *args, **kwargs):
         draft = get_object_or_404(Draft.objects.prefetch_related('items'), id=id)
-        serializer = self.serializer_class(draft).data
-        for item in serializer['items']:
-            query_item = Item.objects.get(**item)
-            query_item.draft = None
-            query_item.save()
-            if not query_item.draft and not query_item.shopping_list:
-                query_item.delete()
+        update_and_delete_items(draft)
         draft.delete()
         return Response({"message": "Draft list deleted successfully"}, status=status.HTTP_202_ACCEPTED) 
 
     def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data)
+        serializer = self.serializer_class(data=request.data, context={
+            'user': request.user, 
+            'active': request.data.get('activeAndDraft', False)})
+        
         if serializer.is_valid():
-            items_data = serializer.validated_data.pop('items', []) # in case of not providing items at all
-            draft = Draft.objects.create(**serializer.validated_data, user=request.user)
-
-            # create also a shopping list with same data if checkbox active was also checked
-            active = request.data.get('activeAndDraft', False)
-            if active:
-                shopping_list = ShoppingList.objects.create(**serializer.validated_data, created_by=request.user)
-                shopping_list.users.add(request.user)
-            for item_data in items_data:
-                if active:
-                    Item.objects.create(draft=draft, shopping_list = shopping_list, **item_data)
-                else:
-                    Item.objects.create(draft=draft, **item_data)
-
+            serializer.save()
             return Response({"message": "Draft addedd successfully"}, status=status.HTTP_201_CREATED)
         else:
             print(serializer.errors)
@@ -265,27 +249,11 @@ class DraftAPIView(APIView):
     
     def put(self, request, id, *args, **kwargs):
         draft = get_object_or_404(Draft.objects.prefetch_related('items'), id=id, user=request.user)
-        serializer = self.serializer_class(draft).data
-
-        new_data = self.serializer_class(data=request.data)
-        if new_data.is_valid():
-            draft.name = new_data.validated_data['name']
-            draft.save()
-            # Unattach old items from draft
-            for item in serializer['items']:
-                old_item = Item.objects.get(id=item['id'])
-                old_item.draft = None
-                if old_item.draft or old_item.shopping_list:
-                    old_item.save()
-                else:
-                    old_item.delete()
-                    
-            # Create new items and relate them to the draft
-            new_data = new_data.validated_data
-            for item in new_data['items']:
-                new_item = Item(name=item['name'], amount=item['amount'], bought=item['bought'], draft=draft)
-                new_item.save()
-
+        serializer = self.serializer_class(draft, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+        else:
+            print(serializer.errors)
         return Response({"message": "Draft edited successfully"}, status=status.HTTP_202_ACCEPTED)
 
 class DraftActivateAPIView(APIView):
@@ -299,13 +267,14 @@ class DraftActivateAPIView(APIView):
         new_shopping_list = ShoppingList.objects.create(name=serializer.get('name'), created_by=request.user)
         new_shopping_list.users.add(request.user)
 
-
         items = [int(x['id']) for x in serializer.get('items')]
         items = Item.objects.filter(id__in=items)
+
+        create_items = []
         for item in items:
             # Creating new Item instead of adding shoppinglist to existing Item, in case of activating 1 draft multiple times
-            new_item = Item(name=item.name, amount=item.amount, shopping_list=new_shopping_list)
-            new_item.save()
+            create_items.append(Item(name=item.name, amount=item.amount, shopping_list=new_shopping_list))
+        Item.objects.bulk_create(create_items)
         return Response({"message": "Draft activated successfully"}, status=status.HTTP_202_ACCEPTED)
 
 class HistoryAPIView(APIView):

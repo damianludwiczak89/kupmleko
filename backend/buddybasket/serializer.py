@@ -61,7 +61,62 @@ class ShoppingListSerializer(serializers.ModelSerializer):
     class Meta:
         model = ShoppingList
         fields = '__all__'
-        read_only_fields = ['created_by', 'users', 'archived'] 
+        read_only_fields = ['created_by', 'users', 'archived']
+
+    def create(self, validated_data):
+        items_data = validated_data.pop('items', [])
+        created_by = self.context['created_by']
+
+        shopping_list = ShoppingList.objects.create(**validated_data, created_by=created_by)
+        shopping_list.users.add(created_by)
+
+        
+        friends = created_by.friends.all()
+        for friend in friends:
+            shopping_list.users.add(friend)
+
+        
+        for item_data in items_data:
+            Item.objects.create(shopping_list=shopping_list, **item_data)
+
+        
+
+        return shopping_list
+    
+    def update(self, instance, validated_data):
+        instance.name = validated_data.get('name', instance.name)
+        instance.save()
+
+        new_items_data = validated_data.pop('items', [])
+
+        items_to_save = []
+        items_to_delete = []
+
+        for item in instance.items.all():
+            item.shopping_list = None
+            if item.draft or item.shopping_list:
+                items_to_save.append(item)
+            else:
+                items_to_delete.append(item)
+
+        if items_to_save:
+            Item.objects.bulk_update(items_to_save, ['shopping_list'])
+
+        if items_to_delete:
+            Item.objects.filter(id__in=[item.id for item in items_to_delete]).delete()
+
+        items_to_create = []
+        # Create new items attached to shopping_list
+        for item_data in new_items_data:
+            items_to_create.append(Item(
+                name=item_data['name'],
+                amount=item_data['amount'],
+                bought=item_data['bought'],
+                shopping_list=instance
+            ))
+        Item.objects.bulk_create(items_to_create)
+
+        return instance
 
     
 class DraftSerializer(serializers.ModelSerializer):

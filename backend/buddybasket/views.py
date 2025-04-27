@@ -181,6 +181,7 @@ class ShoppingListAPIView(APIView):
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)
     
+    # Move the list to archive but keep there only 10 objects so delete 11th
     def delete(self, request, id, *args, **kwargs):
         shopping_list = get_object_or_404(ShoppingList.objects.prefetch_related('items', 'categories'), id=id)
         shopping_list.archived = True
@@ -198,54 +199,21 @@ class ShoppingListAPIView(APIView):
         return Response({"message": "Shopping list archived successfully"}, status=status.HTTP_202_ACCEPTED) 
 
     def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data)
+        serializer = self.serializer_class(data=request.data, context={'created_by': request.user})
         
         if serializer.is_valid():
-            items_data = serializer.validated_data.pop('items', []) # in case of not providing items at all
-            categories_data = serializer.validated_data.pop('categories', []) # in case of not providing items at all
-            shopping_list = ShoppingList.objects.create(**serializer.validated_data, created_by=request.user)
-            shopping_list.users.add(request.user)
-            friends = User.objects.get(id=request.user.id).friends.all()
-            for friend in friends:
-                shopping_list.users.add(friend)
-            for item_data in items_data:
-                Item.objects.create(shopping_list=shopping_list, **item_data)
-            for category_data in categories_data:
-                category_data['shopping_list'] = shopping_list.id
-                category_serializer = api_serializer.CategorySerializer(data=category_data)
-                if category_serializer.is_valid():
-                    category_serializer.save()
-                else:
-                    print(category_serializer.errors)
-                    
-
+            serializer.save()               
             return Response({"message": "Shopping list addedd successfully"}, status=status.HTTP_201_CREATED)
         print(serializer.errors)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     def put(self, request, id, *args, **kwargs):
         shopping_list = get_object_or_404(ShoppingList.objects.prefetch_related('items'), id=id)
-        serializer = self.serializer_class(shopping_list).data
-        new_data = self.serializer_class(data=request.data)
-        if new_data.is_valid():
-            shopping_list.name = new_data.validated_data['name']
-            shopping_list.save()
-            # unattach old items from the shopping list
-            for item in serializer['items']:
-                old_item = Item.objects.get(id=item['id'])
-                old_item.shopping_list = None
-                if old_item.draft or old_item.shopping_list:
-                    old_item.save()
-                else:
-                    old_item.delete()
-
-            # Create new items and relate them to the shopping list
-            new_data = new_data.validated_data
-            for item in new_data['items']:
-                new_item = Item(name=item['name'], amount=item['amount'], bought=item['bought'], shopping_list=shopping_list)
-                new_item.save()
-
-        return Response({"message": "Shopping list changed successfully"}, status=status.HTTP_202_ACCEPTED) 
+        serializer = self.serializer_class(shopping_list, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "Shopping list changed successfully"}, status=status.HTTP_202_ACCEPTED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class DraftAPIView(APIView):

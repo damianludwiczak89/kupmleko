@@ -1,4 +1,5 @@
 from .models import Item, Draft, ShoppingList
+import random
 
 def update_and_delete_items(instance):
     '''
@@ -25,3 +26,7 @@ def update_and_delete_items(instance):
 
     if items_to_delete:
         Item.objects.filter(id__in=[item.id for item in items_to_delete]).delete()
+
+
+def generate_random_otp(length=7):
+    return ''.join([str(random.randint(0, 9)) for _ in range(length)])

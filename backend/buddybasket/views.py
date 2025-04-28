@@ -20,9 +20,8 @@ from rest_framework.exceptions import AuthenticationFailed
 
 from . import serializer as api_serializer
 from .models import User, ShoppingList, Item, Draft, Invite
-import random
 from firebase_admin import auth as firebase_auth
-from .utils import update_and_delete_items
+from .utils import update_and_delete_items, generate_random_otp
 
 
 
@@ -80,10 +79,6 @@ class GoogleLoginView(APIView):
 
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
-
-def generate_random_otp(length=7):
-    return ''.join([str(random.randint(0, 9)) for _ in range(length)])
 
 
 class PasswordResetEmailVerifyAPIView(APIView):

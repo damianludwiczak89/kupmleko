@@ -176,7 +176,7 @@ const ShoppingListForm = (existingValues) => {
           <View style={styles.saveButton}>
             <Button 
                 title="Save List" 
-                disabled={!(name && items.length > 0)}
+                disabled={!(name && items.length > 0 && (activeBox || draftBox))}
                 onPress={() => handleSave(name, items)} />
           </View>
         </ScrollView>

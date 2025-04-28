@@ -362,6 +362,9 @@ class FriendsSuite(APITestCase):
         self.shopping_list = ShoppingList.objects.create(name="Lidl", created_by=self.user3)
         self.shopping_list.users.add(self.user3)
 
+        self.shopping_list = ShoppingList.objects.create(name="Lidl", created_by=self.user2)
+        self.shopping_list.users.add(self.user2, self.user1)
+
         Item.objects.create(name="Milk", amount=3, bought=False, shopping_list=self.shopping_list)
         Item.objects.create(name="Cookies", amount=5, bought=False, shopping_list=self.shopping_list)
 
@@ -397,10 +400,23 @@ class FriendsSuite(APITestCase):
         self.assertEqual(len(response.data[0]['items']), 2)
 
     def test_friends_delete(self):
+
+        shopping_lists_url = reverse('shopping_list')
+        response = self.client.get(shopping_lists_url)
+        print(response.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]['name'], "Lidl")
+
         friends_url = reverse("friends_delete", args=[2])
         response = self.client.delete(friends_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['message'], 'Friend removed successfully')
+
+        shopping_lists_url = reverse('shopping_list')
+        response = self.client.get(shopping_lists_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 0)
 
         response = self.client.delete(friends_url)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -443,6 +459,9 @@ class InviteSuite(APITestCase):
         Invite.objects.create(from_user=self.user3, to_user=self.user1)
         self.user1.friends.add(self.user4)
         self.client.force_authenticate(user=self.user1)
+
+        self.shopping_list = ShoppingList.objects.create(name="Lidl", created_by=self.user3)
+        self.shopping_list.users.add(self.user3)
 
     def test_invites_get(self):
         response = self.client.get(self.invite_url)
@@ -494,6 +513,13 @@ class InviteSuite(APITestCase):
         response = self.client.post(invite_url, {'id': 2})
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
         self.assertEqual(response.data['error'], 'Already a friend')
+
+
+        shopping_lists_url = reverse('shopping_list')
+        response = self.client.get(shopping_lists_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]['name'], "Lidl")
 
     def test_invite_reject(self):
         invite_url = reverse("invite", args=[1])

@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.apps import apps
 
 
 class User(AbstractUser):
@@ -23,6 +24,18 @@ class User(AbstractUser):
         super(User,  self).save(*args, **kwargs)
 
     def remove_friend(self, friend):
+        ShoppingList = apps.get_model('buddybasket', 'ShoppingList')
+
+        my_created_lists = ShoppingList.objects.filter(created_by=self, users=friend)
+        for shopping_list in my_created_lists:
+            shopping_list._suppress_notifications = True
+            shopping_list.users.remove(friend)
+
+        friends_created_lists = ShoppingList.objects.filter(created_by=friend, users=self)
+        for shopping_list in friends_created_lists:
+            shopping_list._suppress_notifications = True
+            shopping_list.users.remove(self)
+
         if friend in self.friends.all():
             self.friends.remove(friend)
             return True
@@ -64,6 +77,14 @@ class Invite(models.Model):
 
     def accept(self):
         self.from_user.friends.add(self.to_user)
+        for shopping_list in self.from_user.lists.all():
+            shopping_list._suppress_notifications = True
+            shopping_list.users.add(self.to_user)
+        
+        for shopping_list in self.to_user.lists.all():
+            shopping_list._supprress_notifications = True
+            shopping_list.users.add(self.from_user)
+
         self.delete()
 
     def __str__(self):

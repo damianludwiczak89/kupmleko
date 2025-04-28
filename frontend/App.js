@@ -4,9 +4,12 @@ import { NavigationContainer } from '@react-navigation/native';
 import MainNavigation from './navigation/MainNavigation';
 import { getApp } from '@react-native-firebase/app';
 import { getMessaging, onMessage } from '@react-native-firebase/messaging';
+import { useRefreshStore } from './store/auth';
 
 
 const App = () => {
+
+  const triggerRefresh = useRefreshStore(state => state.triggerRefresh);
 
   useEffect(() => {
     const app = getApp();
@@ -29,6 +32,7 @@ const App = () => {
 
     const unsubscribe = onMessage(getMessaging(app), async remoteMessage => {
       console.log('📩 FCM Message Received in foreground:', remoteMessage);
+      triggerRefresh();
     });
 
     return unsubscribe;

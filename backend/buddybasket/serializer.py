@@ -58,11 +58,12 @@ class ItemSerializer(serializers.ModelSerializer):
 class ShoppingListSerializer(serializers.ModelSerializer):
 
     items = ItemSerializer(many=True, required=False)
+    archived_timestamp = serializers.DateTimeField(format="%Y-%m-%d %H:%M")
 
     class Meta:
         model = ShoppingList
         fields = '__all__'
-        read_only_fields = ['created_by', 'users', 'archived']
+        read_only_fields = ['created_by', 'users', 'archived', 'archived_timestamp']
 
     def create(self, validated_data):
         items_data = validated_data.pop('items', [])

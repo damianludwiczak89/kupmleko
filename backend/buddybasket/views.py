@@ -8,7 +8,7 @@ from django.utils.encoding import force_bytes, force_str
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.http import Http404
-from django.db import IntegrityError
+from django.utils import timezone
 
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework import generics, status
@@ -22,7 +22,6 @@ from . import serializer as api_serializer
 from .models import User, ShoppingList, Item, Draft, Invite
 from firebase_admin import auth as firebase_auth
 from .utils import update_and_delete_items, generate_random_otp
-
 
 
 from django.contrib.auth import get_user_model
@@ -184,6 +183,7 @@ class ShoppingListAPIView(APIView):
         '''
         shopping_list = get_object_or_404(ShoppingList.objects.prefetch_related('items'), id=id)
         shopping_list.archived = True
+        shopping_list.archived_timestamp = timezone.now()
         shopping_list.save()
 
         if len(ShoppingList.objects.filter(users=request.user, archived=True)) > 10:
@@ -277,7 +277,7 @@ class HistoryAPIView(APIView):
     serializer_class = api_serializer.ShoppingListSerializer
     
     def get(self, request, *args, **kwargs):
-        queryset = ShoppingList.objects.filter(users=request.user, archived=True).prefetch_related('items')
+        queryset = ShoppingList.objects.filter(users=request.user, archived=True).prefetch_related('items').order_by('-archived_timestamp')
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)
     

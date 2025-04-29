@@ -1,165 +1,150 @@
-import React, {useState, useEffect} from 'react';
-import {  SafeAreaView, Text, Button, TextInput, View, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import {
+  SafeAreaView,
+  Text,
+  Button,
+  TextInput,
+  View,
+  TouchableOpacity,
+  Alert,
+  ScrollView,
+} from 'react-native';
 import apiInstance from '../../utils/axios';
-import { Alert } from 'react-native';
-import { useRefreshStore } from '../../store/auth'; 
+import { useRefreshStore } from '../../store/auth';
+import styles from './styles';
 
 const Friends = () => {
+  const refreshToken = useRefreshStore((state) => state.refreshToken);
+  const triggerRefresh = useRefreshStore((state) => state.triggerRefresh);
 
-    const refreshToken = useRefreshStore(state => state.refreshToken);
-    const triggerRefresh = useRefreshStore(state => state.triggerRefresh);
-
-    const [email, setEmail] = useState('');
-    const [invites, setInvites] = useState([]);
-    const [friends, setFriends] = useState([]);
-
-    const sendInvite = async (email) => {
-      try {
-        const response = await apiInstance.post('invite/', {email: email});
-        console.log(response.data);
-      } catch (error) {
-        console.error('error', error)
-        console.error('Error searching user:', error.response ? error.response.data : error.message);
-        if (error.response) {
-          console.error('Response Data:', error.response.data);
-          console.error('Status:', error.response.status);
-        }
-      }
-    }
-
-    const getInvites = async () => {
-      try {
-        const response = await apiInstance.get('invite/');
-        console.log('Invites:', response.data);
-        setInvites(response.data);
-      } catch (error) {
-        console.error('error', error)
-        console.error('Error fetching invites:', error.response ? error.response.data : error.message);
-        if (error.response) {
-          console.error('Response Data:', error.response.data);
-          console.error('Status:', error.response.status);
-        }
-      }
-    };
-
-    const getFriends = async () => {
-      try {
-        const response = await apiInstance.get('friends/');
-        console.log('Friends:', response.data);
-        setFriends(response.data);
-      } catch (error) {
-        console.error('error', error)
-        console.error('Error fetching friends:', error.response ? error.response.data : error.message);
-        if (error.response) {
-          console.error('Response Data:', error.response.data);
-          console.error('Status:', error.response.status);
-        }
-      }
-    };
-
-    const acceptInvite = async (id) => {
-      try {
-        const response = await apiInstance.post('invite/accept/', {id: id});
-        console.log(response.data);
-        Alert.alert('Invite accepted!') 
-        triggerRefresh();
-      } catch (error) {
-        console.error('error', error)
-        console.error('Error accepting invite:', error.response ? error.response.data : error.message);
-      }
-    }
-
-    const declineInvite = async () => {
-      try {
-        const response = await apiInstance.delete(`invite/${id}/`);
-        console.log(response.data)
-        triggerRefresh();
-      } catch (error) {
-        console.error('error', error)
-        console.error('Error accepting invite:', error.response ? error.response.data : error.message);
-      }
-    }
-
-    const removeFriend = async (id) => {
-      try {
-        const response = await apiInstance.delete(`friends/${id}/`);
-        console.log(response.data)
-        triggerRefresh();
-      } catch (error) {
-        console.error('error', error)
-        console.error('Error deleting friend:', error.response ? error.response.data : error.message);
-      }
-    }
-
-    const confirmRemoveFriend = (friendId) => {
-      Alert.alert(
-        'Remove Friend',
-        'Are you sure you want to remove this friend?',
-        [
-          {
-            text: 'Cancel',
-            style: 'cancel',
-          },
-          { 
-            text: 'Remove', 
-            style: 'destructive',
-            onPress: () => removeFriend(friendId),
-          },
-        ],
-        { cancelable: true }
-      );
-    };
+  const [email, setEmail] = useState('');
+  const [invites, setInvites] = useState([]);
+  const [friends, setFriends] = useState([]);
 
   useEffect(() => {
-          getFriends();
-          getInvites();
-      }, [refreshToken])
+    getFriends();
+    getInvites();
+  }, [refreshToken]);
 
-    const mapped_invites = invites.map(item => (
-      <View key={item.id} style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 5 }}>
-        <Text style={{ flex: 1 }}>
-          {item.from_user.username} ({item.from_user.email})
-        </Text>
-    
-        <TouchableOpacity onPress={() => acceptInvite(item.id)} style={{ marginHorizontal: 5 }}>
-          <Text style={{ fontSize: 24 }}>✅</Text>
-        </TouchableOpacity>
-    
-        <TouchableOpacity onPress={() => declineInvite(item.id)} style={{ marginHorizontal: 5 }}>
-          <Text style={{ fontSize: 16 }}>❌</Text>
-        </TouchableOpacity>
-      </View>
-    ));
+  const sendInvite = async (email) => {
+    try {
+      await apiInstance.post('invite/', { email });
+      setEmail('');
+      getInvites();
+    } catch (error) {
+      console.error('Error sending invite:', error);
+    }
+  };
 
-  const mapped_friends = friends.map(item => (
-    <View key={item.id} style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 5 }}>
-      <Text key={item.id}>{item.username} ({item.email})</Text>
-      <TouchableOpacity onPress={() => confirmRemoveFriend(item.id)}>
-        <Text style={{ fontSize: 24 }}>❌</Text>
+  const getInvites = async () => {
+    try {
+      const response = await apiInstance.get('invite/');
+      setInvites(response.data);
+    } catch (error) {
+      console.error('Error fetching invites:', error);
+    }
+  };
+
+  const getFriends = async () => {
+    try {
+      const response = await apiInstance.get('friends/');
+      setFriends(response.data);
+    } catch (error) {
+      console.error('Error fetching friends:', error);
+    }
+  };
+
+  const acceptInvite = async (id) => {
+    try {
+      await apiInstance.post('invite/accept/', { id });
+      Alert.alert('Invite accepted!');
+      triggerRefresh();
+    } catch (error) {
+      console.error('Error accepting invite:', error);
+    }
+  };
+
+  const declineInvite = async (id) => {
+    try {
+      await apiInstance.delete(`invite/${id}/`);
+      triggerRefresh();
+    } catch (error) {
+      console.error('Error declining invite:', error);
+    }
+  };
+
+  const removeFriend = async (id) => {
+    try {
+      await apiInstance.delete(`friends/${id}/`);
+      triggerRefresh();
+    } catch (error) {
+      console.error('Error removing friend:', error);
+    }
+  };
+
+  const confirmRemoveFriend = (id) => {
+    Alert.alert(
+      'Remove Friend',
+      'Are you sure you want to remove this friend?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Remove', style: 'destructive', onPress: () => removeFriend(id) },
+      ],
+      { cancelable: true }
+    );
+  };
+
+  const mapped_invites = invites.map((item) => (
+    <View key={item.id} style={styles.listItem}>
+      <Text style={styles.text}>
+        {item.from_user.username} ({item.from_user.email})
+      </Text>
+      <TouchableOpacity onPress={() => acceptInvite(item.id)} style={styles.icon}>
+        <Text style={styles.emoji}>✅</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => declineInvite(item.id)} style={styles.icon}>
+        <Text style={styles.emoji}>❌</Text>
       </TouchableOpacity>
     </View>
-  ))
+  ));
+
+  const mapped_friends = friends.map((item) => (
+    <View key={item.id} style={styles.listItem}>
+      <Text style={styles.text}>
+        {item.username} ({item.email})
+      </Text>
+      <TouchableOpacity onPress={() => confirmRemoveFriend(item.id)} style={styles.icon}>
+        <Text style={styles.emoji}>❌</Text>
+      </TouchableOpacity>
+    </View>
+  ));
 
   return (
-    <SafeAreaView>
+    <SafeAreaView style={styles.container}>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <View style={styles.stickyCard}>
+          <Text style={styles.sectionTitle}>Send Friend Invite</Text>
           <TextInput
-              style={{borderWidth: 1, padding: 10, borderRadius: 4}}
-              value={email}
-              onChangeText={value => setEmail(value)}
-              placeholder='Email'
-              autoFocus={false}
+            style={styles.input}
+            value={email}
+            onChangeText={setEmail}
+            placeholder="Friend email"
           />
+          <Button title="Invite" onPress={() => sendInvite(email)} />
+        </View>
 
-          <Button title="Invite" onPress={() => sendInvite(email)} color="#841584" />
-        <Text>Invites</Text>
-        { mapped_invites }
-        <Text>Friends</Text>
-        { mapped_friends }
+        <View style={styles.stickyCard}>
+          <Text style={styles.sectionTitle}>Pending Invites</Text>
+          {mapped_invites.length > 0 ? mapped_invites : <Text style={styles.subText}>No invites</Text>}
+        </View>
 
-          
+        <View style={styles.stickyCard}>
+          <Text style={styles.sectionTitle}>Your Friends</Text>
+          {mapped_friends.length > 0 ? mapped_friends : <Text style={styles.subText}>No friends yet</Text>}
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
-  
-}
+};
 
 export default Friends;

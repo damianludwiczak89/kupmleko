@@ -37,6 +37,7 @@ const History = () => {
               name={list.name}
               items={list.items}
               history={true}
+              timestamp={list.archived_timestamp}
             />
           ));
     

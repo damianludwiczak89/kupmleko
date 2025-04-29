@@ -8,7 +8,7 @@ import styles from './styles';
 import { useRefreshStore } from '../../store/auth';
 import { Alert } from 'react-native';
 
-const ShoppingList = ({ id, name, items, active=true, update, history=false }) => {
+const ShoppingList = ({ id, name, items, active=true, update, history=false, timestamp=false }) => {
 
     const triggerRefresh = useRefreshStore(state => state.triggerRefresh);
 
@@ -65,7 +65,10 @@ const ShoppingList = ({ id, name, items, active=true, update, history=false }) =
     return (
         <View style={styles.card}>
         <Pressable onPress={() => setDisplayList(!displayList)} style={styles.cardHeader}>
-            <Text style={styles.cardHeaderText}>{name}</Text>
+            <View>
+                <Text style={styles.cardHeaderText}>{name}</Text>
+                {history && <Text style={styles.timestampText}>{timestamp}</Text>}
+            </View>
         </Pressable>
 
         {displayList && (
@@ -74,17 +77,17 @@ const ShoppingList = ({ id, name, items, active=true, update, history=false }) =
 
             {!history && (
                 <View style={styles.buttonRow}>
-                {!active && (
+                    {!active && (
                     <Pressable style={styles.customButton} onPress={() => activate(id)}>
-                    <Text style={styles.customButtonText}>Activate</Text>
+                        <Text style={styles.customButtonText}>🛒 Activate</Text>
                     </Pressable>
-                )}
-                <Pressable style={styles.customButton} onPress={() => deleteList(id)}>
-                    <Text style={styles.customButtonText}>{active ? 'Completed' : 'Delete'}</Text>
-                </Pressable>
-                <Pressable style={styles.customButton} onPress={() => edit(id, name, items, active)}>
-                    <Text style={styles.customButtonText}>Edit</Text>
-                </Pressable>
+                    )}
+                    <Pressable style={styles.customButton} onPress={() => deleteList(id)}>
+                    <Text style={styles.customButtonText}>{active ? '✅ Completed' : '❌ Delete'}</Text>
+                    </Pressable>
+                    <Pressable style={styles.customButton} onPress={() => edit(id, name, items, active)}>
+                    <Text style={styles.customButtonText}>✏️ Edit</Text>
+                    </Pressable>
                 </View>
             )}
             </View>

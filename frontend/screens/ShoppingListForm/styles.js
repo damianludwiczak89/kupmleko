@@ -7,6 +7,16 @@ const styles = StyleSheet.create({
       scrollContent: {
         padding: 20,
         paddingBottom: 100,
+        backgroundColor: '#fff8b3', 
+        padding: 16,
+        borderRadius: 10,
+        marginVertical: 8,
+        marginHorizontal: 16,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3,
       },
       input: {
         borderWidth: 1,
@@ -61,6 +71,8 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         paddingVertical: 5,
+        borderBottomWidth: 1,
+        borderBottomColor: '#e0e0e0',
       },
       itemText: {
         fontSize: 16,

@@ -68,18 +68,22 @@ const Home = () => {
   return (
     <View style={styles.fullscreen}>
       <SafeAreaView style={styles.container}>
-        <ScrollView>
-            { lists }
+        <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
+          {lists}
         </ScrollView>
       </SafeAreaView>
-      <TouchableOpacity style={screenStyle.refreshIcon} onPress={() => triggerRefresh()}>
-        <FontAwesomeIcon icon={faArrowsRotate} style={screenStyle.icon} size={42}/>
-      </TouchableOpacity>
-      <TouchableOpacity style={screenStyle.addIcon} onPress={() => navigation.navigate(Routes.ShoppingListForm)}>
-        <FontAwesomeIcon icon={faCirclePlus} style={screenStyle.icon} size={48}/>
-      </TouchableOpacity> 
+  
+      <View style={screenStyle.iconWrapper}>
+        <TouchableOpacity onPress={() => triggerRefresh()} style={screenStyle.iconButton}>
+          <FontAwesomeIcon icon={faArrowsRotate} style={screenStyle.icon} size={36} />
+        </TouchableOpacity>
+        
+        <TouchableOpacity onPress={() => navigation.navigate(Routes.ShoppingListForm)} style={screenStyle.iconButton}>
+          <FontAwesomeIcon icon={faCirclePlus} style={screenStyle.icon} size={40} />
+        </TouchableOpacity>
+      </View>
     </View>
   );
-};
+}
 
 export default Home;

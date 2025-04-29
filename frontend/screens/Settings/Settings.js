@@ -10,7 +10,6 @@ const Settings = () => {
   return (
     <SafeAreaView>
         <ScrollView>
-            <Text>Settings</Text>
             <Button title="Logout" onPress={async () => {
               await logout(); 
             }} />

@@ -1,27 +1,26 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet } from 'react-native';
 
 const screenStyle = StyleSheet.create({
-    addIcon: {
-        position: 'absolute',
-        bottom: 20,
-        right: 20,
-        borderRadius: 30,
-        padding: 15,
-        zIndex: 999,
-        elevation: 50,
-      },
-      refreshIcon: {
-        position: 'absolute',
-        bottom: 90,
-        right: 20,
-        borderRadius: 30,
-        padding: 15,
-        zIndex: 999,
-        elevation: 50,
-      },
-    icon: {
-        color: '#007AFF',
-    }
-})
+  iconWrapper: {
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    columnGap: 16,
+  },
+  iconButton: {
+    backgroundColor: '#f5f5f5',
+    borderRadius: 30,
+    padding: 14,
+    marginLeft: 10,
+    elevation: 5,
+  },
+  icon: {
+    color: '#007AFF',
+  },
+});
+
 
 export default screenStyle;

@@ -7,6 +7,7 @@ import ShoppingList from '../../components/ShoppingList/ShoppingList';
 import { useRefreshStore } from '../../store/auth';
 import {FontAwesomeIcon} from "@fortawesome/react-native-fontawesome";
 import {faCirclePlus} from "@fortawesome/free-solid-svg-icons";
+import { faArrowsRotate } from '@fortawesome/free-solid-svg-icons';
 import styles from './styles';
 import screenStyle from '../screenStyle';
 
@@ -47,9 +48,15 @@ const Lists = () => {
     <View style={styles.fullscreen}>
       <SafeAreaView style={styles.container}>
           { lists }
-          <TouchableOpacity style={screenStyle.addIcon} onPress={() => navigation.navigate(Routes.ShoppingListForm)}>
-            <FontAwesomeIcon icon={faCirclePlus} style={screenStyle.icon} size={48}/>
-          </TouchableOpacity>
+          <View style={screenStyle.iconWrapper}>
+            <TouchableOpacity onPress={() => triggerRefresh()} style={screenStyle.iconButton}>
+              <FontAwesomeIcon icon={faArrowsRotate} style={screenStyle.icon} size={36} />
+            </TouchableOpacity>
+            
+            <TouchableOpacity onPress={() => navigation.navigate(Routes.ShoppingListForm)} style={screenStyle.iconButton}>
+              <FontAwesomeIcon icon={faCirclePlus} style={screenStyle.icon} size={40} />
+            </TouchableOpacity>
+          </View>
       </SafeAreaView>
     </View>
   );
@@ -57,9 +64,6 @@ const Lists = () => {
 
 export default Lists;
 
-//<SafeAreaView>
-//<Text>Lists here</Text>
-//{formDisplay && <ShoppingListForm updateLists={getLists} />}
-//<Button title={formButtonTitle} onPress={() => toggleForm()} /> 
-//</SafeAreaView>
-//);
+//<TouchableOpacity style={screenStyle.addIcon} onPress={() => navigation.navigate(Routes.ShoppingListForm)}>
+//<FontAwesomeIcon icon={faCirclePlus} style={screenStyle.icon} size={48}/>
+//</TouchableOpacity>

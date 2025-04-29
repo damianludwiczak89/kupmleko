@@ -121,6 +121,7 @@ const ShoppingListForm = (existingValues) => {
             navigation.goBack();
             setTimeout(() => {
               triggerRefresh();
+              console.log('triggered refresh in shopping list form after new list')
             }, 300);
           }, 1000);
     }

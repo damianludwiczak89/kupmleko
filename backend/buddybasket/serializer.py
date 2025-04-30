@@ -58,7 +58,7 @@ class ItemSerializer(serializers.ModelSerializer):
 class ShoppingListSerializer(serializers.ModelSerializer):
 
     items = ItemSerializer(many=True, required=False)
-    archived_timestamp = serializers.DateTimeField(format="%Y-%m-%d %H:%M")
+    archived_timestamp = serializers.DateTimeField(format="%Y-%m-%d %H:%M", required=False, allow_null=True)
 
     class Meta:
         model = ShoppingList

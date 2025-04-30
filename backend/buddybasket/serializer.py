@@ -69,7 +69,7 @@ class ShoppingListSerializer(serializers.ModelSerializer):
         items_data = validated_data.pop('items', [])
         created_by = self.context['created_by']
 
-        shopping_list = ShoppingList.objects.create(**validated_data, created_by=created_by)
+        shopping_list = ShoppingList.objects.create(**validated_data, created_by=created_by, archived_timestamp=None)
         shopping_list.users.add(created_by)
         
         friends = created_by.friends.all()

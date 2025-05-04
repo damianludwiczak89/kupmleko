@@ -54,7 +54,7 @@ class ShoppingList(models.Model):
     users = models.ManyToManyField(User, related_name='lists')
     name = models.CharField(max_length=100)
     archived = models.BooleanField(default=False)
-    archived_timestamp = models.DateTimeField(default=None)
+    archived_timestamp = models.DateTimeField(default=None, null=True, blank=True)
 
     def __str__(self):
         return self.name

@@ -9,14 +9,13 @@ def notify_users_added(sender, instance, action, pk_set, **kwargs):
         return
     
     if action == 'post_add':
-        # Avoid notifying the user who created the list
+        # Avoid notifying the user who created the list - only his/her friends
         creator = instance.created_by
+        creator_friends = set(creator.friends.all())
+        users = User.objects.filter(pk__in=pk_set)
 
-        for user_id in pk_set:
-            if user_id == creator.id:
-                continue
-            user = User.objects.get(pk=user_id)
-            if user.fcm_token:
+        for user in users:
+            if user in creator_friends and user.fcm_token:
                 send_push_notification(
                     user.fcm_token,
                     "New Shopping List Shared",

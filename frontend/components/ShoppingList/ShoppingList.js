@@ -10,7 +10,8 @@ import { Alert } from 'react-native';
 
 const ShoppingList = ({ id, name, items, active=true, update, history=false, timestamp=false }) => {
 
-    const triggerRefresh = useRefreshStore(state => state.triggerRefresh);
+    const triggerHistoryRefresh = useRefreshStore(state => state.triggerHistoryRefresh);
+    const triggerShoppingListsRefresh = useRefreshStore(state => state.triggerShoppingListsRefresh);
 
     const navigation = useNavigation();
 
@@ -26,6 +27,7 @@ const ShoppingList = ({ id, name, items, active=true, update, history=false, tim
         const endpoint = active ? "shopping_list" : "draft";
         try {
             await apiInstance.delete(`${endpoint}/${id}/`)
+            triggerHistoryRefresh();
             update();
         }
         catch (error) {
@@ -36,7 +38,7 @@ const ShoppingList = ({ id, name, items, active=true, update, history=false, tim
     const activate = async (id) => {
         try {
             await apiInstance.post('draft/activate/', {id: id})
-            triggerRefresh();
+            triggerShoppingListsRefresh();
             Alert.alert('List activated');
         }
         catch (error) {

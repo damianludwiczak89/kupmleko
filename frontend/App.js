@@ -9,7 +9,8 @@ import { useRefreshStore } from './store/auth';
 
 const App = () => {
 
-  const triggerRefresh = useRefreshStore(state => state.triggerRefresh);
+  const triggerInvitesRefresh = useRefreshStore(state => state.triggerInvitesRefresh);
+  const triggerShoppingListsRefresh = useRefreshStore(state => state.triggerShoppingListsRefresh);
 
   useEffect(() => {
     const app = getApp();
@@ -32,7 +33,14 @@ const App = () => {
 
     const unsubscribe = onMessage(getMessaging(app), async remoteMessage => {
       console.log('📩 FCM Message Received in foreground:', remoteMessage);
-      triggerRefresh();
+      if (remoteMessage['notification']['title'] === "Friend invitation") {
+        triggerInvitesRefresh();
+        console.log('refreshed invites after push not.')
+      }
+      else if (remoteMessage['notification']['title'] === "New Shopping List Shared") {
+        triggerShoppingListsRefresh();
+        console.log('refreshed shopping lists after push not.')
+      }
     });
 
     return unsubscribe;

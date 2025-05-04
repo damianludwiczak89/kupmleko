@@ -14,8 +14,11 @@ import { useRefreshStore } from '../../store/auth';
 import styles from './styles';
 
 const Friends = () => {
-  const refreshToken = useRefreshStore((state) => state.refreshToken);
-  const triggerRefresh = useRefreshStore((state) => state.triggerRefresh);
+  const friendsToken = useRefreshStore((state) => state.friendsToken);
+  const triggerFriendsRefresh = useRefreshStore((state) => state.triggerFriendsRefresh);
+
+  const invitesToken = useRefreshStore((state) => state.invitesToken);
+  const triggerInvitesRefresh = useRefreshStore((state) => state.triggerInvitesRefresh);
 
   const [email, setEmail] = useState('');
   const [invites, setInvites] = useState([]);
@@ -23,8 +26,11 @@ const Friends = () => {
 
   useEffect(() => {
     getFriends();
+  }, [friendsToken]);
+
+  useEffect(() => {
     getInvites();
-  }, [refreshToken]);
+  }, [invitesToken]);
 
   const sendInvite = async (email) => {
     try {
@@ -58,7 +64,8 @@ const Friends = () => {
     try {
       await apiInstance.post('invite/accept/', { id });
       Alert.alert('Invite accepted!');
-      triggerRefresh();
+      triggerFriendsRefresh();
+      triggerInvitesRefresh();
     } catch (error) {
       console.error('Error accepting invite:', error);
     }
@@ -67,7 +74,7 @@ const Friends = () => {
   const declineInvite = async (id) => {
     try {
       await apiInstance.delete(`invite/${id}/`);
-      triggerRefresh();
+      triggerInvitesRefresh();
     } catch (error) {
       console.error('Error declining invite:', error);
     }
@@ -76,7 +83,7 @@ const Friends = () => {
   const removeFriend = async (id) => {
     try {
       await apiInstance.delete(`friends/${id}/`);
-      triggerRefresh();
+      triggerFriendsRefresh();
     } catch (error) {
       console.error('Error removing friend:', error);
     }

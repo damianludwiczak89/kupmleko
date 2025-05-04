@@ -7,7 +7,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         paddingVertical: 10,
         borderBottomWidth: 1,
-        borderBottomColor: '#e0e0e0', // light grey line
+        borderBottomColor: '#e0e0e0',
       },
       
       itemText: {

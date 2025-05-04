@@ -14,18 +14,14 @@ import styles from './styles';
 import screenStyle from '../screenStyle';
 
 
-// Make the list adding more friendly, route after adding list, checkbox for active/draft
 // Shoppinglistform - data validation, error messages
-// Start friends - look up, add
-// Consider refresh button instead of focus effect to lower traffic (then change focus to normal effect on render)
-// Consider deleting search user api, invite directly
 
 const Home = () => {
 
-  const refreshToken = useRefreshStore(state => state.refreshToken);
-  console.log('refreshToken value:', refreshToken);
+  const shoppingListsToken = useRefreshStore(state => state.shoppingListsToken);
+  console.log('listsToken value:', shoppingListsToken);
 
-  const triggerRefresh = useRefreshStore(state => state.triggerRefresh);
+  const triggerShoppingListsRefresh = useRefreshStore(state => state.triggerShoppingListsRefresh);
 
   const navigation = useNavigation();
 
@@ -52,7 +48,8 @@ const Home = () => {
 
   useEffect(() => {
           getShoppingLists();
-      }, [refreshToken])
+      }, [shoppingListsToken])
+
 
   const lists = shoppingLists.map((list) => (
     <ShoppingList
@@ -74,7 +71,7 @@ const Home = () => {
       </SafeAreaView>
   
       <View style={screenStyle.iconWrapper}>
-        <TouchableOpacity onPress={() => triggerRefresh()} style={screenStyle.iconButton}>
+        <TouchableOpacity onPress={() => triggerShoppingListsRefresh()} style={screenStyle.iconButton}>
           <FontAwesomeIcon icon={faArrowsRotate} style={screenStyle.icon} size={36} />
         </TouchableOpacity>
         

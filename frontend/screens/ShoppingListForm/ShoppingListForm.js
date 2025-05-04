@@ -21,7 +21,8 @@ import uuid from 'react-native-uuid';
 
 const ShoppingListForm = (existingValues) => {
 
-    const triggerRefresh = useRefreshStore(state => state.triggerRefresh);
+    const triggerDraftsRefresh = useRefreshStore(state => state.triggerDraftsRefresh);
+    const triggerShoppingListsRefresh = useRefreshStore(state => state.triggerShoppingListsRefresh);
 
     const navigation = useNavigation();
 
@@ -120,8 +121,18 @@ const ShoppingListForm = (existingValues) => {
         setTimeout(() => {
             navigation.goBack();
             setTimeout(() => {
-              triggerRefresh();
-              console.log('triggered refresh in shopping list form after new list')
+              if (activeBox && draftBox) {
+                triggerDraftsRefresh();
+                triggerShoppingListsRefresh();
+                console.log('refreshed both lists')
+              }
+              else if (draftBox) {
+                triggerDraftsRefresh();
+                console.log('refreshed drafts')
+              }
+              else {
+                console.log('refreshed shoppinglists')
+              }
             }, 300);
           }, 1000);
     }

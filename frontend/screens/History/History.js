@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Text, SafeAreaView } from 'react-native';
-import { useFocusEffect } from '@react-navigation/native';
 import { ScrollView } from 'react-native-gesture-handler';
 import apiInstance from '../../utils/axios';
 import ShoppingList from '../../components/ShoppingList/ShoppingList';
+import { useRefreshStore } from '../../store/auth';
 
 const History = () => {
+
+    const historyToken = useRefreshStore((state) => state.historyToken);
 
     const [historyLists, setHistoryLists] = useState([]);
 
@@ -24,11 +26,9 @@ const History = () => {
         }
       };
 
-    useFocusEffect(
-        React.useCallback(() => {
-            getHistoryLists();
-        }, [])
-        );
+      useEffect(() => {
+        getHistoryLists();
+      }, [historyToken]);
 
         const lists = historyLists.map((list) => (
             <ShoppingList

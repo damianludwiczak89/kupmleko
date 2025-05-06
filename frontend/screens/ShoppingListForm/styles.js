@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
       },
       
       itemName: {
-        flex: 1, // Takes up available space
+        flex: 1,
         fontSize: 16,
       },
       

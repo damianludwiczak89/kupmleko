@@ -64,7 +64,10 @@ class GoogleLoginView(APIView):
             email = decoded_token.get('email', '')
             name = decoded_token.get('name', '')
 
-            user, created = User.objects.get_or_create(email=email, defaults={'username': email, 'first_name': name})
+            user, created = User.objects.get_or_create(
+                email=email, 
+                account_auth_type='google',
+                defaults={'username': email, 'first_name': name})
             
             if created:
                 user.set_unusable_password()
@@ -89,6 +92,9 @@ class PasswordResetEmailVerifyAPIView(APIView):
 
         if not user:
             return Response({"message": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+        if user.account_auth_type == 'google':
+            return Response({"message": "Cannot reset password for google account login"}, status=status.HTTP_400_BAD_REQUEST)
         
         uuidb64 = urlsafe_base64_encode(force_bytes(user.pk))
         user.otp = generate_random_otp()

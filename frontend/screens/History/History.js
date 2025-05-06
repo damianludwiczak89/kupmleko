@@ -45,7 +45,13 @@ const History = () => {
   return (
     <SafeAreaView>
         <ScrollView>
-            { lists }
+          {lists && lists.length > 0 ? (
+              lists
+            ) : (
+              <Text style={{ textAlign: 'center', marginTop: 20 }}>
+                You don't have any archived shopping lists yet
+              </Text>
+          )}
         </ScrollView>
     </SafeAreaView>
   );

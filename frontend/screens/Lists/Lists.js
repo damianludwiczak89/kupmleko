@@ -46,7 +46,13 @@ const Lists = () => {
   return (
     <View style={styles.fullscreen}>
       <SafeAreaView style={styles.container}>
-          { lists }
+          {lists && lists.length > 0 ? (
+              lists
+            ) : (
+              <Text style={{ textAlign: 'center', marginTop: 20 }}>
+                You don't have any drafts yet
+              </Text>
+          )}
           <View style={screenStyle.iconWrapper}>
           
             <TouchableOpacity onPress={() => navigation.navigate(Routes.ShoppingListForm)} style={screenStyle.iconButton}>

@@ -66,7 +66,13 @@ const Home = () => {
     <View style={styles.fullscreen}>
       <SafeAreaView style={styles.container}>
         <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
-          {lists}
+          {lists && lists.length > 0 ? (
+              lists
+            ) : (
+              <Text style={{ textAlign: 'center', marginTop: 20 }}>
+                You don't have any shopping lists yet
+              </Text>
+          )}
         </ScrollView>
       </SafeAreaView>
   

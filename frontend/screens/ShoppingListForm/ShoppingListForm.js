@@ -56,6 +56,26 @@ const ShoppingListForm = (existingValues) => {
         console.log(items)
     }
 
+    const incrementAmount = (id) => {
+      setItems(prevItems =>
+        prevItems.map(item =>
+          item.id === id
+            ? { ...item, amount: item.amount + 1 }
+            : item
+        )
+      );
+    };
+
+    const decrementAmount = (id) => {
+      setItems(prevItems =>
+        prevItems.map(item =>
+          item.id === id
+            ? { ...item, amount: item.amount - 1 }
+            : item
+        )
+      );
+    };
+
     const removeItem = (id) => {
         console.log('remove id', id)
         setItems(items.filter(item => item.id != id))
@@ -131,6 +151,7 @@ const ShoppingListForm = (existingValues) => {
                 console.log('refreshed drafts')
               }
               else {
+                triggerShoppingListsRefresh();
                 console.log('refreshed shoppinglists')
               }
             }, 300);
@@ -150,12 +171,23 @@ const ShoppingListForm = (existingValues) => {
     
           {items.map(item => (
             <View key={item.id} style={styles.itemRow}>
-                <Text style={styles.itemText}>
-                    {item.name}: {item.amount}
-                </Text>
-                    <TouchableOpacity onPress={() => removeItem(item.id)}>
-                <Text style={styles.deleteText}>🗑</Text>
+              <Text style={styles.itemName}>{item.name}</Text>
+
+              <View style={styles.amountSection}>
+                <TouchableOpacity onPress={() => decrementAmount(item.id)}>
+                  <Text style={styles.smallStepperText}>➖</Text>
                 </TouchableOpacity>
+                
+                <Text style={styles.amountText}>{item.amount}</Text>
+                
+                <TouchableOpacity onPress={() => incrementAmount(item.id)}>
+                  <Text style={styles.smallStepperText}>➕</Text>
+                </TouchableOpacity>
+              </View>
+
+              <TouchableOpacity onPress={() => removeItem(item.id)}>
+                <Text style={styles.deleteText}>🗑</Text>
+              </TouchableOpacity>
             </View>
           ))}
     

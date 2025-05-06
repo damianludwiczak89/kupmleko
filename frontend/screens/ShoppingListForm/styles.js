@@ -47,6 +47,10 @@ const styles = StyleSheet.create({
         fontSize: 20,
         paddingHorizontal: 6,
       },
+      smallStepperText: {
+        fontSize: 6,
+        paddingHorizontal: 6,
+      },
       amountInput: {
         width: 50,
         borderWidth: 1,
@@ -83,6 +87,40 @@ const styles = StyleSheet.create({
         fontSize: 18,
         paddingHorizontal: 10,
       },
+      itemRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingVertical: 8,
+      },
+      
+      itemName: {
+        flex: 1, // Takes up available space
+        fontSize: 16,
+      },
+      
+      amountSection: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: 100,
+      },
+      
+      amountText: {
+        marginHorizontal: 8,
+        fontSize: 16,
+      },
+      
+      smallStepperText: {
+        fontSize: 18,
+        paddingHorizontal: 6,
+      },
+      
+      deleteText: {
+        fontSize: 18,
+        paddingHorizontal: 10,
+      },
+      
 });
 
 export default styles;

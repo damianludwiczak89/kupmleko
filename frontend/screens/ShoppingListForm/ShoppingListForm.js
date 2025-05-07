@@ -158,6 +158,16 @@ const ShoppingListForm = (existingValues) => {
           }, 1000);
     }
 
+  const handleItemEdit = (id, newName) => {
+    setItems(prevItems =>
+      prevItems.map(item =>
+        item.id === id
+          ? { ...item, name: newName}
+          : item
+      )
+    );
+  }
+
     return (
         <View style={styles.container}>
         <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -171,7 +181,10 @@ const ShoppingListForm = (existingValues) => {
     
           {items.map(item => (
             <View key={item.id} style={styles.itemRow}>
-              <Text style={styles.itemName}>{item.name}</Text>
+                <TextInput style={styles.itemName}
+                  value={item.name}
+                  onChangeText={(newName) => handleItemEdit(item.id, newName)}
+                />
 
               <View style={styles.amountSection}>
                 <TouchableOpacity onPress={() => decrementAmount(item.id)}>
@@ -231,6 +244,7 @@ const ShoppingListForm = (existingValues) => {
             value={newItem}
             onChangeText={setNewItem}
             placeholder="Item"
+            maxLength={25}
           />
           <TouchableOpacity onPress={() => setNewAmount(Math.max(1, newAmount - 1))}>
             <Text style={styles.stepperText}>➖</Text>

@@ -97,6 +97,13 @@ const styles = StyleSheet.create({
       itemName: {
         flex: 1,
         fontSize: 16,
+        borderWidth: 1,
+        borderColor: '#ccc',
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 4,
+        backgroundColor: '#fff8b3',
+        minWidth: 100,
       },
       
       amountSection: {

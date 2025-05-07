@@ -29,9 +29,13 @@ const Item = ({itemId, name, amount, bought, active, history=false}) => {
 
     return (
         <View style={styles.itemRow}>
-        <Text style={styles.itemText}>
-            {name}: {amount}
-        </Text>
+        <View style={styles.nameContainer}>
+            <Text style={styles.itemNameText}>{name}</Text>
+        </View>
+
+        <View style={styles.amountContainer}>
+            <Text style={styles.amountText}>{amount}</Text>
+        </View>
 
         {active && (
             <TouchableOpacity

@@ -11,6 +11,7 @@ class User(AbstractUser):
     friends = models.ManyToManyField("self", symmetrical=True, blank=True)
     fcm_token = models.CharField(max_length=255, blank=True, null=True)
     account_auth_type = models.CharField(max_length=30, choices=[('email', 'email'), ('google', 'google')], default='email')
+    language = models.CharField(max_length=4, choices=[('pl', 'pl'), ('en', 'en')], default='pl')
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']

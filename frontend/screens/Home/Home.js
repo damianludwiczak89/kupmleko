@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {  SafeAreaView, Text, View, Button, TouchableOpacity } from 'react-native';
 import apiInstance from '../../utils/axios';
 import ShoppingList from '../../components/ShoppingList/ShoppingList';
@@ -12,9 +12,11 @@ import {faCirclePlus} from "@fortawesome/free-solid-svg-icons";
 import { faArrowsRotate } from '@fortawesome/free-solid-svg-icons';
 import styles from './styles';
 import screenStyle from '../screenStyle';
+import { debounce } from 'lodash';
 
 
-// Shoppinglistform - data validation, error messages
+// Align amount on shopping list to right
+// what if 2 users edit at the same time
 
 const Home = () => {
 
@@ -50,6 +52,11 @@ const Home = () => {
           getShoppingLists();
       }, [shoppingListsToken])
 
+  const refresh = useCallback(
+        debounce(async () => {
+          triggerShoppingListsRefresh();
+        }, 500), []);
+
 
   const lists = shoppingLists.map((list) => (
     <ShoppingList
@@ -77,7 +84,7 @@ const Home = () => {
       </SafeAreaView>
   
       <View style={screenStyle.iconWrapper}>
-        <TouchableOpacity onPress={() => triggerShoppingListsRefresh()} style={screenStyle.iconButton}>
+        <TouchableOpacity onPress={() => refresh()} style={screenStyle.iconButton}>
           <FontAwesomeIcon icon={faArrowsRotate} style={screenStyle.icon} size={36} />
         </TouchableOpacity>
         

@@ -12,6 +12,8 @@ import {
 import apiInstance from '../../utils/axios';
 import { useRefreshStore } from '../../store/auth';
 import styles from './styles';
+import i18n from '../../i18n';
+
 
 const Friends = () => {
   const friendsToken = useRefreshStore((state) => state.friendsToken);
@@ -146,7 +148,7 @@ const Friends = () => {
         </View>
 
         <View style={styles.stickyCard}>
-          <Text style={styles.sectionTitle}>Your Friends</Text>
+          <Text style={styles.sectionTitle}>{i18n.t('friends')}</Text>
           {mapped_friends.length > 0 ? mapped_friends : <Text style={styles.subText}>No friends yet</Text>}
         </View>
       </ScrollView>

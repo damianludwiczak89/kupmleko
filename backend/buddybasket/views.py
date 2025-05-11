@@ -33,6 +33,8 @@ User = get_user_model()
 # Consider removing draft field from shopping list model
 
 class MyTokenObtainPairView(TokenObtainPairView):
+    serializer_class = api_serializer.MyTokenObtainPairSerializer
+
     def post(self, request, *args, **kwargs):
         email = request.data.get('email')
         password = request.data.get('password')
@@ -74,6 +76,8 @@ class GoogleLoginView(APIView):
                 user.save()
 
             refresh = RefreshToken.for_user(user)
+            refresh.payload['language'] = user.language
+
             return Response({
                 'refresh': str(refresh),
                 'access': str(refresh.access_token),
@@ -411,7 +415,6 @@ class UpdateFCMTokenView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        print('POST FCM')
         token = request.data.get('fcm_token')
         if not token:
             return Response({'error': 'No token provided'}, status=400)

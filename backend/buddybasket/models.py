@@ -7,7 +7,6 @@ class User(AbstractUser):
     username = models.CharField(max_length=50)
     email = models.EmailField(unique=True)
     otp = models.CharField(max_length=50, null=True, blank=True)
-    refresh_token = models.CharField(max_length=1000, null=True, blank=True)
     friends = models.ManyToManyField("self", symmetrical=True, blank=True)
     fcm_token = models.CharField(max_length=255, blank=True, null=True)
     account_auth_type = models.CharField(max_length=30, choices=[('email', 'email'), ('google', 'google')], default='email')

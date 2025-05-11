@@ -13,6 +13,7 @@ import { faArrowsRotate } from '@fortawesome/free-solid-svg-icons';
 import styles from './styles';
 import screenStyle from '../screenStyle';
 import { debounce } from 'lodash';
+import i18n from '../../i18n';
 
 
 // Align amount on shopping list to right
@@ -28,6 +29,11 @@ const Home = () => {
   const navigation = useNavigation();
 
   const allUserData = useAuthStore((state) => state.allUserData);
+
+
+  if (allUserData?.language) {
+  i18n.locale = allUserData.language;
+  }
 
   console.log('alluserdata in home:', allUserData)
 

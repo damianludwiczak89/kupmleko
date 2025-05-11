@@ -176,6 +176,7 @@ const ShoppingListForm = (existingValues) => {
             value={name}
             onChangeText={setName}
             placeholder='List name'
+            maxLength={25}
             autoFocus
           />
     
@@ -184,6 +185,7 @@ const ShoppingListForm = (existingValues) => {
                 <TextInput style={styles.itemName}
                   value={item.name}
                   onChangeText={(newName) => handleItemEdit(item.id, newName)}
+                  maxLength={25}
                 />
 
               <View style={styles.amountSection}>

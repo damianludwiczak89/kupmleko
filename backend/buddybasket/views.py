@@ -77,6 +77,8 @@ class GoogleLoginView(APIView):
 
             refresh = RefreshToken.for_user(user)
             refresh.payload['language'] = user.language
+            refresh.payload['username'] = user.username
+            refresh.payload['email'] = user.email
 
             return Response({
                 'refresh': str(refresh),

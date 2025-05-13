@@ -9,8 +9,12 @@ import {FontAwesomeIcon} from "@fortawesome/react-native-fontawesome";
 import {faCirclePlus} from "@fortawesome/free-solid-svg-icons";
 import styles from './styles';
 import screenStyle from '../screenStyle';
+import i18n from '../../i18n';
+import { useAuthStore } from '../../store/auth';
 
 const Lists = () => {
+
+    const language = useAuthStore((state) => state.language);
 
     const draftsToken = useRefreshStore(state => state.draftsToken);
 

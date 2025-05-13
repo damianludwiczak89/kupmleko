@@ -4,8 +4,12 @@ import { ScrollView } from 'react-native-gesture-handler';
 import apiInstance from '../../utils/axios';
 import ShoppingList from '../../components/ShoppingList/ShoppingList';
 import { useRefreshStore } from '../../store/auth';
+import { useAuthStore } from '../../store/auth';
+import i18n from '../../i18n';
 
 const History = () => {
+
+    const language = useAuthStore((state) => state.language);
 
     const historyToken = useRefreshStore((state) => state.historyToken);
 

@@ -21,6 +21,9 @@ import i18n from '../../i18n';
 
 const Home = () => {
 
+  const language = useAuthStore((state) => state.language);
+
+
   const shoppingListsToken = useRefreshStore(state => state.shoppingListsToken);
   console.log('listsToken value:', shoppingListsToken);
 

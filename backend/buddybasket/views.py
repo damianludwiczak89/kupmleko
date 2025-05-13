@@ -424,3 +424,18 @@ class UpdateFCMTokenView(APIView):
         request.user.fcm_token = token
         request.user.save()
         return Response({'status': 'FCM token updated'})
+    
+class UserAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = api_serializer.UserSerializer
+
+    def put(self, request, *args, **kwargs):
+        user = request.user
+        serializer = self.serializer_class(user, data=request.data, partial=True)
+        
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'message': 'User updated'}, status=200)
+        else:
+            print(serializer.errors())
+            return Response({'error': 'Invalid data'}, status=400)

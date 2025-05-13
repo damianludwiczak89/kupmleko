@@ -9,6 +9,7 @@ urlpatterns = [
     path("user/password-reset/<email>/", api_views.PasswordResetEmailVerifyAPIView.as_view(), name="reset_password"),
     path("user/reset-password/", api_views.PasswordChangeAPIView.as_view(), name='password_change'),
     path("user/google-login/", api_views.GoogleLoginView.as_view(), name='google_login'),
+    path("user/profile/", api_views.UserAPIView.as_view(), name="user_profile"),
 
     path("shopping_list/", api_views.ShoppingListAPIView.as_view(), name="shopping_list"),
     path("shopping_list/<int:id>/", api_views.ShoppingListAPIView.as_view(), name="shopping_list_detail"),

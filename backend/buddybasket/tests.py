@@ -19,9 +19,12 @@ class RegisterSuite(APITestCase):
             "username": "test",
             "password": "Test123$",
             "password2": "Test123$",
-            "email": "test@test.com"
+            "email": "test@test.com",
+            "language": 'en',
         })
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        user = User.objects.get(username="test")
+        self.assertEqual(user.language, 'en')
 
     def test_register_existing_email(self):
         User.objects.create_user(username="test", email="test@test.com", password="Test123$")

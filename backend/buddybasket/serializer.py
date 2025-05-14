@@ -22,7 +22,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['email', 'password', 'password2', 'account_auth_type']
+        fields = ['email', 'password', 'password2', 'account_auth_type', 'language']
 
     def validate(self, attr):
         if attr['password'] != attr['password2']:
@@ -33,7 +33,8 @@ class RegisterSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = User.objects.create(
             email=validated_data['email'],
-            account_auth_type = 'email'
+            account_auth_type = 'email',
+            language=validated_data['language'],
         )
 
         email_username, _ = user.email.split('@')

@@ -135,24 +135,26 @@ const Friends = () => {
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.stickyCard}>
-          <Text style={styles.sectionTitle}>Send Friend Invite</Text>
+          <Text style={styles.sectionTitle}>{i18n.t('sendInvite',  { locale: language })}</Text>
           <TextInput
             style={styles.input}
             value={email}
             onChangeText={setEmail}
-            placeholder="Friend email"
+            placeholder={i18n.t('friendEmail',  { locale: language })}
           />
-          <Button title="Invite" onPress={() => sendInvite(email)} />
+          <Button title={i18n.t('invite',  { locale: language })} onPress={() => sendInvite(email)} />
         </View>
 
         <View style={styles.stickyCard}>
-          <Text style={styles.sectionTitle}>Pending Invites</Text>
-          {mapped_invites.length > 0 ? mapped_invites : <Text style={styles.subText}>No invites</Text>}
+          <Text style={styles.sectionTitle}>{i18n.t('pendingInvites',  { locale: language })}</Text>
+          {mapped_invites.length > 0 ? mapped_invites 
+          : <Text style={styles.subText}>{i18n.t('noInvites',  { locale: language })}</Text>}
         </View>
 
         <View style={styles.stickyCard}>
           <Text style={styles.sectionTitle}>{i18n.t('friends',  { locale: language })}</Text>
-          {mapped_friends.length > 0 ? mapped_friends : <Text style={styles.subText}>No friends yet</Text>}
+          {mapped_friends.length > 0 ? mapped_friends 
+          : <Text style={styles.subText}>{i18n.t('noFriends',  { locale: language })}</Text>}
         </View>
       </ScrollView>
     </SafeAreaView>

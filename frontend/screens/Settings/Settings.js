@@ -12,11 +12,16 @@ const Settings = () => {
 
     const setLanguage = useAuthStore((state) => state.setLanguage);
     const language = useAuthStore((state) => state.language);
+
+    const setUser = useAuthStore((state) => state.setUser)
     
     const changeLanguage = async (newLanguage) => {
     try {
       await apiInstance.put('user/profile/', {'language': newLanguage});
+      
       setLanguage(newLanguage)
+      allUserData.language = newLanguage;
+      setUser(allUserData)
     } catch (error) {
       console.error('error', error)
     }
@@ -27,7 +32,6 @@ const Settings = () => {
   return (
     <SafeAreaView>
         <ScrollView>
-          <Text>{i18n.t('friends',  { locale: language })}</Text>
             <TouchableOpacity
             onPress={() => changeLanguage('pl')}
             >
@@ -38,7 +42,7 @@ const Settings = () => {
             >
               <Text>🇬🇧</Text>
             </TouchableOpacity>
-            <Button title="Logout" onPress={async () => {
+            <Button title={i18n.t('logout',  { locale: language })} onPress={async () => {
               await logout(); 
             }} />
         </ScrollView>

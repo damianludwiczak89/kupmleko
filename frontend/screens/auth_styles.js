@@ -30,6 +30,39 @@ const styles = StyleSheet.create({
   resetSection: {
     marginTop: 20,
   },
+  languageContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginBottom: 20,
+    gap: 10,
+  },
+
+  languageButton: {
+    padding: 10,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 60,
+    height: 60,
+  },
+
+  languageButtonSelected: {
+    borderColor: '#841584',
+    backgroundColor: '#f2e6f9',
+  },
+
+  languageEmoji: {
+    fontSize: 30,
+  },
+
+  sectionHeader: {
+    fontSize: 16,
+    fontWeight: '500',
+    marginBottom: 10,
+    textAlign: 'center',
+  },
 });
 
 export default styles;

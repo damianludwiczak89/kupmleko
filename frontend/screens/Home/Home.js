@@ -22,6 +22,7 @@ import i18n from '../../i18n';
 const Home = () => {
 
   const language = useAuthStore((state) => state.language);
+  const setLanguage = useAuthStore((state) => state.setLanguage);
 
 
   const shoppingListsToken = useRefreshStore(state => state.shoppingListsToken);
@@ -35,7 +36,9 @@ const Home = () => {
 
 
   if (allUserData?.language) {
-  i18n.locale = allUserData.language;
+  console.log('set language from', i18n.locale)
+  setLanguage(allUserData.language);
+  console.log('set language to', i18n.locale)
   }
 
   console.log('alluserdata in home:', allUserData)
@@ -86,7 +89,7 @@ const Home = () => {
               lists
             ) : (
               <Text style={{ textAlign: 'center', marginTop: 20 }}>
-                You don't have any shopping lists yet
+                {i18n.t('noShopping', { locale: language })}
               </Text>
           )}
         </ScrollView>

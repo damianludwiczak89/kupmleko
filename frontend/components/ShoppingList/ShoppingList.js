@@ -7,8 +7,12 @@ import { Routes } from '../../navigation/Routes';
 import styles from './styles';
 import { useRefreshStore } from '../../store/auth';
 import { Alert } from 'react-native';
+import i18n from '../../i18n';
+import { useAuthStore } from '../../store/auth';
 
 const ShoppingList = ({ id, name, items, active=true, update, history=false, timestamp=false }) => {
+
+    const language = useAuthStore((state) => state.language);
 
     const triggerHistoryRefresh = useRefreshStore(state => state.triggerHistoryRefresh);
     const triggerShoppingListsRefresh = useRefreshStore(state => state.triggerShoppingListsRefresh);
@@ -16,12 +20,6 @@ const ShoppingList = ({ id, name, items, active=true, update, history=false, tim
     const navigation = useNavigation();
 
     const [displayList, setDisplayList] = useState(false)
-
-    const [completed, setCompleted] = useState(false);
-
-    const handleCheckboxChange = () => {
-        setCompleted(!completed)
-    }
 
     const deleteList = async (id) => {
         const endpoint = active ? "shopping_list" : "draft";
@@ -81,14 +79,18 @@ const ShoppingList = ({ id, name, items, active=true, update, history=false, tim
                 <View style={styles.buttonRow}>
                     {!active && (
                     <Pressable style={styles.customButton} onPress={() => activate(id)}>
-                        <Text style={styles.customButtonText}>🛒 Activate</Text>
+                        <Text style={styles.customButtonText}>🛒 {i18n.t('activate',  { locale: language })}</Text>
                     </Pressable>
                     )}
                     <Pressable style={styles.customButton} onPress={() => deleteList(id)}>
-                    <Text style={styles.customButtonText}>{active ? '✅ Completed' : '❌ Delete'}</Text>
+                    <Text style={styles.customButtonText}>
+                        {active 
+                            ? `✅ ${i18n.t('complete', { locale: language })}`  
+                            : `❌ ${i18n.t('delete', { locale: language })}`}
+                    </Text>
                     </Pressable>
                     <Pressable style={styles.customButton} onPress={() => edit(id, name, items, active)}>
-                    <Text style={styles.customButtonText}>✏️ Edit</Text>
+                    <Text style={styles.customButtonText}>✏️ {i18n.t('edit',  { locale: language })}</Text>
                     </Pressable>
                 </View>
             )}

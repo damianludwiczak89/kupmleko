@@ -54,7 +54,7 @@ const Lists = () => {
               lists
             ) : (
               <Text style={{ textAlign: 'center', marginTop: 20 }}>
-                You don't have any drafts yet
+                {i18n.t('noLists', { locale: language })}
               </Text>
           )}
           <View style={screenStyle.iconWrapper}>

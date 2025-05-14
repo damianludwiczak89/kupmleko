@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import {  SafeAreaView, Text, Button, TextInput, View } from 'react-native';
+import {  SafeAreaView, Text, Button, TextInput, View, TouchableOpacity } from 'react-native';
 import { login, googleLogin } from '../../utils/auth';
 import { Routes } from '../../navigation/Routes';
 import { useNavigation } from '@react-navigation/native';
@@ -9,10 +9,14 @@ import axios from "axios";
 import { API_BASE_URL } from '../../utils/constants';
 import { Alert } from 'react-native';
 import styles from '../auth_styles';
+import { useAuthStore } from '../../store/auth';
+import i18n from '../../i18n';
 
 const Login = () => {
   const navigation = useNavigation();
 
+  const setLanguage = useAuthStore((state) => state.setLanguage);
+  const language = useAuthStore((state) => state.language);
 
   const handleSubmit = async (inputUsername, inputPassword) => {
     console.log("Login button clicked"); 
@@ -50,7 +54,7 @@ const Login = () => {
     try {
       const response = await axios.get(`${API_BASE_URL}user/password-reset/${email}/`);
       console.log(response.data);
-      Alert.alert('Reset password link sent to email')
+      Alert.alert(i18n.t('resetPassword',  { locale: language }))
     } catch (error) {
       if (error.response) {
         console.log('Error response data:', error.response.data);
@@ -64,7 +68,29 @@ const Login = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.header}>Login</Text>
+      <View style={styles.languageContainer}>
+        <TouchableOpacity
+          onPress={() => setLanguage('pl')}
+          style={[
+            styles.languageButton,
+            language === 'pl' && styles.languageButtonSelected,
+          ]}
+        >
+          <Text style={styles.languageEmoji}>🇵🇱</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={() => setLanguage('en')}
+          style={[
+            styles.languageButton,
+            language === 'en' && styles.languageButtonSelected,
+          ]}
+        >
+          <Text style={styles.languageEmoji}>🇬🇧</Text>
+        </TouchableOpacity>
+      </View>
+
+      <Text style={styles.header}>{i18n.t('login',  { locale: language })}</Text>
 
       <TextInput
         style={styles.input}
@@ -78,26 +104,26 @@ const Login = () => {
         style={styles.input}
         value={password}
         onChangeText={setPassword}
-        placeholder="Password"
+        placeholder={i18n.t('password',  { locale: language })}
         secureTextEntry
       />
 
       <View style={styles.buttonWrapper}>
-        <Button title="Login" onPress={() => handleSubmit(username, password)} color="#841584" />
+        <Button title={i18n.t('login',  { locale: language })} onPress={() => handleSubmit(username, password)} color="#841584" />
       </View>
 
       <View style={styles.buttonWrapper}>
-        <Button title="Sign in with Google" onPress={handleGooglelogin} />
+        <Button title={i18n.t('googleSignIn',  { locale: language })} onPress={handleGooglelogin} />
       </View>
 
-      <Text style={styles.text}>Don’t have an account?</Text>
+      <Text style={styles.text}>{i18n.t('accountQuestion',  { locale: language })}</Text>
       <View style={styles.buttonWrapper}>
-        <Button title="Register" onPress={() => navigation.navigate(Routes.Register)} />
+        <Button title={i18n.t('register',  { locale: language })} onPress={() => navigation.navigate(Routes.Register)} />
       </View>
 
-      <Text style={styles.text}>Forgot password?</Text>
+      <Text style={styles.text}>{i18n.t('forgotPassword',  { locale: language })}</Text>
       <View style={styles.buttonWrapper}>
-        <Button title="Reset password" onPress={() => setResetPasswordToggle(!resetPasswordToggle)} />
+        <Button title={i18n.t('resetPassword',  { locale: language })} onPress={() => setResetPasswordToggle(!resetPasswordToggle)} />
       </View>
 
       {resetPasswordToggle && (
@@ -109,7 +135,7 @@ const Login = () => {
             placeholder="Email"
           />
           <View style={styles.buttonWrapper}>
-            <Button title="Send reset link" onPress={() => handleEmailReset(emailReset)} />
+            <Button title={i18n.t('resetLink',  { locale: language })} onPress={() => handleEmailReset(emailReset)} />
           </View>
         </View>
       )}

@@ -68,6 +68,7 @@ return (
             component={HomeStack}
             options={{
                     tabBarLabel: () => <Text style={{ fontSize: 12 }}>{i18n.t('shopping', { locale: language })}</Text>,
+                    headerTitle: () => <Text style={{ fontSize: 16 }}>{i18n.t('shopping', { locale: language })}</Text>,
                 }}
             />
             <Tab.Screen
@@ -75,6 +76,7 @@ return (
             component={ListStack}
             options={{
                     tabBarLabel: () => <Text style={{ fontSize: 12 }}>{i18n.t('lists', { locale: language })}</Text>,
+                    headerTitle: () => <Text style={{ fontSize: 16 }}>{i18n.t('lists', { locale: language })}</Text>,
                 }}
             />
             <Tab.Screen
@@ -82,6 +84,7 @@ return (
             component={Friends}
             options={{
                     tabBarLabel: () => <Text style={{ fontSize: 12 }}>{i18n.t('friends', { locale: language })}</Text>,
+                    headerTitle: () => <Text style={{ fontSize: 16 }}>{i18n.t('friends', { locale: language })}</Text>,
                 }}
             />
             <Tab.Screen
@@ -89,6 +92,7 @@ return (
             component={History}
             options={{
                     tabBarLabel: () => <Text style={{ fontSize: 12 }}>{i18n.t('history', { locale: language })}</Text>,
+                    headerTitle: () => <Text style={{ fontSize: 16 }}>{i18n.t('history', { locale: language })}</Text>,
                 }}
             />
             <Tab.Screen
@@ -96,6 +100,7 @@ return (
             component={Settings}
             options={{
                     tabBarLabel: () => <Text style={{ fontSize: 12 }}>{i18n.t('settings', { locale: language })}</Text>,
+                    headerTitle: () => <Text style={{ fontSize: 16 }}>{i18n.t('settings', { locale: language })}</Text>,
                 }}
             />
         </Tab.Navigator>

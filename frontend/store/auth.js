@@ -3,7 +3,6 @@ import i18n from '../i18n';
 
 export const useAuthStore = create((set, get ) => ({
     allUserData: null,
-    loading: false,
 
     user: () => ({
         user_id: get().allUserData?.user_id || null,
@@ -14,7 +13,6 @@ export const useAuthStore = create((set, get ) => ({
         allUserData: user,
     }),
 
-    setLoading: (loading) => set({loading}),
 
     isLoggedIn: () => get().allUserData !== null,
 

@@ -1,4 +1,4 @@
-import { Text, SafeAreaView, View, TouchableOpacity } from 'react-native';
+import { Text, SafeAreaView, View, TouchableOpacity, ActivityIndicator } from 'react-native';
 import React, { useState, useEffect} from 'react';
 import apiInstance from '../../utils/axios';
 import { Routes } from '../../navigation/Routes';
@@ -16,6 +16,8 @@ const Lists = () => {
 
     const language = useAuthStore((state) => state.language);
 
+    const [loading, setLoading] = useState(true);
+
     const draftsToken = useRefreshStore(state => state.draftsToken);
 
     const navigation = useNavigation();
@@ -27,6 +29,7 @@ const Lists = () => {
           const response = await apiInstance.get('draft/');
           console.log('Drafts:', response.data);
           setDrafts(response.data);
+          setLoading(false)
         } catch (error) {
           console.error(error)
           console.error('Error fetching drafts:', error.response ? error.response.data : error.message);
@@ -46,6 +49,14 @@ const Lists = () => {
               active={false}
               update={getDrafts} />
           ));
+
+  if (loading) {
+      return (
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+              <ActivityIndicator size="large" color="#0000ff" />
+          </View>
+      );
+  }
 
   return (
     <View style={styles.fullscreen}>

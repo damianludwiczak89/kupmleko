@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import {  SafeAreaView, Text, View, Button, TouchableOpacity } from 'react-native';
+import {  SafeAreaView, Text, View, ActivityIndicator, TouchableOpacity } from 'react-native';
 import apiInstance from '../../utils/axios';
 import ShoppingList from '../../components/ShoppingList/ShoppingList';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -16,13 +16,11 @@ import { debounce } from 'lodash';
 import i18n from '../../i18n';
 
 
-// Align amount on shopping list to right
-// what if 2 users edit at the same time
-
 const Home = () => {
 
   const language = useAuthStore((state) => state.language);
   const setLanguage = useAuthStore((state) => state.setLanguage);
+  const [loading, setLoading] = useState(true);
 
 
   const shoppingListsToken = useRefreshStore(state => state.shoppingListsToken);
@@ -50,6 +48,7 @@ const Home = () => {
       const response = await apiInstance.get('shopping_list/');
       console.log('Active Shopping:', response.data);
       setShoppingLists(response.data);
+      setLoading(false)
     } catch (error) {
       console.error('error', error)
       console.error('Error fetching shopping list:', error.response ? error.response.data : error.message);
@@ -69,6 +68,13 @@ const Home = () => {
           triggerShoppingListsRefresh();
         }, 500), []);
 
+  if (loading) {
+      return (
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+              <ActivityIndicator size="large" color="#0000ff" />
+          </View>
+      );
+  }
 
   const lists = shoppingLists.map((list) => (
     <ShoppingList

@@ -33,11 +33,13 @@ const Home = () => {
   const allUserData = useAuthStore((state) => state.allUserData);
 
 
-  if (allUserData?.language) {
-  console.log('set language from', i18n.locale)
-  setLanguage(allUserData.language);
-  console.log('set language to', i18n.locale)
-  }
+  useEffect(() => {
+    if (allUserData?.language) {
+      console.log('set language from', i18n.locale);
+      setLanguage(allUserData.language);
+      console.log('set language to', i18n.locale);
+    }
+  }, [allUserData?.language]);
 
   console.log('alluserdata in home:', allUserData)
 

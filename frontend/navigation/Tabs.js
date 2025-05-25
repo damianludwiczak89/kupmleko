@@ -28,15 +28,15 @@ const Tabs = () => {
                 tabBarIcon: ({ focused }) => {
                 let emoji = '🛒';
 
-                if (route.name === "Shopping") {
+                if (route.name === "ShoppingTab") {
                     emoji = '🛍️';
-                } else if (route.name === "Lists") {
+                } else if (route.name === "ListsTab") {
                     emoji = '📋';
-                } else if (route.name === "Friends") {
+                } else if (route.name === "FriendsTab") {
                     emoji = '👥';
-                } else if (route.name === "History") {
+                } else if (route.name === "HistoryTab") {
                     emoji = '📚';
-                } else if (route.name === "Settings") {
+                } else if (route.name === "SettingsTab") {
                     emoji = '⚙️';
                 }
 
@@ -64,7 +64,7 @@ return (
             })}
             >
             <Tab.Screen
-            name="Shopping"
+            name="ShoppingTab"
             component={HomeStack}
             options={{
                     tabBarLabel: () => <Text style={{ fontSize: 12 }}>{i18n.t('shopping', { locale: language })}</Text>,
@@ -72,7 +72,7 @@ return (
                 }}
             />
             <Tab.Screen
-            name="Lists"
+            name="ListsTab"
             component={ListStack}
             options={{
                     tabBarLabel: () => <Text style={{ fontSize: 12 }}>{i18n.t('lists', { locale: language })}</Text>,
@@ -80,7 +80,7 @@ return (
                 }}
             />
             <Tab.Screen
-            name="Friends"
+            name="FriendsTab"
             component={Friends}
             options={{
                     tabBarLabel: () => <Text style={{ fontSize: 12 }}>{i18n.t('friends', { locale: language })}</Text>,
@@ -88,7 +88,7 @@ return (
                 }}
             />
             <Tab.Screen
-            name="History"
+            name="HistoryTab"
             component={History}
             options={{
                     tabBarLabel: () => <Text style={{ fontSize: 12 }}>{i18n.t('history', { locale: language })}</Text>,
@@ -96,7 +96,7 @@ return (
                 }}
             />
             <Tab.Screen
-            name="Settings"
+            name="SettingsTab"
             component={Settings}
             options={{
                     tabBarLabel: () => <Text style={{ fontSize: 12 }}>{i18n.t('settings', { locale: language })}</Text>,

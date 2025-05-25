@@ -29,4 +29,10 @@ export default {
     settings: "Ustawienia",
     noShopping: "Nie masz jeszcze żadnych list zakupowych",
     noLists: "Nie masz jeszcze żadnych zapisanych list",
+    add: 'Dodaj',
+    item: 'Produkt',
+    addToShopping: "Dodaj do zakupów",
+    addToDrafts: 'Zapisz w swoich listach',
+    save: 'Zapisz',
+    listName: 'Nazwa listy'
   };

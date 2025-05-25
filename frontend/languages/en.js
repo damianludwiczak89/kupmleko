@@ -29,4 +29,10 @@ export default {
     settings: "Settings",
     noShopping: "You do not have any shopping lists yet",
     noLists: "You do not have any saved lists yet",
+    add: 'Add',
+    item: 'Item',
+    addToShopping: "Add to shopping",
+    addToDrafts: 'Save list in drafts',
+    save: "Save",
+    listName: "List name"
   };

@@ -14,12 +14,16 @@ import { useNavigation } from '@react-navigation/native';
 import { useRefreshStore } from '../../store/auth';
 import styles from './styles';
 import uuid from 'react-native-uuid';
+import i18n from '../../i18n';
+import { useAuthStore } from '../../store/auth';
 
 // Consider what to do with active/draft checkboxes if editing existing list
 // probably add a prop to check if editing and hide them
 // -- also need to edit a draft
 
 const ShoppingListForm = (existingValues) => {
+
+    const language = useAuthStore((state) => state.language);
 
     const triggerDraftsRefresh = useRefreshStore(state => state.triggerDraftsRefresh);
     const triggerShoppingListsRefresh = useRefreshStore(state => state.triggerShoppingListsRefresh);
@@ -175,7 +179,7 @@ const ShoppingListForm = (existingValues) => {
             style={styles.input}
             value={name}
             onChangeText={setName}
-            placeholder='List name'
+            placeholder={i18n.t('listName', { locale: language })}
             maxLength={25}
             autoFocus
           />
@@ -215,7 +219,7 @@ const ShoppingListForm = (existingValues) => {
                     disabled={true}
                     tintColors={{ true: 'blue', false: 'gray' }}
                   />
-                  <Text style={styles.checkboxText}>Add to Active</Text>
+                  <Text style={styles.checkboxText}>{i18n.t('addToShopping', { locale: language })}</Text>
                 </TouchableOpacity>
               </View>
     
@@ -226,7 +230,7 @@ const ShoppingListForm = (existingValues) => {
                     disabled={true}
                     tintColors={{ true: 'blue', false: 'gray' }}
                   />
-                  <Text style={styles.checkboxText}>Add to Drafts</Text>
+                  <Text style={styles.checkboxText}>{i18n.t('addToDrafts', { locale: language })}</Text>
                 </TouchableOpacity>
               </View>
             </>
@@ -234,7 +238,7 @@ const ShoppingListForm = (existingValues) => {
     
           <View style={styles.saveButton}>
             <Button 
-                title="Save List" 
+                title={i18n.t('save', { locale: language })}
                 disabled={!(name && items.length > 0 && (activeBox || draftBox))}
                 onPress={() => handleSave(name, items)} />
           </View>
@@ -245,7 +249,7 @@ const ShoppingListForm = (existingValues) => {
             style={styles.itemInput}
             value={newItem}
             onChangeText={setNewItem}
-            placeholder="Item"
+            placeholder={i18n.t('item', { locale: language })}
             maxLength={25}
           />
           <TouchableOpacity onPress={() => setNewAmount(Math.max(1, newAmount - 1))}>
@@ -260,7 +264,7 @@ const ShoppingListForm = (existingValues) => {
           <TouchableOpacity onPress={() => setNewAmount(newAmount + 1)}>
             <Text style={styles.stepperText}>➕</Text>
           </TouchableOpacity>
-          <Button title="Add" onPress={addItem} disabled={newItem ? false : true} />
+          <Button title={i18n.t('add', { locale: language })} onPress={addItem} disabled={newItem ? false : true} />
         </View>
       </View>
     )

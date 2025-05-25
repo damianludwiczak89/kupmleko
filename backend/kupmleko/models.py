@@ -25,7 +25,7 @@ class User(AbstractUser):
         super(User,  self).save(*args, **kwargs)
 
     def remove_friend(self, friend):
-        ShoppingList = apps.get_model('buddybasket', 'ShoppingList')
+        ShoppingList = apps.get_model('kupmleko', 'ShoppingList')
 
         my_created_lists = ShoppingList.objects.filter(created_by=self, users=friend)
         for shopping_list in my_created_lists:

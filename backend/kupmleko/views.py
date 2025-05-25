@@ -146,7 +146,7 @@ class PasswordChangeAPIView(APIView):
         if not user or user.otp != otp:
             return Response({"message": "Invalid or inactive link"}, status=status.HTTP_400_BAD_REQUEST)
         
-        return render(request, 'buddybasket/password_reset_form.html', {'otp': otp, 'uuidb64': uuidb64})
+        return render(request, 'kupmleko/password_reset_form.html', {'otp': otp, 'uuidb64': uuidb64})
 
     def post(self, request, *args, **kwargs):
         otp = request.data['otp']

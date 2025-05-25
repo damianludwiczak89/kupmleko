@@ -1,9 +1,9 @@
 from django.apps import AppConfig
 
 
-class BuddybasketConfig(AppConfig):
+class KupMlekoConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'buddybasket'
+    name = 'kupmleko'
 
     def ready(self):
-        import buddybasket.signals
+        import kupmleko.signals

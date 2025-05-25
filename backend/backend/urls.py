@@ -23,9 +23,9 @@ from drf_yasg import openapi
 
 schema_view = get_schema_view(
    openapi.Info(
-      title="BuddyBasket Backend APIs",
+      title="KupMleko Backend APIs",
       default_version='v1',
-      description="This is the API documentation for the Buddybasket project",
+      description="This is the API documentation for the KupMleko project",
       terms_of_service="https://www.google.com/policies/terms/",
       contact=openapi.Contact(email="damian_konin@tlen.pl"),
       license=openapi.License(name="MIT License"),
@@ -40,5 +40,5 @@ urlpatterns = [
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 
     path('admin/', admin.site.urls),
-    path("api/", include("buddybasket.urls"))
+    path("api/", include("kupmleko.urls"))
 ]

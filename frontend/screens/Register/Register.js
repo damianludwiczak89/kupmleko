@@ -93,6 +93,7 @@ const Register = () => {
           title={i18n.t('register',  { locale: language })}
           onPress={() => handleSubmit(username, email, password, confirmPassword, userLanguage)}
           color="#841584"
+          disabled={!username || !email || !password || !confirmPassword}
         />
       </View>
 

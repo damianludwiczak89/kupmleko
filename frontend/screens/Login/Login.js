@@ -23,11 +23,14 @@ const Login = () => {
     const { error } = await login(inputUsername, inputPassword);
   
     if (error) {
-      console.log("Login error:", error);  
-    } else {
-      console.log("Login successful, tokens received");
-    }
-  };
+    const translated = {
+        "No active account found with the given credentials": i18n.t('noAccount', { locale: language }),
+        "Incorrect password": i18n.t('wrongPassword', { locale: language }),
+      }
+      console.log(error)
+      Alert.alert(translated[error] || error);
+    };
+  }
 
   const handleGooglelogin = async () => {
     const response = await googleLogin();
@@ -109,7 +112,10 @@ const Login = () => {
       />
 
       <View style={styles.buttonWrapper}>
-        <Button title={i18n.t('login',  { locale: language })} onPress={() => handleSubmit(username, password)} color="#841584" />
+        <Button 
+          title={i18n.t('login',  { locale: language })} 
+          onPress={() => handleSubmit(username, password)} color="#841584"
+          disabled={!username || !password} />
       </View>
 
       <View style={styles.buttonWrapper}>

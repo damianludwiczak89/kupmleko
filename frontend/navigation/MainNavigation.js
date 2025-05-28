@@ -7,7 +7,7 @@ import { isAccessTokenExpired, getRefreshedToken } from "../utils/auth";
 import { View, ActivityIndicator } from 'react-native';
 import Tabs from "./Tabs";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { jwtDecode } from 'jwt-decode';
+import apiInstance from "../utils/axios";
 
 const Stack = createStackNavigator();
 
@@ -42,17 +42,16 @@ const MainNavigation = () => {
                             token: refreshedToken.access,
                             expiresAt: Date.now() + 24 * 60 * 60 * 1000, // 1 day
                           }));
-                        const user = jwtDecode(refreshedToken.access);
-                        setUser(user);
+                        const userProfile = await apiInstance.get('user/profile/');
+                        setUser(userProfile.data);
                     } else {
                         console.log("Token refresh failed, logging out.");
                         await AsyncStorage.removeItem("@access_token");
                         setUser(null);
                     }
                 } else {
-                    console.log("Token is valid, setting user.");
-                    const user = jwtDecode(access_token);
-                    setUser(user);
+                    const userProfile = await apiInstance.get('user/profile/');
+                    setUser(userProfile.data);
                 }
             } catch (error) {
                 console.error("Error in checkAuth:", error);

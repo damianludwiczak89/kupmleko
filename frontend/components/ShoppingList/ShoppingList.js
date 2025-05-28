@@ -37,10 +37,10 @@ const ShoppingList = ({ id, name, items, active=true, update, history=false, tim
         try {
             await apiInstance.post('draft/activate/', {id: id})
             triggerShoppingListsRefresh();
-            Alert.alert('List activated');
+            Alert.alert(i18n.t('listActivated',  { locale: language }));
         }
         catch (error) {
-            console.log('error activating list')
+            Alert.alert(i18n.t('error',  { locale: language }));
         }
     }
 

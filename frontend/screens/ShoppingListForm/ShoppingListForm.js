@@ -139,7 +139,7 @@ const ShoppingListForm = (existingValues) => {
         setItems([]);
         setNewItem('');
         setNewAmount(1);
-        Alert.alert('List saved');
+        Alert.alert(i18n.t('listSaved', { locale: language }));
         
         // this double timeout makes sure that previous screen is mounted, and current data fetched
         setTimeout(() => {

@@ -33,7 +33,6 @@ User = get_user_model()
 # Consider removing draft field from shopping list model
 
 class MyTokenObtainPairView(TokenObtainPairView):
-    serializer_class = api_serializer.MyTokenObtainPairSerializer
 
     def post(self, request, *args, **kwargs):
         email = request.data.get('email')
@@ -428,6 +427,10 @@ class UpdateFCMTokenView(APIView):
 class UserAPIView(APIView):
     permission_classes = [IsAuthenticated]
     serializer_class = api_serializer.UserSerializer
+
+    def get(self, request):
+        serializer = self.serializer_class(request.user)
+        return Response(serializer.data)
 
     def put(self, request, *args, **kwargs):
         user = request.user

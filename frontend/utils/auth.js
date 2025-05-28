@@ -8,7 +8,7 @@ import { getApp } from '@react-native-firebase/app';
 import { getAuth, signInWithCredential, GoogleAuthProvider } from '@react-native-firebase/auth';
 import { getMessaging } from '@react-native-firebase/messaging';
 import apiInstance from './axios';
-import auth from '@react-native-firebase/auth';
+import i18n from "../i18n";
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 
 export const login = async (email, password) => {
@@ -28,7 +28,7 @@ export const login = async (email, password) => {
         return { data, error: null };
 
     } catch (error) {
-        console.error("Error during login:", error);
+
         return {
             data: null,
             error: error.response?.data?.detail || "An error occurred. Please try again.",
@@ -46,7 +46,7 @@ export const register = async (full_name, email, password, password2, language) 
             language
         });
         await login(email, password);
-        Alert.alert("Registration successfull");
+        Alert.alert(i18n.t('registered', { locale: language }));
         return {data, error: null}
     } catch (error) {
 
@@ -55,11 +55,19 @@ export const register = async (full_name, email, password, password2, language) 
         }
 
         const { full_name, email, password } = error.response.data;
-
         const messages = [];
-        if (full_name) messages.push(full_name);
-        if (email) messages.push(email);
-        if (password) messages.push(password);
+        const translated = {
+            "This password is too common.": i18n.t('commonPassword', { locale: language }),
+            "This password is too short. It must contain at least 8 characters.": i18n.t('shortPassword', { locale: language }),
+            "This password is entirely numeric.": i18n.t('numPassword', { locale: language }),
+            "Passwords do not match.": i18n.t('passwordMismatch', { locale: language }),
+            "user with this email already exists.": i18n.t('emailTaken', { locale: language }),
+            "Enter a valid email address.": i18n.t('invalidEmail', { locale: language }),
+        }
+
+        if (full_name) messages.push(translated[full_name]);
+        if (email) messages.push(translated[email]);
+        if (password) messages.push(translated[password]);
 
         return {
             data: null,
@@ -72,7 +80,7 @@ export const logout = async () => {
     await AsyncStorage.removeItem("@access_token");
     await AsyncStorage.removeItem("@refresh_token");
     useAuthStore.getState().setUser(null);
-    Alert.alert("Logged out successfully")
+    Alert.alert(i18n.t('loggedOut', { locale: language }))
 };
 
 export const setUser = async () => {
@@ -80,7 +88,6 @@ export const setUser = async () => {
     const refresh_token = await AsyncStorage.getItem("refresh_token");
 
     if (!access_token || !refresh_token) {
-        Alert.alert("Tokens do not exist")
         return;
     }
 

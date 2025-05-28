@@ -6,7 +6,6 @@ import {
   TextInput,
   View,
   TouchableOpacity,
-  Alert,
   ScrollView,
 } from 'react-native';
 import apiInstance from '../../utils/axios';
@@ -14,6 +13,7 @@ import { useRefreshStore } from '../../store/auth';
 import styles from './styles';
 import i18n from '../../i18n'; 
 import { useAuthStore } from '../../store/auth';
+import { Alert } from 'react-native';
 
 
 const Friends = () => {
@@ -41,9 +41,19 @@ const Friends = () => {
     try {
       await apiInstance.post('invite/', { email });
       setEmail('');
-      getInvites();
+      Alert.alert(i18n.t('inviteSent', { locale: language }))
     } catch (error) {
-      console.error('Error sending invite:', error);
+        const translated = {
+            "User not found": i18n.t('userNotFound', { locale: language }),
+            "No User matches the given query.": i18n.t('userNotFound', { locale: language }),
+            "Cannot invite yourself": i18n.t('inviteYourself', { locale: language }),
+            "Invite already sent": i18n.t('inviteAlreadySent', { locale: language }),
+            "Already a friend": i18n.t('alreadyFriend', { locale: language }),
+            "Invite sent!": i18n.t('inviteSent', { locale: language }),
+        }
+      setEmail('');
+      console.log(translated[error.response?.data?.detail || error.response?.data?.error])
+      Alert.alert(translated[error.response?.data?.detail || error.response?.data?.error])
     }
   };
 
@@ -68,7 +78,7 @@ const Friends = () => {
   const acceptInvite = async (id) => {
     try {
       await apiInstance.post('invite/accept/', { id });
-      Alert.alert('Invite accepted!');
+      Alert.alert(i18n.t('inviteAccepted',  { locale: language }));
       triggerFriendsRefresh();
       triggerInvitesRefresh();
     } catch (error) {
@@ -82,6 +92,7 @@ const Friends = () => {
       triggerInvitesRefresh();
     } catch (error) {
       console.error('Error declining invite:', error);
+      triggerInvitesRefresh();
     }
   };
 
@@ -91,16 +102,17 @@ const Friends = () => {
       triggerFriendsRefresh();
     } catch (error) {
       console.error('Error removing friend:', error);
+      triggerFriendsRefresh();
     }
   };
 
   const confirmRemoveFriend = (id) => {
     Alert.alert(
-      'Remove Friend',
-      'Are you sure you want to remove this friend?',
+      i18n.t('removeFriend',  { locale: language }),
+      i18n.t('removeFriendConfirm',  { locale: language }),
       [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Remove', style: 'destructive', onPress: () => removeFriend(id) },
+        { text: i18n.t('cancel',  { locale: language }), style: 'cancel' },
+        { text: i18n.t('remove',  { locale: language }), style: 'destructive', onPress: () => removeFriend(id) },
       ],
       { cancelable: true }
     );
@@ -142,7 +154,10 @@ const Friends = () => {
             onChangeText={setEmail}
             placeholder={i18n.t('friendEmail',  { locale: language })}
           />
-          <Button title={i18n.t('invite',  { locale: language })} onPress={() => sendInvite(email)} />
+          <Button 
+            title={i18n.t('invite',  { locale: language })} 
+            onPress={() => sendInvite(email)}
+            disabled={!email} />
         </View>
 
         <View style={styles.stickyCard}>

@@ -65,10 +65,6 @@ const Home = () => {
           getShoppingLists();
       }, [shoppingListsToken])
 
-  const refresh = useCallback(
-        debounce(async () => {
-          triggerShoppingListsRefresh();
-        }, 500), []);
 
   if (loading) {
       return (
@@ -104,7 +100,7 @@ const Home = () => {
       </SafeAreaView>
   
       <View style={screenStyle.iconWrapper}>
-        <TouchableOpacity onPress={() => refresh()} style={screenStyle.iconButton}>
+        <TouchableOpacity onPress={() => navigation.replace('Active')} style={screenStyle.iconButton}>
           <FontAwesomeIcon icon={faArrowsRotate} style={screenStyle.icon} size={36} />
         </TouchableOpacity>
         

@@ -259,12 +259,15 @@ const ShoppingListForm = (existingValues) => {
             style={styles.amountInput}
             value={newAmount.toString()}
             inputMode="numeric"
-            onChangeText={text => setNewAmount(Number(text) || 1)}
+            onChangeText={text => setNewAmount(Number(text))}
           />
           <TouchableOpacity onPress={() => setNewAmount(newAmount + 1)}>
             <Text style={styles.stepperText}>➕</Text>
           </TouchableOpacity>
-          <Button title={i18n.t('add', { locale: language })} onPress={addItem} disabled={newItem ? false : true} />
+          <Button 
+            title={i18n.t('add', { locale: language })} 
+            onPress={addItem} 
+            disabled={newItem ? false : true} />
         </View>
       </View>
     )

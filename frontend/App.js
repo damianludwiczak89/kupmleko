@@ -1,10 +1,11 @@
 import React, { useEffect } from 'react';
-import { Platform, PermissionsAndroid } from 'react-native';
+import { Platform, PermissionsAndroid, AppState } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import MainNavigation from './navigation/MainNavigation';
 import { getApp } from '@react-native-firebase/app';
 import { getMessaging, onMessage } from '@react-native-firebase/messaging';
 import { useRefreshStore } from './store/auth';
+import { Alert } from 'react-native';
 
 
 const App = () => {
@@ -33,18 +34,32 @@ const App = () => {
 
     const unsubscribe = onMessage(getMessaging(app), async remoteMessage => {
       console.log('📩 FCM Message Received in foreground:', remoteMessage);
-      if (remoteMessage['notification']['title'] === "Friend invitation") {
+      if (["Friend invitation", "Zaproszenie do znajomych"].includes(remoteMessage['notification']['title'])) {
+        setTimeout(() => {
+          Alert.alert(remoteMessage['notification']['body'])
+        }, 0);
         triggerInvitesRefresh();
-        console.log('refreshed invites after push not.')
+        
       }
-      else if (remoteMessage['notification']['title'] === "New Shopping List Shared") {
+      else if (["New Shopping List Shared", "Masz nową listę od znajomego"].includes(remoteMessage['notification']['title'])) {
         triggerShoppingListsRefresh();
-        console.log('refreshed shopping lists after push not.')
+        Alert.alert(remoteMessage['notification']['body'])
       }
     });
 
     return unsubscribe;
   }, []);
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener("change", state => {
+      if (state === "active") {
+        triggerInvitesRefresh();
+        triggerShoppingListsRefresh();
+      }
+    });
+
+  return () => subscription.remove();
+}, []);
 
   return (
     <NavigationContainer>

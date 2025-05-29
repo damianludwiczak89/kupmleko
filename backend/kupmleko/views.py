@@ -87,6 +87,14 @@ class GoogleLoginView(APIView):
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
+class LogoutAPIView(APIView):
+    permission_classes= [IsAuthenticated]
+
+    def post(self, request):
+        request.user.fcm_token = None
+        request.user.save()
+        return Response({"message": "Successfully logged out"}, status=status.HTTP_200_OK)
+
 
 class PasswordResetEmailVerifyAPIView(APIView):
     permission_classes = [AllowAny]

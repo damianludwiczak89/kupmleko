@@ -26,6 +26,7 @@ DerivedData
 **/.xcode.env.local
 
 /android/app/google-services.json
+/android/gradle.properties
 
 # Android/IntelliJ
 #

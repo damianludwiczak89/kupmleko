@@ -12,6 +12,7 @@ const App = () => {
 
   const triggerInvitesRefresh = useRefreshStore(state => state.triggerInvitesRefresh);
   const triggerShoppingListsRefresh = useRefreshStore(state => state.triggerShoppingListsRefresh);
+  const triggerFriendsRefresh = useRefreshStore(state => state.triggerFriendsRefresh);
 
   useEffect(() => {
     const app = getApp();
@@ -45,6 +46,13 @@ const App = () => {
           Alert.alert(remoteMessage['notification']['body'])
         }, 0);
         triggerShoppingListsRefresh();
+      }
+
+      else if (["Zaproszenie przyjęte!", "Invite accepted!"].includes(remoteMessage['notification']['title'])) {
+        setTimeout(() => {
+          Alert.alert(remoteMessage['notification']['body'])
+        }, 0);
+        triggerFriendsRefresh();
       }
     });
 

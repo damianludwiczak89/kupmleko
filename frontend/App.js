@@ -33,17 +33,18 @@ const App = () => {
     requestNotificationPermission();
 
     const unsubscribe = onMessage(getMessaging(app), async remoteMessage => {
-      console.log('📩 FCM Message Received in foreground:', remoteMessage);
       if (["Friend invitation", "Zaproszenie do znajomych"].includes(remoteMessage['notification']['title'])) {
         setTimeout(() => {
           Alert.alert(remoteMessage['notification']['body'])
         }, 0);
         triggerInvitesRefresh();
-        
       }
       else if (["New Shopping List Shared", "Masz nową listę od znajomego"].includes(remoteMessage['notification']['title'])) {
+        
+        setTimeout(() => {
+          Alert.alert(remoteMessage['notification']['body'])
+        }, 0);
         triggerShoppingListsRefresh();
-        Alert.alert(remoteMessage['notification']['body'])
       }
     });
 

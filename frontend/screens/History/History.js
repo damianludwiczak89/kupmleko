@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import { Text, SafeAreaView } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import apiInstance from '../../utils/axios';
@@ -11,7 +12,6 @@ const History = () => {
 
     const language = useAuthStore((state) => state.language);
 
-    const historyToken = useRefreshStore((state) => state.historyToken);
 
     const [historyLists, setHistoryLists] = useState([]);
 
@@ -30,9 +30,11 @@ const History = () => {
         }
       };
 
-      useEffect(() => {
-        getHistoryLists();
-      }, [historyToken]);
+    useFocusEffect(
+        React.useCallback(() => {
+            getHistoryLists();
+        }, [])
+    );
 
         const lists = historyLists.map((list) => (
             <ShoppingList
@@ -53,7 +55,7 @@ const History = () => {
               lists
             ) : (
               <Text style={{ textAlign: 'center', marginTop: 20 }}>
-                You don't have any archived shopping lists yet
+                {i18n.t('noHistory',  { locale: language })}
               </Text>
           )}
         </ScrollView>

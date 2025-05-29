@@ -58,4 +58,5 @@ export default {
     remove: "Usuń",
     cancel: "Anuluj",
     listSaved: "Lista zapisana!",
+    noHistory: "Nie masz jeszcze list w historii"
   };

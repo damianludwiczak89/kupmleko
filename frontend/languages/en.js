@@ -58,4 +58,5 @@ export default {
     remove: "Remove",
     cancel: "Cancel",
     listSaved: "List saved!",
+    noHistory: "You don't have any archived shopping lists yet"
   };

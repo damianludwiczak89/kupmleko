@@ -1,6 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.apps import apps
+from django.dispatch import Signal, receiver
+
+invite_accepted = Signal()
 
 
 class User(AbstractUser):
@@ -81,15 +84,17 @@ class Invite(models.Model):
         self.from_user.friends.add(self.to_user)
         for shopping_list in self.from_user.lists.all():
             shopping_list._suppress_notifications = True
-            shopping_list.users.add(self.to_user)
+            if shopping_list.archived == False:
+                shopping_list.users.add(self.from_user)
         
         for shopping_list in self.to_user.lists.all():
             shopping_list._supprress_notifications = True
-            shopping_list.users.add(self.from_user)
+            if shopping_list.archived == False:
+                shopping_list.users.add(self.from_user)
         reversed_invite = Invite.objects.filter(from_user=self.to_user, to_user=self.from_user)
         if reversed_invite:
             reversed_invite[0].delete()
-
+        invite_accepted.send(sender=self.__class__, invite=self)
         self.delete()
 
     def __str__(self):

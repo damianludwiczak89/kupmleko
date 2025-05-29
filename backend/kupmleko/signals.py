@@ -1,7 +1,8 @@
 from django.db.models.signals import m2m_changed, post_save
 from django.dispatch import receiver
-from .models import ShoppingList, User, Invite
+from .models import ShoppingList, User, Invite, invite_accepted
 from .firebase import send_push_notification
+
 
 @receiver(m2m_changed, sender=ShoppingList.users.through)
 def notify_users_added(sender, instance, action, pk_set, **kwargs):
@@ -48,3 +49,16 @@ def notify_users_invite(sender, instance, created, **kwargs):
             title,
             body
         )
+
+
+@receiver(invite_accepted)
+def send_accept_notification(sender, invite, **kwargs):
+    user = invite.from_user
+    if user.fcm_token:
+        if user.language == 'pl':
+            title = 'Zaproszenie przyjęte!'
+            body = f"{invite.to_user.username} przyjął Twoje zaproszenie!"
+        elif user.language == 'en':
+            title = "Invite accepted!"
+            body = f"{invite.to_user.username} accepted your invite!"
+        send_push_notification(user.fcm_token, title, body)

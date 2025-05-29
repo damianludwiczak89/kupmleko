@@ -1,4 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.buddybasket.app">
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -11,6 +12,13 @@
       android:allowBackup="false"
       android:theme="@style/AppTheme"
       android:supportsRtl="true">
+    <meta-data
+        android:name="com.google.firebase.messaging.default_notification_icon"
+        android:resource="@drawable/notif" />
+    <meta-data
+        android:name="com.google.firebase.messaging.default_notification_color"
+        android:resource="@color/notif_color"
+        tools:replace="android:resource" />
     <meta-data
       android:name="com.google.android.gms.auth.api.signin.WEB_CLIENT_ID"
       android:value="@string/web_client_id" />

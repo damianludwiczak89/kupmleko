@@ -77,6 +77,7 @@ export const register = async (full_name, email, password, password2, language) 
 };
 
 export const logout = async () => {
+    await apiInstance.post('user/logout/')
     await AsyncStorage.removeItem("@access_token");
     await AsyncStorage.removeItem("@refresh_token");
     useAuthStore.getState().setUser(null);

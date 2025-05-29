@@ -14,12 +14,21 @@ def notify_users_added(sender, instance, action, pk_set, **kwargs):
         creator_friends = set(creator.friends.all())
         users = User.objects.filter(pk__in=pk_set)
 
+
         for user in users:
             if user in creator_friends and user.fcm_token:
+
+                if user.language == 'pl':
+                    title = "Masz nową listę od znajomego"
+                    body = f"{creator.username if creator else 'Ktoś'} udostępnił/a listę: {instance.name}" 
+                elif user.language == 'en':
+                    title = "New Shopping List Shared"
+                    body = f"{creator.username if creator else 'Someone'} shared a list: {instance.name}" 
+
                 send_push_notification(
                     user.fcm_token,
-                    "New Shopping List Shared",
-                    f"{creator.username if creator else 'Someone'} shared a list: {instance.name}"
+                    title,
+                    body
                 )
 
 @receiver(post_save, sender=Invite)
@@ -28,8 +37,14 @@ def notify_users_invite(sender, instance, created, **kwargs):
         return
     user = instance.to_user
     if user and user.fcm_token:
+        if user.language == 'pl':
+            title = 'Zaproszenie do znajomych'
+            body = f'Nowe zaproszenie od {instance.from_user}'
+        elif user.language == 'en':
+            title = 'Frined invitation'
+            body = f"New invite from {instance.from_user}"
         send_push_notification(
             user.fcm_token,
-            "Friend invitation",
-            f"New invite from {instance.from_user}"
+            title,
+            body
         )

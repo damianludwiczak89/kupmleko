@@ -57,5 +57,5 @@ export default {
     removeFriendConfirm: "Czy jesteś pewien, że chcesz usunąć tego znajomego?",
     remove: "Usuń",
     cancel: "Anuluj",
-    listSaved: "Lista zapisana!"
+    listSaved: "Lista zapisana!",
   };

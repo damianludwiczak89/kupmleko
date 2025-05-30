@@ -353,7 +353,7 @@ class UserSearchAPIView(generics.RetrieveAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_object(self):
-        email = self.kwargs.get('email', None)
+        email = self.kwargs.get('email', None).strip()
         if email:
             return User.objects.get(email=email)
         raise Http404 

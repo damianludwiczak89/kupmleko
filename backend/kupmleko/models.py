@@ -85,7 +85,7 @@ class Invite(models.Model):
         for shopping_list in self.from_user.lists.all():
             shopping_list._suppress_notifications = True
             if shopping_list.archived == False:
-                shopping_list.users.add(self.from_user)
+                shopping_list.users.add(self.to_user)
         
         for shopping_list in self.to_user.lists.all():
             shopping_list._supprress_notifications = True

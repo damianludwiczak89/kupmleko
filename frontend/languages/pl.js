@@ -54,7 +54,7 @@ export default {
     error: "Wystąpił błąd",
     inviteAccepted: "Zaproszenie zaakceptowane!",
     removeFriend: 'Usuń znajomego',
-    removeFriendConfirm: "Czy jesteś pewien, że chcesz usunąć tego znajomego?",
+    removeFriendConfirm: "Czy na pewno chcesz usunąć tego znajomego?",
     remove: "Usuń",
     cancel: "Anuluj",
     listSaved: "Lista zapisana!",

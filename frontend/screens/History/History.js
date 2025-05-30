@@ -1,17 +1,16 @@
 import React, { useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { Text, SafeAreaView } from 'react-native';
+import { Text, SafeAreaView, ActivityIndicator, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import apiInstance from '../../utils/axios';
 import ShoppingList from '../../components/ShoppingList/ShoppingList';
-import { useRefreshStore } from '../../store/auth';
 import { useAuthStore } from '../../store/auth';
 import i18n from '../../i18n';
 
 const History = () => {
 
     const language = useAuthStore((state) => state.language);
-
+    const [loading, setLoading] = useState(true);
 
     const [historyLists, setHistoryLists] = useState([]);
 
@@ -20,6 +19,7 @@ const History = () => {
           const response = await apiInstance.get('history/');
           console.log('History:', response.data);
           setHistoryLists(response.data);
+          setLoading(false)
         } catch (error) {
           console.error('error', error)
           console.error('Error fetching history:', error.response ? error.response.data : error.message);
@@ -46,6 +46,14 @@ const History = () => {
               timestamp={list.archived_timestamp}
             />
           ));
+
+  if (loading) {
+      return (
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+              <ActivityIndicator size="large" color="#0000ff" />
+          </View>
+      );
+  }
     
 
   return (

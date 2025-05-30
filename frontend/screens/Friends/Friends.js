@@ -7,6 +7,7 @@ import {
   View,
   TouchableOpacity,
   ScrollView,
+  ActivityIndicator
 } from 'react-native';
 import apiInstance from '../../utils/axios';
 import { useRefreshStore } from '../../store/auth';
@@ -24,6 +25,9 @@ const Friends = () => {
 
   const invitesToken = useRefreshStore((state) => state.invitesToken);
   const triggerInvitesRefresh = useRefreshStore((state) => state.triggerInvitesRefresh);
+
+  const [loadingFriends, setLoadingFriends] = useState(true);
+  const [loadingInvites, setLoadingInvites] = useState(true);
 
   const [email, setEmail] = useState('');
   const [invites, setInvites] = useState([]);
@@ -61,6 +65,7 @@ const Friends = () => {
     try {
       const response = await apiInstance.get('invite/');
       setInvites(response.data);
+      setLoadingInvites(false)
     } catch (error) {
       console.error('Error fetching invites:', error);
     }
@@ -70,6 +75,7 @@ const Friends = () => {
     try {
       const response = await apiInstance.get('friends/');
       setFriends(response.data);
+      setLoadingFriends(false)
     } catch (error) {
       console.error('Error fetching friends:', error);
     }
@@ -160,17 +166,40 @@ const Friends = () => {
             disabled={!email} />
         </View>
 
-        <View style={styles.stickyCard}>
-          <Text style={styles.sectionTitle}>{i18n.t('pendingInvites',  { locale: language })}</Text>
-          {mapped_invites.length > 0 ? mapped_invites 
-          : <Text style={styles.subText}>{i18n.t('noInvites',  { locale: language })}</Text>}
-        </View>
+      <View style={styles.stickyCard}>
+        {loadingInvites ? (
+          <ActivityIndicator size="large" color="#0000ff" />
+        ) : (
+          <>
+            <Text style={styles.sectionTitle}>
+              {i18n.t('pendingInvites', { locale: language })}
+            </Text>
+            {mapped_invites.length > 0 ? (
+              mapped_invites
+            ) : (
+              <Text style={styles.subText}>{i18n.t('noInvites', { locale: language })}</Text>
+            )}
+          </>
+        )}
+      </View>
 
-        <View style={styles.stickyCard}>
-          <Text style={styles.sectionTitle}>{i18n.t('friends',  { locale: language })}</Text>
-          {mapped_friends.length > 0 ? mapped_friends 
-          : <Text style={styles.subText}>{i18n.t('noFriends',  { locale: language })}</Text>}
-        </View>
+      <View style={styles.stickyCard}>
+        {loadingFriends ? (
+          <ActivityIndicator size="large" color="#0000ff" />
+        ) : (
+          <>
+            <Text style={styles.sectionTitle}>
+              {i18n.t('friends', { locale: language })}
+            </Text>
+            {mapped_friends.length > 0 ? (
+              mapped_friends
+            ) : (
+              <Text style={styles.subText}>{i18n.t('noFriends', { locale: language })}</Text>
+            )}
+          </>
+        )}
+      </View>
+
       </ScrollView>
     </SafeAreaView>
   );

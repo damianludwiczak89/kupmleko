@@ -347,17 +347,6 @@ class FriendsAPIView(APIView):
         return Response({"error": "User is not your friend"}, status=400)
 
     
-
-class UserSearchAPIView(generics.RetrieveAPIView):
-    serializer_class = api_serializer.UserSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_object(self):
-        email = self.kwargs.get('email', None).strip()
-        if email:
-            return User.objects.get(email=email)
-        raise Http404 
-    
 class InviteAPIView(APIView):
 
     permission_classes = [IsAuthenticated]
@@ -369,7 +358,7 @@ class InviteAPIView(APIView):
         return Response(serializer.data)
 
     def post(self, request, *args, **kwargs): 
-        email = request.data.get('email')
+        email = request.data.get('email').strip()
         if not email:
             return Response({"error": "Email is required"}, status=400)
         user = get_object_or_404(User, email=email)

@@ -12,7 +12,6 @@ import {faCirclePlus} from "@fortawesome/free-solid-svg-icons";
 import { faArrowsRotate } from '@fortawesome/free-solid-svg-icons';
 import styles from './styles';
 import screenStyle from '../screenStyle';
-import { debounce } from 'lodash';
 import i18n from '../../i18n';
 
 
@@ -25,8 +24,6 @@ const Home = () => {
 
   const shoppingListsToken = useRefreshStore(state => state.shoppingListsToken);
   console.log('listsToken value:', shoppingListsToken);
-
-  const triggerShoppingListsRefresh = useRefreshStore(state => state.triggerShoppingListsRefresh);
 
   const navigation = useNavigation();
 

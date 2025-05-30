@@ -271,25 +271,20 @@ class DraftAPIView(APIView):
         return Response({"message": "Draft edited successfully"}, status=status.HTTP_202_ACCEPTED)
 
 class DraftActivateAPIView(APIView):
-    serializer_class = api_serializer.DraftSerializer
+    serializer_class = api_serializer.ShoppingListSerializer
     permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
         id = request.data.get('id')
         draft = get_object_or_404(Draft.objects.prefetch_related('items'), id=id, user=request.user)
-        serializer = self.serializer_class(draft).data
-        new_shopping_list = ShoppingList.objects.create(name=serializer.get('name'), created_by=request.user)
-        new_shopping_list.users.add(request.user)
-
-        items = [int(x['id']) for x in serializer.get('items')]
-        items = Item.objects.filter(id__in=items)
-
-        create_items = []
-        for item in items:
-            # Creating new Item instead of adding shoppinglist to existing Item, in case of activating 1 draft multiple times
-            create_items.append(Item(name=item.name, amount=item.amount, shopping_list=new_shopping_list))
-        Item.objects.bulk_create(create_items)
-        return Response({"message": "Draft activated successfully"}, status=status.HTTP_202_ACCEPTED)
+        serializer = api_serializer.DraftSerializer(draft)
+        serialized_draft = serializer.data
+        serializer = self.serializer_class(data=serialized_draft, context={'created_by': request.user})
+        if serializer.is_valid():
+            serializer.save()   
+            return Response({"message": "Draft activated successfully"}, status=status.HTTP_202_ACCEPTED)
+        print(serializer.errors)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class HistoryAPIView(APIView):
     permission_classes = [IsAuthenticated]

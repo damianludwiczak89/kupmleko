@@ -68,8 +68,8 @@ class ShoppingListSerializer(serializers.ModelSerializer):
             shopping_list.users.add(friend)
 
         create_items = []
-
         for item_data in items_data:
+            item_data.pop('shopping_list', None)
             create_items.append(Item(shopping_list=shopping_list, **item_data))
 
         Item.objects.bulk_create(create_items)

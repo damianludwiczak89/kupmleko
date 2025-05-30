@@ -7,10 +7,6 @@ import messaging from '@react-native-firebase/messaging';
 import { useRefreshStore } from './store/auth';
 import { navigationRef, navigate } from './navigation/RootNavigation';
 
-messaging().setBackgroundMessageHandler(async remoteMessage => {
-  console.log('BG Message:', remoteMessage);
-  // background processing only - no navigation here
-});
 
 
 const App = () => {
@@ -19,7 +15,7 @@ const App = () => {
   const triggerFriendsRefresh = useRefreshStore(state => state.triggerFriendsRefresh);
 
   useEffect(() => {
-    const app = getApp();
+
 
     const requestNotificationPermission = async () => {
       if (Platform.OS === 'android' && Platform.Version >= 33) {

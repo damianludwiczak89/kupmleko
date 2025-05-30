@@ -26,6 +26,8 @@ const Friends = () => {
   const invitesToken = useRefreshStore((state) => state.invitesToken);
   const triggerInvitesRefresh = useRefreshStore((state) => state.triggerInvitesRefresh);
 
+  const triggerShoppingListsRefresh = useRefreshStore((state) => state.triggerShoppingListsRefresh);
+
   const [loadingFriends, setLoadingFriends] = useState(true);
   const [loadingInvites, setLoadingInvites] = useState(true);
 
@@ -87,6 +89,7 @@ const Friends = () => {
       Alert.alert(i18n.t('inviteAccepted',  { locale: language }));
       triggerFriendsRefresh();
       triggerInvitesRefresh();
+      triggerShoppingListsRefresh();
     } catch (error) {
       console.error('Error accepting invite:', error);
     }
@@ -106,6 +109,7 @@ const Friends = () => {
     try {
       await apiInstance.delete(`friends/${id}/`);
       triggerFriendsRefresh();
+      triggerShoppingListsRefresh();
     } catch (error) {
       console.error('Error removing friend:', error);
       triggerFriendsRefresh();

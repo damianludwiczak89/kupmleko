@@ -1,5 +1,5 @@
-import React, { useCallback } from 'react';
-import { Text, SafeAreaView, Button, TouchableOpacity, View} from 'react-native';
+import React, { useCallback, useState } from 'react';
+import { Text, SafeAreaView, Button, TouchableOpacity, View, TextInput} from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { logout } from '../../utils/auth';
 import apiInstance from '../../utils/axios';
@@ -7,6 +7,8 @@ import { useAuthStore } from '../../store/auth';
 import i18n from '../../i18n';
 import { debounce } from 'lodash';
 import styles from './styles';
+import { Alert } from 'react-native';
+import { useRefreshStore } from '../../store/auth';
 
 
 const Settings = () => {
@@ -16,6 +18,9 @@ const Settings = () => {
     const language = useAuthStore((state) => state.language);
 
     const setUser = useAuthStore((state) => state.setUser)
+
+    const [username, setUsername] = useState(allUserData?.username)
+    const triggerShoppingListsRefresh = useRefreshStore((state) => state.triggerShoppingListsRefresh);
     
     const changeLanguage = useCallback(
       debounce(async (newLanguage) => {
@@ -35,12 +40,39 @@ const Settings = () => {
       changeLanguage(newLanguage)
       }
 
+  const handleNameChange = useCallback(
+      debounce(async (newName) => {
+    try {
+      await apiInstance.put('user/profile/', {'username': newName});
+      allUserData.username = newName
+      setUser(allUserData)
+      triggerShoppingListsRefresh();
+      Alert.alert(i18n.t('changedUsername', { locale: language }))
+      
+    } catch (error) {
+      console.error('error', error)
+    }
+  }, 500), [])
+
 
    return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.stickyCard}>
           <Text style={{ textAlign: 'center', marginBottom: 16  }}>{allUserData?.email}</Text>
+
+          <TextInput
+            style={styles.input}
+            value={username}
+            onChangeText={setUsername}
+            placeholder={username}
+          />
+          <View style={{ marginBottom: 20 }}>
+            <Button
+              title={i18n.t('changeUsername', { locale: language })} 
+              onPress={() => handleNameChange(username)}
+            />
+          </View>
     
       <View style={{ flexDirection: 'row', gap: 16, marginBottom: 20, justifyContent: 'center', }}>
         <TouchableOpacity

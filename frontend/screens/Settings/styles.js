@@ -71,6 +71,14 @@ const styles = StyleSheet.create({
   languageEmoji: {
     fontSize: 30,
   },
+  input: {
+    borderWidth: 1,
+    padding: 10,
+    borderRadius: 6,
+    marginBottom: 10,
+    borderColor: '#ccc',
+    backgroundColor: '#fff8b3',
+  },
 });
 
 export default styles;

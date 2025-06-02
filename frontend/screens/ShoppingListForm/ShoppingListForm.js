@@ -122,7 +122,6 @@ const ShoppingListForm = (existingValues) => {
     };
 
     const handleSave = (name, items) => {
-        // TODO add input validation
         
         if (activeBox && draftBox) {
             saveList(name, items, 'draft/', true);
@@ -145,19 +144,8 @@ const ShoppingListForm = (existingValues) => {
         setTimeout(() => {
             navigation.goBack();
             setTimeout(() => {
-              if (activeBox && draftBox) {
                 triggerDraftsRefresh();
                 triggerShoppingListsRefresh();
-                console.log('refreshed both lists')
-              }
-              else if (draftBox) {
-                triggerDraftsRefresh();
-                console.log('refreshed drafts')
-              }
-              else {
-                triggerShoppingListsRefresh();
-                console.log('refreshed shoppinglists')
-              }
             }, 300);
           }, 1000);
     }

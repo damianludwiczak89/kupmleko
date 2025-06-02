@@ -106,22 +106,13 @@ class DraftSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user = self.context['user']
-        active = self.context['active']
 
         items_data = validated_data.pop('items', []) # in case of not providing items at all
         draft = Draft.objects.create(**validated_data, user=user)
-
-        # create also a shopping list with same data if checkbox active was also checked
-        if active:
-            shopping_list = ShoppingList.objects.create(**validated_data, created_by=user)
-            shopping_list.users.add(user)
         
         create_items = []
         for item_data in items_data:
-            if active:
-                create_items.append(Item(draft=draft, shopping_list = shopping_list, **item_data))
-            else:
-                create_items.append(Item(draft=draft, **item_data))
+            create_items.append(Item(draft=draft, **item_data))
 
         Item.objects.bulk_create(create_items)
 

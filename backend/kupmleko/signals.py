@@ -42,7 +42,7 @@ def notify_users_invite(sender, instance, created, **kwargs):
             title = 'Zaproszenie do znajomych'
             body = f'Nowe zaproszenie od {instance.from_user}'
         elif user.language == 'en':
-            title = 'Frined invitation'
+            title = 'Friend invitation'
             body = f"New invite from {instance.from_user}"
         send_push_notification(
             user.fcm_token,

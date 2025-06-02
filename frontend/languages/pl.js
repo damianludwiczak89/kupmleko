@@ -58,5 +58,7 @@ export default {
     remove: "Usuń",
     cancel: "Anuluj",
     listSaved: "Lista zapisana!",
-    noHistory: "Nie masz jeszcze list w historii"
+    noHistory: "Nie masz jeszcze list w historii",
+    changeUsername: "Zmień nazwę",
+    changedUsername: "Nazwa użytkownika została zmieniona"
   };

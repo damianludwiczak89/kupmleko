@@ -63,6 +63,28 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     textAlign: 'center',
   },
+googleButton: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  backgroundColor: '#ffffff',
+  padding: 10,
+  borderRadius: 6,
+  borderWidth: 1,
+  borderColor: '#ccc',
+  justifyContent: 'center',
+},
+
+googleIcon: {
+  width: 20,
+  height: 20,
+  marginRight: 10,
+},
+
+googleButtonText: {
+  fontSize: 16,
+  color: '#333',
+  fontWeight: '500',
+},
 });
 
 export default styles;

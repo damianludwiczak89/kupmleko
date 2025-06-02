@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import {  SafeAreaView, Text, Button, TextInput, View, TouchableOpacity } from 'react-native';
+import {  SafeAreaView, Text, Button, TextInput, View, TouchableOpacity, Image } from 'react-native';
 import { login, googleLogin } from '../../utils/auth';
 import { Routes } from '../../navigation/Routes';
 import { useNavigation } from '@react-navigation/native';
@@ -119,7 +119,12 @@ const Login = () => {
       </View>
 
       <View style={styles.buttonWrapper}>
-        <Button title={i18n.t('googleSignIn',  { locale: language })} onPress={handleGooglelogin} />
+        <TouchableOpacity style={styles.googleButton} onPress={handleGooglelogin}>
+          <Image source={require('../../assets/google.png')} style={styles.googleIcon} />
+          <Text style={styles.googleButtonText}>
+            {i18n.t('googleSignIn', { locale: language })}
+          </Text>
+        </TouchableOpacity>
       </View>
 
       <Text style={styles.text}>{i18n.t('accountQuestion',  { locale: language })}</Text>

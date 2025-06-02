@@ -75,6 +75,7 @@ const Home = () => {
     <ShoppingList
       key={list.id}
       id={list.id}
+      creator={list.created_by}
       name={list.name}
       items={list.items}
       active={true}

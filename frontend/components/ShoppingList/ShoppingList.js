@@ -1,6 +1,7 @@
 import Item from '../Item/Item';
-import {  Button, View, Pressable, Text } from 'react-native';
+import {  View, Pressable, Text } from 'react-native';
 import { useState } from 'react';
+import { ScrollView } from 'react-native-gesture-handler';
 import apiInstance from '../../utils/axios';
 import { useNavigation } from '@react-navigation/native';
 import { Routes } from '../../navigation/Routes';
@@ -10,12 +11,14 @@ import { Alert } from 'react-native';
 import i18n from '../../i18n';
 import { useAuthStore } from '../../store/auth';
 
-const ShoppingList = ({ id, name, items, active=true, update, history=false, timestamp=false }) => {
+const ShoppingList = ({ id, name, creator = null, items, active=true, update, history=false, timestamp=false }) => {
 
     const language = useAuthStore((state) => state.language);
 
     const triggerHistoryRefresh = useRefreshStore(state => state.triggerHistoryRefresh);
     const triggerShoppingListsRefresh = useRefreshStore(state => state.triggerShoppingListsRefresh);
+
+    const allUserData = useAuthStore((state) => state.allUserData)
 
     const navigation = useNavigation();
 
@@ -63,40 +66,48 @@ const ShoppingList = ({ id, name, items, active=true, update, history=false, tim
 
 
     return (
-        <View style={styles.card}>
-        <Pressable onPress={() => setDisplayList(!displayList)} style={styles.cardHeader}>
-            <View>
-                <Text style={styles.cardHeaderText}>{name}</Text>
-                {history && <Text style={styles.timestampText}>{timestamp}</Text>}
-            </View>
-        </Pressable>
-
-        {displayList && (
-            <View style={styles.cardContent}>
-            {itemComponents}
-
-            {!history && (
-                <View style={styles.buttonRow}>
-                    {!active && (
-                    <Pressable style={styles.customButton} onPress={() => activate(id)}>
-                        <Text style={styles.customButtonText}>🛒 {i18n.t('activate',  { locale: language })}</Text>
-                    </Pressable>
+        <ScrollView>
+            <View style={styles.card}>
+                <Pressable onPress={() => setDisplayList(!displayList)} style={styles.cardHeader}>
+                <View style={styles.headerLeft}>
+                    <View>
+                    <Text style={styles.cardHeaderText}>{name}</Text>
+                    {creator && creator !== allUserData?.username && (
+                        <Text style={styles.subText}>{creator}</Text>
                     )}
-                    <Pressable style={styles.customButton} onPress={() => deleteList(id)}>
-                    <Text style={styles.customButtonText}>
-                        {active 
-                            ? `✅ ${i18n.t('complete', { locale: language })}`  
-                            : `❌ ${i18n.t('delete', { locale: language })}`}
-                    </Text>
-                    </Pressable>
-                    <Pressable style={styles.customButton} onPress={() => edit(id, name, items, active)}>
-                    <Text style={styles.customButtonText}>✏️ {i18n.t('edit',  { locale: language })}</Text>
-                    </Pressable>
+                    {history && <Text style={styles.subText}>{timestamp}</Text>}
+                    </View>
+                </View>
+                <Text style={styles.expandIcon}>{displayList ? "➖" : "➕"}</Text>
+                </Pressable>
+
+            {displayList && (
+                <View style={styles.cardContent}>
+                {itemComponents}
+
+                {!history && (
+                    <View style={styles.buttonRow}>
+                        {!active && (
+                        <Pressable style={styles.customButton} onPress={() => activate(id)}>
+                            <Text style={styles.customButtonText}>🛒 {i18n.t('activate',  { locale: language })}</Text>
+                        </Pressable>
+                        )}
+                        <Pressable style={styles.customButton} onPress={() => deleteList(id)}>
+                        <Text style={styles.customButtonText}>
+                            {active 
+                                ? `✅ ${i18n.t('complete', { locale: language })}`  
+                                : `❌ ${i18n.t('delete', { locale: language })}`}
+                        </Text>
+                        </Pressable>
+                        <Pressable style={styles.customButton} onPress={() => edit(id, name, items, active)}>
+                        <Text style={styles.customButtonText}>✏️ {i18n.t('edit',  { locale: language })}</Text>
+                        </Pressable>
+                    </View>
+                )}
                 </View>
             )}
             </View>
-        )}
-        </View>
+        </ScrollView>
     )
 }
 

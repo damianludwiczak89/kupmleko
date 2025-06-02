@@ -47,10 +47,14 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '500',
   },
-  timestampText: {
+  subText: {
     fontSize: 12,
     color: '#666',
     marginTop: 2,
+  },
+  expandIcon: {
+    fontSize: 20,
+    paddingLeft: 10,
   },
 });
 

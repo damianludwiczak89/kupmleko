@@ -11,6 +11,7 @@ import styles from './styles';
 import screenStyle from '../screenStyle';
 import i18n from '../../i18n';
 import { useAuthStore } from '../../store/auth';
+import { ScrollView } from 'react-native-gesture-handler';
 
 const Lists = () => {
 
@@ -61,6 +62,7 @@ const Lists = () => {
   return (
     <View style={styles.fullscreen}>
       <SafeAreaView style={styles.container}>
+        <ScrollView>
           {lists && lists.length > 0 ? (
               lists
             ) : (
@@ -68,12 +70,14 @@ const Lists = () => {
                 {i18n.t('noLists', { locale: language })}
               </Text>
           )}
+          </ScrollView>
           <View style={screenStyle.iconWrapper}>
           
             <TouchableOpacity onPress={() => navigation.navigate(Routes.ShoppingListForm)} style={screenStyle.iconButton}>
               <FontAwesomeIcon icon={faCirclePlus} style={screenStyle.icon} size={40} />
             </TouchableOpacity>
           </View>
+        
       </SafeAreaView>
     </View>
   );

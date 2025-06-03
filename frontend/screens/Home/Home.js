@@ -86,7 +86,7 @@ const Home = () => {
   return (
     <View style={styles.fullscreen}>
       <SafeAreaView style={styles.container}>
-        <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
+        <ScrollView>
           {lists && lists.length > 0 ? (
               lists
             ) : (

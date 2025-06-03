@@ -60,5 +60,6 @@ export default {
     listSaved: "Lista zapisana!",
     noHistory: "Nie masz jeszcze list w historii",
     changeUsername: "Zmień nazwę",
-    changedUsername: "Nazwa użytkownika została zmieniona"
+    changedUsername: "Nazwa użytkownika została zmieniona",
+    listCompleted: "Lista zakończona"
   };

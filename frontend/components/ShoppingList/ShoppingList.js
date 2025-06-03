@@ -1,7 +1,6 @@
 import Item from '../Item/Item';
 import {  View, Pressable, Text } from 'react-native';
 import { useState } from 'react';
-import { ScrollView } from 'react-native-gesture-handler';
 import apiInstance from '../../utils/axios';
 import { useNavigation } from '@react-navigation/native';
 import { Routes } from '../../navigation/Routes';
@@ -30,6 +29,7 @@ const ShoppingList = ({ id, name, creator = null, items, active=true, update, hi
             await apiInstance.delete(`${endpoint}/${id}/`)
             triggerHistoryRefresh();
             update();
+            Alert.alert(i18n.t('listCompleted',  { locale: language }))
         }
         catch (error) {
             console.log('error deleting list')
@@ -66,7 +66,6 @@ const ShoppingList = ({ id, name, creator = null, items, active=true, update, hi
 
 
     return (
-        <ScrollView>
             <View style={styles.card}>
                 <Pressable onPress={() => setDisplayList(!displayList)} style={styles.cardHeader}>
                 <View style={styles.headerLeft}>
@@ -107,7 +106,6 @@ const ShoppingList = ({ id, name, creator = null, items, active=true, update, hi
                 </View>
             )}
             </View>
-        </ScrollView>
     )
 }
 

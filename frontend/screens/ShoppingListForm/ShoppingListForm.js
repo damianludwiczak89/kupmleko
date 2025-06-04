@@ -5,6 +5,9 @@ import {
   TouchableOpacity,
   Button,
   ScrollView,
+  KeyboardAvoidingView,
+  TouchableWithoutFeedback,
+  Keyboard
 } from 'react-native';
 import { useState, useEffect } from 'react';
 import apiInstance from '../../utils/axios';
@@ -162,7 +165,13 @@ const ShoppingListForm = (existingValues) => {
 
     return (
         <View style={styles.container}>
-        <ScrollView contentContainerStyle={styles.scrollContent}>
+        <KeyboardAvoidingView
+          behavior={'height'}
+          style={{ flex: 1 }}
+          keyboardVerticalOffset={60}
+        >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
           <TextInput
             style={styles.input}
             value={name}
@@ -231,6 +240,8 @@ const ShoppingListForm = (existingValues) => {
                 onPress={() => handleSave(name, items)} />
           </View>
         </ScrollView>
+        </TouchableWithoutFeedback>
+        </KeyboardAvoidingView>
     
         <View style={styles.bottomBar}>
           <TextInput

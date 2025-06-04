@@ -58,7 +58,7 @@ const History = () => {
 
   return (
     <SafeAreaView>
-        <ScrollView>
+        <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
           {lists && lists.length > 0 ? (
               lists
             ) : (

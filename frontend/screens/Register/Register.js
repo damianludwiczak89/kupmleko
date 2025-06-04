@@ -1,6 +1,15 @@
 import React, {useState} from 'react';
-import {  SafeAreaView, Text, Button, TextInput, View, TouchableOpacity } from 'react-native';
-import { register, setUser } from '../../utils/auth';
+import {  SafeAreaView, 
+  Text, 
+  Button, 
+  TextInput, 
+  View, 
+  TouchableOpacity, 
+  ScrollView, 
+  KeyboardAvoidingView,
+  Keyboard,
+  TouchableWithoutFeedback } from 'react-native';
+import { register } from '../../utils/auth';
 import { Routes } from '../../navigation/Routes';
 import { useNavigation } from '@react-navigation/native';
 import styles from '../auth_styles';
@@ -32,75 +41,88 @@ const Register = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.header}>{i18n.t('register',  { locale: language })}</Text>
-
-      <TextInput
-        style={styles.input}
-        value={username}
-        onChangeText={setUsername}
-        placeholder={i18n.t('username',  { locale: language })}
-        autoFocus
-      />
-
-      <TextInput
-        style={styles.input}
-        value={email}
-        onChangeText={setEmail}
-        placeholder="Email"
-        keyboardType="email-address"
-      />
-
-      <TextInput
-        style={styles.input}
-        value={password}
-        onChangeText={setPassword}
-        placeholder={i18n.t('password',  { locale: language })}
-        secureTextEntry
-      />
-
-      <TextInput
-        style={styles.input}
-        value={confirmPassword}
-        onChangeText={setConfirmPassword}
-        placeholder={i18n.t('passwordConfirm',  { locale: language })}
-        secureTextEntry
-      />
-
-      <View style={styles.languageContainer}>
-        <TouchableOpacity
-          onPress={() => {setUserLanguage('pl'); setLanguage('pl')}}
-          style={[
-            styles.languageButton,
-            userLanguage === 'pl' && styles.languageButtonSelected,
-          ]}
+      <KeyboardAvoidingView
+        behavior={'height'}
+        style={{ flex: 1 }}
+        keyboardVerticalOffset={60}
+      >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <ScrollView
+          contentContainerStyle={{ paddingBottom: 100 }}
+          keyboardShouldPersistTaps="handled"
         >
-          <Text style={styles.languageEmoji}>🇵🇱</Text>
-        </TouchableOpacity>
+        <Text style={styles.header}>{i18n.t('register',  { locale: language })}</Text>
 
-        <TouchableOpacity
-          onPress={() => {setUserLanguage('en'); setLanguage('en')}}
-          style={[
-            styles.languageButton,
-            userLanguage === 'en' && styles.languageButtonSelected,
-          ]}
-        >
-          <Text style={styles.languageEmoji}>🇬🇧</Text>
-        </TouchableOpacity>
-      </View>
-
-      <View style={styles.buttonWrapper}>
-        <Button
-          title={i18n.t('register',  { locale: language })}
-          onPress={() => handleSubmit(username, email, password, confirmPassword, userLanguage)}
-          color="#841584"
-          disabled={!username || !email || !password || !confirmPassword}
+        <TextInput
+          style={styles.input}
+          value={username}
+          onChangeText={setUsername}
+          placeholder={i18n.t('username',  { locale: language })}
+          autoFocus
         />
-      </View>
 
-      <Text style={styles.text}>{i18n.t('accountQuestion2',  { locale: language })}</Text>
-      <View style={styles.buttonWrapper}>
-        <Button title={i18n.t('login',  { locale: language })} onPress={() => navigation.navigate(Routes.Login)} />
-      </View>
+        <TextInput
+          style={styles.input}
+          value={email}
+          onChangeText={setEmail}
+          placeholder="Email"
+          keyboardType="email-address"
+        />
+
+        <TextInput
+          style={styles.input}
+          value={password}
+          onChangeText={setPassword}
+          placeholder={i18n.t('password',  { locale: language })}
+          secureTextEntry
+        />
+
+        <TextInput
+          style={styles.input}
+          value={confirmPassword}
+          onChangeText={setConfirmPassword}
+          placeholder={i18n.t('passwordConfirm',  { locale: language })}
+          secureTextEntry
+        />
+
+        <View style={styles.languageContainer}>
+          <TouchableOpacity
+            onPress={() => {setUserLanguage('pl'); setLanguage('pl')}}
+            style={[
+              styles.languageButton,
+              userLanguage === 'pl' && styles.languageButtonSelected,
+            ]}
+          >
+            <Text style={styles.languageEmoji}>🇵🇱</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => {setUserLanguage('en'); setLanguage('en')}}
+            style={[
+              styles.languageButton,
+              userLanguage === 'en' && styles.languageButtonSelected,
+            ]}
+          >
+            <Text style={styles.languageEmoji}>🇬🇧</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.buttonWrapper}>
+          <Button
+            title={i18n.t('register',  { locale: language })}
+            onPress={() => handleSubmit(username, email, password, confirmPassword, userLanguage)}
+            color="#841584"
+            disabled={!username || !email || !password || !confirmPassword}
+          />
+        </View>
+
+        <Text style={styles.text}>{i18n.t('accountQuestion2',  { locale: language })}</Text>
+        <View style={styles.buttonWrapper}>
+          <Button title={i18n.t('login',  { locale: language })} onPress={() => navigation.navigate(Routes.Login)} />
+        </View>
+      </ScrollView>
+      </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }

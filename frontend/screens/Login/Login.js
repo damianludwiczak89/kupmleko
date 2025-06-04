@@ -1,5 +1,15 @@
 import React, {useState, useEffect} from 'react';
-import {  SafeAreaView, Text, Button, TextInput, View, TouchableOpacity, Image } from 'react-native';
+import {  SafeAreaView, 
+  Text, 
+  Button, 
+  TextInput, 
+  View, 
+  TouchableOpacity, 
+  Image, 
+  ScrollView, 
+  KeyboardAvoidingView,
+  TouchableWithoutFeedback,
+  Keyboard } from 'react-native';
 import { login, googleLogin } from '../../utils/auth';
 import { Routes } from '../../navigation/Routes';
 import { useNavigation } from '@react-navigation/native';
@@ -52,17 +62,24 @@ const Login = () => {
       webClientId: GOOGLE_WEB_CLIENT_ID,
     });
   }, []);
+  
+
+  const translatedReset = {
+    "User not found": i18n.t('noUserFound', { locale: language }),
+    "Cannot reset password for google account login": i18n.t('resetGooglePassword', { locale: language }),
+    "Password reset email sent successfully": i18n.t('resetSent', { locale: language }),
+  }
 
   const handleEmailReset = async (email) => {
     try {
       const response = await axios.get(`${API_BASE_URL}user/password-reset/${email}/`);
       console.log(response.data);
-      Alert.alert(i18n.t('resetPassword',  { locale: language }))
+      Alert.alert(i18n.t('resetSent',  { locale: language }))
     } catch (error) {
       if (error.response) {
         console.log('Error response data:', error.response.data);
         console.log('Status code:', error.response.status);
-        Alert.alert(error.response.data.message || 'Password reset failed');
+        Alert.alert(translatedReset[error.response.data.message] || i18n.t('resetFailed', { locale: language }));
       } else {
         console.log('Error message:', error.message);
       }
@@ -71,85 +88,100 @@ const Login = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.languageContainer}>
-        <TouchableOpacity
-          onPress={() => setLanguage('pl')}
-          style={[
-            styles.languageButton,
-            language === 'pl' && styles.languageButtonSelected,
-          ]}
+      <KeyboardAvoidingView
+        behavior={'height'}
+        style={{ flex: 1 }}
+        keyboardVerticalOffset={60}
+      >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <ScrollView
+          contentContainerStyle={{ paddingBottom: 100 }}
+          keyboardShouldPersistTaps="handled"
         >
-          <Text style={styles.languageEmoji}>🇵🇱</Text>
-        </TouchableOpacity>
+        <View style={styles.languageContainer}>
+          <TouchableOpacity
+            onPress={() => setLanguage('pl')}
+            style={[
+              styles.languageButton,
+              language === 'pl' && styles.languageButtonSelected,
+            ]}
+          >
+            <Text style={styles.languageEmoji}>🇵🇱</Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity
-          onPress={() => setLanguage('en')}
-          style={[
-            styles.languageButton,
-            language === 'en' && styles.languageButtonSelected,
-          ]}
-        >
-          <Text style={styles.languageEmoji}>🇬🇧</Text>
-        </TouchableOpacity>
-      </View>
-
-      <Text style={styles.header}>{i18n.t('login',  { locale: language })}</Text>
-
-      <TextInput
-        style={styles.input}
-        value={username}
-        onChangeText={setUsername}
-        placeholder="Email"
-        autoFocus
-      />
-
-      <TextInput
-        style={styles.input}
-        value={password}
-        onChangeText={setPassword}
-        placeholder={i18n.t('password',  { locale: language })}
-        secureTextEntry
-      />
-
-      <View style={styles.buttonWrapper}>
-        <Button 
-          title={i18n.t('login',  { locale: language })} 
-          onPress={() => handleSubmit(username, password)} color="#841584"
-          disabled={!username || !password} />
-      </View>
-
-      <View style={styles.buttonWrapper}>
-        <TouchableOpacity style={styles.googleButton} onPress={handleGooglelogin}>
-          <Image source={require('../../assets/google.png')} style={styles.googleIcon} />
-          <Text style={styles.googleButtonText}>
-            {i18n.t('googleSignIn', { locale: language })}
-          </Text>
-        </TouchableOpacity>
-      </View>
-
-      <Text style={styles.text}>{i18n.t('accountQuestion',  { locale: language })}</Text>
-      <View style={styles.buttonWrapper}>
-        <Button title={i18n.t('register',  { locale: language })} onPress={() => navigation.navigate(Routes.Register)} />
-      </View>
-
-      <Text style={styles.text}>{i18n.t('forgotPassword',  { locale: language })}</Text>
-      <View style={styles.buttonWrapper}>
-        <Button title={i18n.t('resetPassword',  { locale: language })} onPress={() => setResetPasswordToggle(!resetPasswordToggle)} />
-      </View>
-
-      {resetPasswordToggle && (
-        <View style={styles.resetSection}>
-          <TextInput
-            style={styles.input}
-            value={emailReset}
-            onChangeText={setEmailReset}
-            placeholder="Email"
-          />
-          <View style={styles.buttonWrapper}>
-            <Button title={i18n.t('resetLink',  { locale: language })} onPress={() => handleEmailReset(emailReset)} />
-          </View>
+          <TouchableOpacity
+            onPress={() => setLanguage('en')}
+            style={[
+              styles.languageButton,
+              language === 'en' && styles.languageButtonSelected,
+            ]}
+          >
+            <Text style={styles.languageEmoji}>🇬🇧</Text>
+          </TouchableOpacity>
         </View>
-      )}
+
+        <Text style={styles.header}>{i18n.t('login',  { locale: language })}</Text>
+
+        <TextInput
+          style={styles.input}
+          value={username}
+          onChangeText={setUsername}
+          placeholder="Email"
+        />
+
+        <TextInput
+          style={styles.input}
+          value={password}
+          onChangeText={setPassword}
+          placeholder={i18n.t('password',  { locale: language })}
+          secureTextEntry
+        />
+
+        <View style={styles.buttonWrapper}>
+          <Button 
+            title={i18n.t('login',  { locale: language })} 
+            onPress={() => handleSubmit(username, password)} color="#841584"
+            disabled={!username || !password} />
+        </View>
+
+        <View style={styles.buttonWrapper}>
+          <TouchableOpacity style={styles.googleButton} onPress={handleGooglelogin}>
+            <Image source={require('../../assets/google.png')} style={styles.googleIcon} />
+            <Text style={styles.googleButtonText}>
+              {i18n.t('googleSignIn', { locale: language })}
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        <Text style={styles.text}>{i18n.t('accountQuestion',  { locale: language })}</Text>
+        <View style={styles.buttonWrapper}>
+          <Button title={i18n.t('register',  { locale: language })} onPress={() => navigation.navigate(Routes.Register)} />
+        </View>
+
+        <Text style={styles.text}>{i18n.t('forgotPassword',  { locale: language })}</Text>
+        <View style={styles.buttonWrapper}>
+          <Button title={i18n.t('resetPassword',  { locale: language })} onPress={() => setResetPasswordToggle(!resetPasswordToggle)} />
+        </View>
+
+        {resetPasswordToggle && (
+          <View style={styles.resetSection}>
+            <View style={styles.buttonWrapper}>
+            <Button 
+              title={i18n.t('resetLink',  { locale: language })} 
+              onPress={() => handleEmailReset(emailReset)} 
+              disabled={!emailReset}/>
+            </View>
+            <TextInput
+              style={styles.input}
+              value={emailReset}
+              onChangeText={setEmailReset}
+              placeholder="Email"
+            />
+          </View>
+        )}
+      </ScrollView>
+      </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }

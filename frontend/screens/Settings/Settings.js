@@ -1,5 +1,13 @@
 import React, { useCallback, useState } from 'react';
-import { Text, SafeAreaView, Button, TouchableOpacity, View, TextInput} from 'react-native';
+import { Text, 
+  SafeAreaView, 
+  Button, 
+  TouchableOpacity, 
+  View, 
+  TextInput, 
+  KeyboardAvoidingView,
+  Keyboard,
+  TouchableWithoutFeedback} from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { logout } from '../../utils/auth';
 import apiInstance from '../../utils/axios';
@@ -57,7 +65,16 @@ const Settings = () => {
 
    return (
     <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <KeyboardAvoidingView
+        behavior={'height'}
+        style={{ flex: 1 }}
+        keyboardVerticalOffset={60}
+      >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <ScrollView
+          contentContainerStyle={{ paddingBottom: 100 }}
+          keyboardShouldPersistTaps="handled"
+        >
         <View style={styles.stickyCard}>
           <Text style={{ textAlign: 'center', marginBottom: 16  }}>{allUserData?.email}</Text>
 
@@ -98,6 +115,8 @@ const Settings = () => {
           <Button title={i18n.t('logout', { locale: language })} onPress={logout} />
         </View>
       </ScrollView>
+      </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };

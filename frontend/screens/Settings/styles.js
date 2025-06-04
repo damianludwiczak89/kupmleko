@@ -5,9 +5,6 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
   },
-  scrollContent: {
-    paddingBottom: 30,
-  },
   stickyCard: {
     backgroundColor: '#fff9c4',
     borderRadius: 12,

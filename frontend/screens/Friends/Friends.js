@@ -7,7 +7,10 @@ import {
   View,
   TouchableOpacity,
   ScrollView,
-  ActivityIndicator
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Keyboard,
+  TouchableWithoutFeedback
 } from 'react-native';
 import apiInstance from '../../utils/axios';
 import { useRefreshStore } from '../../store/auth';
@@ -155,7 +158,16 @@ const Friends = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <KeyboardAvoidingView
+        behavior={'height'}
+        style={{ flex: 1 }}
+        keyboardVerticalOffset={60}
+      >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <ScrollView
+          contentContainerStyle={{ paddingBottom: 100 }}
+          keyboardShouldPersistTaps="handled"
+        >
         <View style={styles.stickyCard}>
           <Text style={styles.sectionTitle}>{i18n.t('sendInvite',  { locale: language })}</Text>
           <TextInput
@@ -205,6 +217,8 @@ const Friends = () => {
       </View>
 
       </ScrollView>
+      </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };

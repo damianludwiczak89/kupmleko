@@ -11,6 +11,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
 
         token["username"] = user.username
         token["email"] = user.email
+        token["language"] = user.language
 
         return token
     

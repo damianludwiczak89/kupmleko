@@ -29,7 +29,7 @@ const ShoppingList = ({ id, name, creator = null, items, active=true, update, hi
             await apiInstance.delete(`${endpoint}/${id}/`)
             triggerHistoryRefresh();
             update();
-            Alert.alert(i18n.t('listCompleted',  { locale: language }))
+            Alert.alert(active ? i18n.t('listCompleted',  { locale: language }) : i18n.t('listDeleted',  { locale: language }) )
         }
         catch (error) {
             console.log('error deleting list')

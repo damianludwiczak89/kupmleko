@@ -14,7 +14,6 @@ export default {
     forgotPassword: 'Zapomniałeś hasła?',
     resetPassword: "Zresetuj hasło",
     resetLink: "Wyślij link",
-    resetAlert: "Link do zresetowania hasła został wysłany na email",
     complete: "Zakończ",
     edit: "Edytuj",
     activate: "Aktywuj",
@@ -62,5 +61,10 @@ export default {
     changeUsername: "Zmień nazwę",
     changedUsername: "Nazwa użytkownika została zmieniona",
     listCompleted: "Lista zakończona",
-    listDeleted: "Lista usunięta"
+    listDeleted: "Lista usunięta",
+    noUserFound: "Nie znaleziono użytkownika o tym adresie e-mail",
+    resetGooglePassword: "Nie można zresetować hasła dla konta Google",
+    resetSent: "Wysłano e-mail",
+    resetFailed: "Nie udało się wysłać e-maila"
+
   };

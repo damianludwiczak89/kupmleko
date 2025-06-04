@@ -14,7 +14,6 @@ export default {
     forgotPassword: "Forgot password?",
     resetPassword: "Reset Password",
     resetLink: "Send reset link",
-    resetAlert: "Reset password link sent to email",
     complete: "Complete",
     edit: "Edit",
     activate: "Activate",
@@ -39,7 +38,7 @@ export default {
     listName: "List name",
     noAccount: "No account found for given credentials",
     wrongPassword: "Incorrect password",
-    shortPassword: "This password is too short - it must contain at least 8 characters",
+    shortPassword: "Password must contain at least 8 characters",
     commonPassword: 'This password is too common',
     numPassword: "This password is entirely numeric",
     passwordMismatch: "Passwords do not match",
@@ -62,5 +61,9 @@ export default {
     changeUsername: 'Change username',
     changedUsername: "Username has been changed",
     listCompleted: "List completed",
-    listDeleted: "List deleted"
+    listDeleted: "List deleted",
+    noUserFound: "No user found for provided e-mail address",
+    resetGooglePassword: "Cannot reset password for google type account",
+    resetSent: "Password reset email sent successfully",
+    resetFailed: "Password reset failed"
   };

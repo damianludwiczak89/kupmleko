@@ -28,9 +28,6 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
-# Create Invite model with from:to foreign keys to user?
-# add history of completed shopping lists
-# Consider removing draft field from shopping list model
 
 class MyTokenObtainPairView(TokenObtainPairView):
 
@@ -205,6 +202,7 @@ class ShoppingListAPIView(APIView):
         shopping_list = get_object_or_404(ShoppingList.objects.prefetch_related('items'), id=id)
         shopping_list.archived = True
         shopping_list.archived_timestamp = timezone.now()
+        shopping_list._acting_user = request.user # attribute for signal notification
         shopping_list.save()
 
         if len(ShoppingList.objects.filter(users=request.user, archived=True)) > 10:

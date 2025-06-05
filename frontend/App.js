@@ -33,21 +33,27 @@ const App = () => {
     requestNotificationPermission();
 
     const unsubscribe = messaging().onMessage(async remoteMessage => {
-      const title = remoteMessage.notification?.title;
       const body = remoteMessage.notification?.body;
+      const type = remoteMessage.data.type;
 
-      if (["Friend invitation", "Zaproszenie do znajomych"].includes(title)) {
+      console.log(remoteMessage)
+
+      if (type==='invite_received') {
         setTimeout(() => Alert.alert(body), 0);
         console.log(remoteMessage)
         triggerInvitesRefresh();
       }
-      else if (["New Shopping List Shared", "Masz nową listę od znajomego"].includes(title)) {
+      else if (type==='new_list') {
         setTimeout(() => Alert.alert(body), 0);
         triggerShoppingListsRefresh();
       }
-      else if (["Zaproszenie przyjęte!", "Invite accepted!"].includes(title)) {
+      else if (type==='invite_accepted') {
         setTimeout(() => Alert.alert(body), 0);
         triggerFriendsRefresh();
+      }
+      else if (type==='archived') {
+        setTimeout(() => Alert.alert(body), 0);
+        triggerShoppingListsRefresh();
       }
     });
 
@@ -57,18 +63,23 @@ const App = () => {
   useEffect(() => {
     const unsubscribe = messaging().onNotificationOpenedApp(remoteMessage => {
       if (!remoteMessage) return;
-      const title = remoteMessage.notification?.title;
-          if (["Friend invitation", "Zaproszenie do znajomych"].includes(title)) {
+      console.log(remoteMessage)
+      const type = remoteMessage.data.type;
+          if (type==='invite_received') {
             triggerInvitesRefresh();
             navigate("Tabs", { screen: "FriendsTab" });
           }
-          if (["New Shopping List Shared", "Masz nową listę od znajomego"].includes(title)) {
+          if (type==='new_list') {
             triggerShoppingListsRefresh();
             navigate("Tabs", { screen: "ShoppingTab" });
           }
-          if (["Zaproszenie przyjęte!", "Invite accepted!"].includes(title)) {
+          if (type==='invite_accepted') {
             triggerFriendsRefresh();
             navigate("Tabs", { screen: "FriendsTab" });
+          }
+          if (type==='archived') {
+            triggerFriendsRefresh();
+            navigate("Tabs", { screen: "HistoryTab" });
           }
     });
 

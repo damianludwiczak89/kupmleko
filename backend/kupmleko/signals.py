@@ -29,8 +29,7 @@ def notify_users_added(sender, instance, action, pk_set, **kwargs):
                 send_push_notification(
                     user.fcm_token,
                     title,
-                    body,
-                    type="new_list"
+                    body
                 )
 
 @receiver(post_save, sender=Invite)
@@ -48,8 +47,7 @@ def notify_users_invite(sender, instance, created, **kwargs):
         send_push_notification(
             user.fcm_token,
             title,
-            body,
-            type="invite_received"
+            body
         )
 
 
@@ -63,7 +61,7 @@ def send_accept_notification(sender, invite, **kwargs):
         elif user.language == 'en':
             title = "Invite accepted!"
             body = f"{invite.to_user.username} accepted your invite!"
-        send_push_notification(user.fcm_token, title, body, type="invite_accepted")
+        send_push_notification(user.fcm_token, title, body)
 
 @receiver(pre_save, sender=ShoppingList)
 def archived_status_changed(sender, instance, **kwargs):
@@ -94,6 +92,5 @@ def archived_status_changed(sender, instance, **kwargs):
                 send_push_notification(
                     friend.fcm_token,
                     title,
-                    body,
-                    type='archived'
+                    body
                 )

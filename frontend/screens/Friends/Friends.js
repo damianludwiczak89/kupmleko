@@ -181,23 +181,16 @@ const Friends = () => {
             onPress={() => sendInvite(email)}
             disabled={!email} />
         </View>
-
-      <View style={styles.stickyCard}>
-        {loadingInvites ? (
-          <ActivityIndicator size="large" color="#0000ff" />
-        ) : (
-          <>
-            <Text style={styles.sectionTitle}>
-              {i18n.t('pendingInvites', { locale: language })}
-            </Text>
-            {mapped_invites.length > 0 ? (
-              mapped_invites
-            ) : (
-              <Text style={styles.subText}>{i18n.t('noInvites', { locale: language })}</Text>
-            )}
-          </>
-        )}
-      </View>
+      <View>
+        {mapped_invites.length > 0 ? 
+          <View style={styles.stickyCard}>
+                <Text style={styles.sectionTitle}>
+                  {i18n.t('pendingInvites', { locale: language })}
+                </Text>
+                  {mapped_invites}     
+          </View>
+        : <View></View>}
+       </View>
 
       <View style={styles.stickyCard}>
         {loadingFriends ? (

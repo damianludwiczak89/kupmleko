@@ -1,13 +1,12 @@
 from django.shortcuts import render, get_object_or_404
-from django.core.mail import EmailMultiAlternatives
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
 from django.template.loader import render_to_string
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode 
 from django.conf import settings
-from django.http import HttpResponseBadRequest
 from django.utils.encoding import force_bytes, force_str
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
-from django.http import Http404
 from django.utils import timezone
 
 from rest_framework_simplejwt.views import TokenObtainPairView
@@ -112,28 +111,38 @@ class PasswordResetEmailVerifyAPIView(APIView):
         user.otp = generate_random_otp()
         user.save()
 
-        link = f"http://localhost:8000/api/user/reset-password/?otp={user.otp}&uuidb64={uuidb64}"
+
+
+        link = f"https://kupmleko.pythonanywhere.com/api/user/reset-password/?otp={user.otp}&uuidb64={uuidb64}"
         
         email_data = {
             "link": link,
             "username": user.username
         }
 
-        subject = "Password Reset Email"
-        text_body = render_to_string("email/password_reset.txt", email_data)
-        html_body = render_to_string("email/password_reset.html", email_data)
+        template = "email/password_reset_eng.html" if user.language == "en" else "email/password_reset_pl.html"
 
-        msg = EmailMultiAlternatives(
+        subject = "Password Reset for KupMleko account" if user.language == "en" else "Reset hasła w serwisie KupMleko"
+        html_body = render_to_string(template, email_data)
+
+
+        message = Mail(
+            from_email='damiankonin@gmail.com',
+            to_emails=email,
             subject=subject,
-            from_email=settings.FROM_EMAIL,
-            to=[user.email],
-            body=text_body
+            html_content=html_body
         )
 
-        msg.attach_alternative(html_body, "text/html")
-        msg.send()
+        try:
+            sg = SendGridAPIClient(settings.SENDGRID_API_KEY)
+            response = sg.send(message)
+            print(f"SendGrid response: {response.status_code}")
+            return Response({"message": "Password reset email sent successfully"}, status=status.HTTP_200_OK)
+        except Exception as e:
+            print(f"SendGrid error: {str(e)}")
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-        return Response({"message": "Password reset email sent successfully"}, status=status.HTTP_200_OK)
+        
     
 
 class PasswordChangeAPIView(APIView):
@@ -152,7 +161,10 @@ class PasswordChangeAPIView(APIView):
         if not user or user.otp != otp:
             return Response({"message": "Invalid or inactive link"}, status=status.HTTP_400_BAD_REQUEST)
         
-        return render(request, 'kupmleko/password_reset_form.html', {'otp': otp, 'uuidb64': uuidb64})
+        if user.language == "en":
+            return render(request, 'kupmleko/password_reset_form_eng.html', {'otp': otp, 'uuidb64': uuidb64})
+        elif user.language == "pl":
+            return render(request, 'kupmleko/password_reset_form_pl.html', {'otp': otp, 'uuidb64': uuidb64})
 
     def post(self, request, *args, **kwargs):
         otp = request.data['otp']

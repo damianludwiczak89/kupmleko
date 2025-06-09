@@ -139,11 +139,11 @@ AUTH_USER_MODEL = 'kupmleko.User'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST = "poczta.o2.pl"
+EMAIL_HOST = "smtp.sendgrid.net"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = os.environ["EMAIL_HOST_USER"]
-EMAIL_HOST_PASSWORD = os.environ["EMAIL_HOST_PASSWORD"]
+EMAIL_HOST_USER = "apikey"
+SENDGRID_API_KEY = os.environ["SENDGRID_API_KEY"]
 
 FROM_EMAIL = os.environ["EMAIL_HOST_USER"]
 

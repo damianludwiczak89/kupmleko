@@ -12,19 +12,16 @@ def notify_users_added(sender, instance, action, pk_set, **kwargs):
     if action == 'post_add':
         # Avoid notifying the user who created the list - only his/her friends
         creator = instance.created_by
-        creator_friends = set(creator.friends.all())
-        users = User.objects.filter(pk__in=pk_set)
-
+        users = instance.users.exclude(pk=creator.pk)
 
         for user in users:
-            if user in creator_friends and user.fcm_token:
-
+            if user.fcm_token:
                 if user.language == 'pl':
                     title = "Masz nową listę od znajomego"
-                    body = f"{creator.username if creator else 'Ktoś'} udostępnił/a listę: {instance.name}" 
+                    body = f"{creator.username} udostępnił/a listę: {instance.name}" 
                 elif user.language == 'en':
                     title = "New Shopping List Shared"
-                    body = f"{creator.username if creator else 'Someone'} shared a list: {instance.name}" 
+                    body = f"{creator.username} shared a list: {instance.name}" 
 
                 send_push_notification(
                     user.fcm_token,
@@ -79,20 +76,21 @@ def archived_status_changed(sender, instance, **kwargs):
         acting_user = getattr(instance, '_acting_user', None)
         if not acting_user:
             return
+        
+        # notify list's users except the one that actually marked it as complete
+        users = instance.users.exclude(pk=acting_user.pk)
 
-        friends = acting_user.friends.all()
-
-        for friend in friends:
-            if friend.fcm_token:
-                if friend.language == 'pl':
+        for user in users:
+            if user.fcm_token:
+                if user.language == 'pl':
                     title = f"Lista {instance.name} zakończona!"
                     body = f"{acting_user.username} zakończył listę {instance.name}" 
-                elif friend.language == 'en':
+                elif user.language == 'en':
                     title = "Shopping list completed!"
                     body = f"{acting_user.username} marked the {instance.name} list as completed" 
 
                 send_push_notification(
-                    friend.fcm_token,
+                    user.fcm_token,
                     title,
                     body,
                     type='archived'

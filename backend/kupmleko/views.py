@@ -153,13 +153,15 @@ class PasswordChangeAPIView(APIView):
         otp = request.GET.get('otp')
         uuidb64 = request.GET.get('uuidb64')
         if not otp or not uuidb64:
-            return Response({"message": "Invalid or inactive link"}, status=status.HTTP_400_BAD_REQUEST)
+            return render(request, 'kupmleko/password_reset_form_pl.html', 
+                {"message": "Niepoprawny lub nieaktywny link\nInvalid or inactive link"})
 
         decoded_uuidb64 = int(force_str(urlsafe_base64_decode(uuidb64)))
         user = User.objects.filter(id=decoded_uuidb64, otp=otp).first()
         
         if not user or user.otp != otp:
-            return Response({"message": "Invalid or inactive link"}, status=status.HTTP_400_BAD_REQUEST)
+            return render(request, 'kupmleko/password_reset_form_pl.html', 
+                {"message": "Niepoprawny lub nieaktywny link\nInvalid or inactive link"})
         
         if user.language == "en":
             return render(request, 'kupmleko/password_reset_form_eng.html', {'otp': otp, 'uuidb64': uuidb64})
@@ -187,8 +189,8 @@ class PasswordChangeAPIView(APIView):
         user.set_password(password)
         user.otp = ""
         user.save()
-
-        return Response({"message": "Password Changed Successfully"}, status = status.HTTP_200_OK)
+        message = "Password Changed Successfully" if user.language == 'en' else "Hasło zostało zmienione"
+        return Response({"message": message}, status = status.HTTP_200_OK)
 
 
 class ShoppingListAPIView(APIView):

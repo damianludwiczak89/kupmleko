@@ -36,10 +36,10 @@ export const login = async (email, password) => {
     }
 };
 
-export const register = async (full_name, email, password, password2, language) => {
+export const register = async (username, email, password, password2, language) => {
     try {
         const { data } = await axios.post(`${API_BASE_URL}user/register/`, {
-            full_name,
+            username,
             email,
             password,
             password2,

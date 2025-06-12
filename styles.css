@@ -1,0 +1,14 @@
+body {
+      font-family: sans-serif;
+      max-width: 700px;
+      margin: 40px auto;
+      padding: 0 20px;
+      line-height: 1.6;
+    }
+h1, h2 {
+      color: #333;
+    }
+
+#toggleLanguage:hover {
+    cursor: pointer;
+}

@@ -42,26 +42,17 @@ const ShoppingListForm = (existingValues) => {
     const[activeBox, setActiveBox] = useState(true)
     const[draftBox, setDraftBox] = useState(false)
     // If user is editing an existing list, populate fields with existing data
+    // If user is editing an existing list, populate fields with existing data
     useEffect(() => {
-      const id = existingValues?.route?.params?.id;
-      if (!id) return;
-
-      const fetchList = async () => {
-        try {
-          const { data } = await apiInstance.get(`shopping_list/${id}/`);
-          setName(data.name);
-          setItems(data.items.map(item => ({
-            id: uuid.v4(),
-            name: item.name,
-            amount: item.amount,
-            bought: item.bought,
-          })));
-        } catch (err) {
-          Alert.alert('Error', 'Failed to load shopping list');
+        if (existingValues?.route?.params?.name) {
+            setName(existingValues.route.params.name);
+            existingValues.route.params.items.map((item) => {
+                console.log(item)
+                setItems(prevItems => [
+                    ...prevItems,
+                    { id: uuid.v4(), name: item['name'], amount: item['amount'], bought: item['bought'] }])
+            })
         }
-      };
-
-      fetchList();
     }, [existingValues]);
 
     const addItem = () => {

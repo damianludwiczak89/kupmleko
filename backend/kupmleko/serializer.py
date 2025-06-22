@@ -2,7 +2,6 @@ from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth.password_validation import validate_password
 from .models import User, ShoppingList, Item, Draft, Invite
-from .utils import update_and_delete_items
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
@@ -88,23 +87,42 @@ class ShoppingListSerializer(serializers.ModelSerializer):
         return shopping_list
     
     def update(self, instance, validated_data):
+
         instance.name = validated_data.get('name', instance.name)
         instance.save()
-        update_and_delete_items(instance)
 
-        # Create new items attached to shopping_list
-        new_items_data = validated_data.pop('items', [])
+        incoming_items = validated_data.pop('items', [])
+        existing_items = {item.id: item for item in instance.items.all()}
+
+        incoming_ids = set()
         items_to_create = []
-        for item_data in new_items_data:
-            items_to_create.append(Item(
-                name=item_data['name'],
-                amount=item_data['amount'],
-                bought=item_data['bought'],
-                shopping_list=instance
-            ))
-        Item.objects.bulk_create(items_to_create)
+
+        for item_data in incoming_items:
+            item_id = item_data.get('id')
+            if item_id and item_id in existing_items:
+                item = existing_items[item_id]
+                item.name = item_data.get('name', item.name)
+                item.amount = item_data.get('amount', item.amount)
+                item.bought = item_data.get('bought', item.bought)
+                item.save()
+                incoming_ids.add(item_id)
+            else:
+                items_to_create.append(Item(
+                    name=item_data['name'],
+                    amount=item_data['amount'],
+                    bought=item_data.get('bought', False),
+                    shopping_list=instance
+                ))
+
+        to_delete = [item for item_id, item in existing_items.items() if item_id not in incoming_ids]
+        for item in to_delete:
+            item.delete()
+
+        if items_to_create:
+            Item.objects.bulk_create(items_to_create)
 
         return instance
+
 
     
 class DraftSerializer(serializers.ModelSerializer):
@@ -130,21 +148,39 @@ class DraftSerializer(serializers.ModelSerializer):
         return draft
     
     def update(self, instance, validated_data):
-        instance.name = validated_data['name']
+
+        instance.name = validated_data.get('name', instance.name)
         instance.save()
-        update_and_delete_items(instance)
-        
-        # Create new items attached to the draft
-        new_items_data = validated_data.pop('items', [])
+
+        incoming_items = validated_data.pop('items', [])
+        existing_items = {item.id: item for item in instance.items.all()}
+
+        incoming_ids = set()
         items_to_create = []
-        for item_data in new_items_data:
-            items_to_create.append(Item(
-                name=item_data['name'],
-                amount=item_data['amount'],
-                bought=item_data['bought'],
-                draft=instance
-            ))
-        Item.objects.bulk_create(items_to_create)
+
+        for item_data in incoming_items:
+            item_id = item_data.get('id')
+            if item_id and item_id in existing_items:
+                item = existing_items[item_id]
+                item.name = item_data.get('name', item.name)
+                item.amount = item_data.get('amount', item.amount)
+                item.bought = item_data.get('bought', item.bought)
+                item.save()
+                incoming_ids.add(item_id)
+            else:
+                items_to_create.append(Item(
+                    name=item_data['name'],
+                    amount=item_data['amount'],
+                    bought=item_data.get('bought', False),
+                    draft=instance
+                ))
+
+        to_delete = [item for item_id, item in existing_items.items() if item_id not in incoming_ids]
+        for item in to_delete:
+            item.delete()
+
+        if items_to_create:
+            Item.objects.bulk_create(items_to_create)
 
         return instance
     

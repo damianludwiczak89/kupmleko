@@ -50,7 +50,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class ItemSerializer(serializers.ModelSerializer):
-
+    id = serializers.IntegerField(required=False, allow_null=True)
     class Meta:
         model = Item
         fields = '__all__'
@@ -96,14 +96,17 @@ class ShoppingListSerializer(serializers.ModelSerializer):
 
         incoming_ids = set()
         items_to_create = []
-
         for item_data in incoming_items:
             item_id = item_data.get('id')
+            try:
+                item_id = int(item_id) if item_id is not None else None
+            except (ValueError, TypeError):
+                item_id = None
+
             if item_id and item_id in existing_items:
                 item = existing_items[item_id]
                 item.name = item_data.get('name', item.name)
                 item.amount = item_data.get('amount', item.amount)
-                item.bought = item_data.get('bought', item.bought)
                 item.save()
                 incoming_ids.add(item_id)
             else:
@@ -113,6 +116,7 @@ class ShoppingListSerializer(serializers.ModelSerializer):
                     bought=item_data.get('bought', False),
                     shopping_list=instance
                 ))
+
 
         to_delete = [item for item_id, item in existing_items.items() if item_id not in incoming_ids]
         for item in to_delete:

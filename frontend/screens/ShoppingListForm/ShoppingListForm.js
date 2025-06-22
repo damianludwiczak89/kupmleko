@@ -50,7 +50,7 @@ const ShoppingListForm = (existingValues) => {
                 console.log(item)
                 setItems(prevItems => [
                     ...prevItems,
-                    { id: uuid.v4(), name: item['name'], amount: item['amount'], bought: item['bought'] }])
+                    { id: item['id'], name: item['name'], amount: item['amount'], bought: item['bought'] }])
             })
         }
     }, [existingValues]);

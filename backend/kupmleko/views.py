@@ -20,7 +20,7 @@ from rest_framework.exceptions import AuthenticationFailed
 from . import serializer as api_serializer
 from .models import User, ShoppingList, Item, Draft, Invite
 from firebase_admin import auth as firebase_auth
-from .utils import update_and_delete_items, generate_random_otp
+from .utils import update_and_delete_items, generate_random_otp, uuid_to_none
 
 
 from django.contrib.auth import get_user_model
@@ -226,7 +226,8 @@ class ShoppingListAPIView(APIView):
         return Response({"message": "Shopping list archived successfully"}, status=status.HTTP_202_ACCEPTED) 
 
     def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data, context={'created_by': request.user})
+        data = uuid_to_none(request.data)
+        serializer = self.serializer_class(data=data, context={'created_by': request.user})
         
         if serializer.is_valid():
             serializer.save()               
@@ -236,10 +237,13 @@ class ShoppingListAPIView(APIView):
     
     def put(self, request, id, *args, **kwargs):
         shopping_list = get_object_or_404(ShoppingList.objects.prefetch_related('items'), id=id)
-        serializer = self.serializer_class(shopping_list, data=request.data)
+        data = uuid_to_none(request.data)
+        serializer = self.serializer_class(shopping_list, data=data)
         if serializer.is_valid():
             serializer.save()
             return Response({"message": "Shopping list changed successfully"}, status=status.HTTP_202_ACCEPTED)
+        else:
+            print(serializer.errors)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -264,14 +268,15 @@ class DraftAPIView(APIView):
         return Response({"message": "Draft list deleted successfully"}, status=status.HTTP_202_ACCEPTED) 
 
     def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data, context={'user': request.user})
+        data = uuid_to_none(request.data)
+        serializer = self.serializer_class(data=data, context={'user': request.user})
         
         if serializer.is_valid():
             serializer.save()
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         if request.data.get('activeAndDraft'):
-            serializer = api_serializer.ShoppingListSerializer(data=request.data, context={'created_by': request.user})
+            serializer = api_serializer.ShoppingListSerializer(data=data, context={'created_by': request.user})
             if serializer.is_valid():
                 serializer.save()
             else:
@@ -280,7 +285,8 @@ class DraftAPIView(APIView):
     
     def put(self, request, id, *args, **kwargs):
         draft = get_object_or_404(Draft.objects.prefetch_related('items'), id=id, user=request.user)
-        serializer = self.serializer_class(draft, data=request.data)
+        data = uuid_to_none(request.data)
+        serializer = self.serializer_class(draft, data=data)
         if serializer.is_valid():
             serializer.save()
         else:

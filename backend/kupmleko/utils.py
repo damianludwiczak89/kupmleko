@@ -30,3 +30,13 @@ def update_and_delete_items(instance):
 
 def generate_random_otp(length=7):
     return ''.join([str(random.randint(0, 9)) for _ in range(length)])
+
+def uuid_to_none(data):
+    sanitized = data.copy()
+    items = sanitized.get("items", [])
+
+    for item in items:
+        if not isinstance(item.get("id"), int):
+            item["id"] = None
+
+    return sanitized

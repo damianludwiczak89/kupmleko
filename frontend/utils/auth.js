@@ -105,17 +105,22 @@ export const setUser = async () => {
 
 export const setAuthUser = async (access_token, refresh_token) => {
   try {
+
+    const decodedAccess = jwtDecode(access_token);
+    const decodedRefresh = jwtDecode(refresh_token);
+
+
     await AsyncStorage.setItem('@access_token', JSON.stringify({
       token: access_token,
-      expiresAt: Date.now() + 24 * 60 * 60 * 1000, // 1 day
+      expiresAt: decodedAccess.exp * 1000,
     }));
 
     await AsyncStorage.setItem('@refresh_token', JSON.stringify({
       token: refresh_token,
-      expiresAt: Date.now() + 7 * 24 * 60 * 60 * 1000, // 7 days
+      expiresAt: decodedRefresh.exp * 1000,
     }));
 
-    const user = jwtDecode(access_token);
+    const user = decodedAccess;
 
     if (user) {
       const authStore = useAuthStore.getState();
@@ -152,7 +157,11 @@ export const getRefreshedToken = async () => {
             refresh: refresh_token,
         });
 
+
         console.log('New access token:', response.data);
+
+        await setAuthUser(response.data.access, response.data.refresh);
+
         return response.data;
     } catch (error) {
         console.log('Error refreshing token:', error.response?.data || error.message);

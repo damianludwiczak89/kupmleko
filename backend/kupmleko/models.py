@@ -88,7 +88,7 @@ class Invite(models.Model):
                 shopping_list.users.add(self.to_user)
         
         for shopping_list in self.to_user.lists.all():
-            shopping_list._supprress_notifications = True
+            shopping_list._suppress_notifications = True
             if shopping_list.archived == False:
                 shopping_list.users.add(self.from_user)
         reversed_invite = Invite.objects.filter(from_user=self.to_user, to_user=self.from_user)

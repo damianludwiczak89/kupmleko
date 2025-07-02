@@ -51,7 +51,7 @@ class Draft(models.Model):
     name = models.CharField(max_length=100)
 
     def __str__(self):
-        return self.name
+        return f"{self.name} - {self.user}"
     
 class ShoppingList(models.Model):
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_lists') 
@@ -61,7 +61,7 @@ class ShoppingList(models.Model):
     archived_timestamp = models.DateTimeField(default=None, null=True, blank=True)
 
     def __str__(self):
-        return self.name
+        return f"{self.name} - {self.created_by}"
 
 class Item(models.Model):
     shopping_list = models.ForeignKey(ShoppingList, on_delete=models.SET_NULL, related_name='items', null=True, blank=True)

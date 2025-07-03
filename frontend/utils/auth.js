@@ -55,6 +55,7 @@ export const register = async (username, email, password, password2, language) =
         }
 
         const { full_name, email, password } = error.response.data;
+        console.log(error.response.data)
         const messages = [];
         const translated = {
             "This password is too common.": i18n.t('commonPassword', { locale: language }),
@@ -65,13 +66,33 @@ export const register = async (username, email, password, password2, language) =
             "Enter a valid email address.": i18n.t('invalidEmail', { locale: language }),
         }
 
-        if (full_name) messages.push(translated[full_name]);
-        if (email) messages.push(translated[email]);
-        if (password) messages.push(translated[password]);
+        if (full_name) {
+            if (Array.isArray(full_name)) {
+                full_name.forEach(msg => messages.push(translated[msg] || msg));
+            } else {
+                messages.push(translated[full_name] || full_name);
+            }
+        }
+
+        if (email) {
+            if (Array.isArray(email)) {
+                email.forEach(msg => messages.push(translated[msg] || msg));
+            } else {
+                messages.push(translated[email] || email);
+            }
+        }
+
+        if (password) {
+            if (Array.isArray(password)) {
+                password.forEach(msg => messages.push(translated[msg] || msg));
+            } else {
+                messages.push(translated[password] || password);
+            }
+        }
 
         return {
             data: null,
-            error: messages.length > 0 ? messages.join(" - ") : "Something went wrong"
+            error: messages.length > 0 ? messages.join("\n") : "Something went wrong"
         };
     }    
 };
@@ -198,9 +219,10 @@ export const FCMTokenUpdate = async () => {
     }
 }
 
-  export const googleLogin = async () => {
+  export const googleLogin = async (language) => {
 
     console.log('googlelogin called')
+    console.log(language)
     try {
 
       const userInfo = await GoogleSignin.signIn();
@@ -223,6 +245,7 @@ export const FCMTokenUpdate = async () => {
       try {
         const { data, status } = await axios.post(`${API_BASE_URL}user/google-login/`, {
             idToken: firebaseToken,
+            language: language,
         });
         console.log('status is', status)
         if (status === 200) {

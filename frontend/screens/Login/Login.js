@@ -26,7 +26,7 @@ const Login = () => {
   const navigation = useNavigation();
 
   const setLanguage = useAuthStore((state) => state.setLanguage);
-  const language = useAuthStore((state) => state.language);
+  const language = useAuthStore((state) => state.language || 'pl');
 
   const handleSubmit = async (inputUsername, inputPassword) => {
     console.log("Login button clicked"); 
@@ -42,8 +42,9 @@ const Login = () => {
     };
   }
 
-  const handleGooglelogin = async () => {
-    const response = await googleLogin();
+  const handleGooglelogin = async (language) => {
+    console.log(language)
+    const response = await googleLogin(language);
     if (response) {
       console.log('google login success')
     } else {
@@ -145,7 +146,7 @@ const Login = () => {
         </View>
 
         <View style={styles.buttonWrapper}>
-          <TouchableOpacity style={styles.googleButton} onPress={handleGooglelogin}>
+          <TouchableOpacity style={styles.googleButton} onPress={() => handleGooglelogin(language)}>
             <Image source={require('../../assets/google.png')} style={styles.googleIcon} />
             <Text style={styles.googleButtonText}>
               {i18n.t('googleSignIn', { locale: language })}

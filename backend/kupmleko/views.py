@@ -22,6 +22,7 @@ from .models import User, ShoppingList, Item, Draft, Invite
 from firebase_admin import auth as firebase_auth
 from .utils import update_and_delete_items, generate_random_otp, uuid_to_none
 
+import traceback
 
 from django.contrib.auth import get_user_model
 
@@ -54,6 +55,10 @@ class RegisterView(generics.CreateAPIView):
 class GoogleLoginView(APIView):
     def post(self, request):
         id_token = request.data.get('idToken')
+        language = request.data.get('language')
+
+        if not language:
+            language = "pl"
 
         if not id_token:
             return Response({'error': 'ID token is required'}, status=status.HTTP_400_BAD_REQUEST)
@@ -66,7 +71,7 @@ class GoogleLoginView(APIView):
             user, created = User.objects.get_or_create(
                 email=email, 
                 account_auth_type='google',
-                defaults={'username': email, 'first_name': name})
+                defaults={'username': email, 'first_name': name, 'language': language})
             
             if created:
                 user.set_unusable_password()
@@ -83,6 +88,7 @@ class GoogleLoginView(APIView):
             })
 
         except Exception as e:
+            traceback.print_exc()
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 class LogoutAPIView(APIView):

@@ -27,30 +27,50 @@ const Login = () => {
 
   const setLanguage = useAuthStore((state) => state.setLanguage);
   const language = useAuthStore((state) => state.language || 'pl');
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [isGoogleLoggingIn, setIsGoogleLoggingIn] = useState(false);
 
   const handleSubmit = async (inputUsername, inputPassword) => {
-    console.log("Login button clicked"); 
-    const { error } = await login(inputUsername, inputPassword);
-  
-    if (error) {
-    const translated = {
-        "No active account found with the given credentials": i18n.t('noAccount', { locale: language }),
-        "Incorrect password": i18n.t('wrongPassword', { locale: language }),
+    if (isLoggingIn) return;
+
+    setIsLoggingIn(true);
+    try {
+      console.log("Login button clicked");
+      const { error } = await login(inputUsername, inputPassword);
+
+      if (error) {
+        const translated = {
+          "No active account found with the given credentials": i18n.t('noAccount', { locale: language }),
+          "Incorrect password": i18n.t('wrongPassword', { locale: language }),
+        };
+        console.log(error);
+        Alert.alert(translated[error] || error);
       }
-      console.log(error)
-      Alert.alert(translated[error] || error);
-    };
-  }
+    } catch (e) {
+      Alert.alert('Unexpected error');
+    } finally {
+      setIsLoggingIn(false);
+    }
+  };
 
   const handleGooglelogin = async (language) => {
-    console.log(language)
-    const response = await googleLogin(language);
-    if (response) {
-      console.log('google login success')
-    } else {
-      console.log('google login failed')
+    if (isGoogleLoggingIn) return;
+
+    setIsGoogleLoggingIn(true);
+    try {
+      console.log(language);
+      const response = await googleLogin(language);
+      if (response) {
+        console.log('google login success');
+      } else {
+        console.log('google login failed');
+      }
+    } catch (e) {
+      Alert.alert('Google Sign-in Error');
+    } finally {
+      setIsGoogleLoggingIn(false);
     }
-  }
+  };
 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -142,11 +162,11 @@ const Login = () => {
           <Button 
             title={i18n.t('login',  { locale: language })} 
             onPress={() => handleSubmit(username, password)} color="#841584"
-            disabled={!username || !password} />
+            disabled={!username || !password || isLoggingIn} />
         </View>
 
         <View style={styles.buttonWrapper}>
-          <TouchableOpacity style={styles.googleButton} onPress={() => handleGooglelogin(language)}>
+          <TouchableOpacity style={styles.googleButton} onPress={() => handleGooglelogin(language)} disabled={isGoogleLoggingIn}>
             <Image source={require('../../assets/google.png')} style={styles.googleIcon} />
             <Text style={styles.googleButtonText}>
               {i18n.t('googleSignIn', { locale: language })}

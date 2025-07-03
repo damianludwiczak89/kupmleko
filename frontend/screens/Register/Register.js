@@ -23,13 +23,24 @@ const Register = () => {
   const setLanguage = useAuthStore((state) => state.setLanguage);
   const language = useAuthStore((state) => state.language);
 
+  const [loading, setLoading] = useState(false);
+
   const handleSubmit = async (inputUsername, inputEmail, inputPassword, inputPassword2, userLanguage) => {
-    const { error } = await register(inputUsername, inputEmail, inputPassword, inputPassword2, userLanguage);
-  
-    if (error) {
-      alert(error);
-    } else {
-      console.log("Registered, logged in, tokens received");
+    if (loading) return; // prevent fast double-taps
+
+    setLoading(true);
+    try {
+      const { error } = await register(inputUsername, inputEmail, inputPassword, inputPassword2, userLanguage);
+
+      if (error) {
+        alert(error);
+      } else {
+        console.log("Registered, logged in, tokens received");
+      }
+    } catch (e) {
+      alert('Unexpected error occurred');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -112,7 +123,7 @@ const Register = () => {
             title={i18n.t('register',  { locale: language })}
             onPress={() => handleSubmit(username, email, password, confirmPassword, userLanguage)}
             color="#841584"
-            disabled={!username || !email || !password || !confirmPassword}
+            disabled={!username || !email || !password || !confirmPassword || loading}
           />
         </View>
 

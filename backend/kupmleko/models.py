@@ -64,8 +64,8 @@ class ShoppingList(models.Model):
         return f"{self.name} - {self.created_by}"
 
 class Item(models.Model):
-    shopping_list = models.ForeignKey(ShoppingList, on_delete=models.SET_NULL, related_name='items', null=True, blank=True)
-    draft = models.ForeignKey(Draft, on_delete=models.SET_NULL, related_name='items', null=True, blank=True)
+    shopping_list = models.ForeignKey(ShoppingList, on_delete=models.CASCADE, related_name='items', null=True, blank=True)
+    draft = models.ForeignKey(Draft, on_delete=models.CASCADE, related_name='items', null=True, blank=True)
     name = models.CharField(max_length=100)
     amount = models.IntegerField(default=1)
     bought = models.BooleanField(default=False)

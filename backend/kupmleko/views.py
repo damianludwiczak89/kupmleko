@@ -23,7 +23,7 @@ from rest_framework.exceptions import AuthenticationFailed
 from . import serializer as api_serializer
 from .models import User, ShoppingList, Item, Draft, Invite
 from firebase_admin import auth as firebase_auth
-from .utils import update_and_delete_items, generate_random_otp, uuid_to_none
+from .utils import generate_random_otp, uuid_to_none
 
 import traceback
 
@@ -231,8 +231,7 @@ class ShoppingListAPIView(APIView):
         shopping_list.save()
 
         if len(ShoppingList.objects.filter(users=request.user, archived=True)) > 10:
-            archived_to_be_removed = ShoppingList.objects.filter(users=request.user, archived=True).prefetch_related('items').order_by('id')[0]
-            update_and_delete_items(archived_to_be_removed)
+            archived_to_be_removed = ShoppingList.objects.filter(users=request.user, archived=True).prefetch_related('items').order_by('archived_timestamp', 'id').first()
             archived_to_be_removed.delete()
         return Response({"message": "Shopping list archived successfully"}, status=status.HTTP_202_ACCEPTED) 
 
@@ -274,7 +273,6 @@ class DraftAPIView(APIView):
     
     def delete(self, request, id, *args, **kwargs):
         draft = get_object_or_404(Draft.objects.prefetch_related('items'), id=id)
-        update_and_delete_items(draft)
         draft.delete()
         return Response({"message": "Draft list deleted successfully"}, status=status.HTTP_202_ACCEPTED) 
 

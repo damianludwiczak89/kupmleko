@@ -6,6 +6,13 @@ def update_and_delete_items(instance):
     When Draft or Shopping List is deleted, its items should be removed if they no longer
     are related to any objects or updated if they still have some relations
     '''
+
+    '''
+
+
+    potentially no longer needed
+
+
     items_to_update = []
     items_to_delete = []
 
@@ -27,9 +34,11 @@ def update_and_delete_items(instance):
     if items_to_delete:
         Item.objects.filter(id__in=[item.id for item in items_to_delete]).delete()
 
-
+    '''
+    
 def generate_random_otp(length=7):
     return ''.join([str(random.randint(0, 9)) for _ in range(length)])
+    
 
 def uuid_to_none(data):
     sanitized = data.copy()

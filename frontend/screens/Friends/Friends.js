@@ -159,7 +159,7 @@ const Friends = () => {
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
-        behavior={'height'}
+        behavior={'padding'}
         style={{ flex: 1 }}
         keyboardVerticalOffset={60}
       >

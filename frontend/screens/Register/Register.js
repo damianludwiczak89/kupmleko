@@ -44,6 +44,7 @@ const Register = () => {
     }
   };
 
+
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -53,7 +54,7 @@ const Register = () => {
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
-        behavior={'height'}
+        behavior={'padding'}
         style={{ flex: 1 }}
         keyboardVerticalOffset={60}
       >

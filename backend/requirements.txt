@@ -7,3 +7,4 @@ python-dotenv==1.0.1
 drf-yasg==1.21.8
 firebase-admin==6.7.0
 sendgrid==6.12.3
+django-ratelimit==4.1.0

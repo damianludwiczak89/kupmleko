@@ -21,6 +21,7 @@ import { Alert } from 'react-native';
 import styles from '../auth_styles';
 import { useAuthStore } from '../../store/auth';
 import i18n from '../../i18n';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Login = () => {
   const navigation = useNavigation();
@@ -29,6 +30,10 @@ const Login = () => {
   const language = useAuthStore((state) => state.language || 'pl');
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [isGoogleLoggingIn, setIsGoogleLoggingIn] = useState(false);
+
+  const [isResetDisabled, setIsResetDisabled] = useState(false);
+  const [resetCooldown, setResetCooldown] = useState(0);
+  const [resetIntervalId, setResetIntervalId] = useState(null);
 
   const handleSubmit = async (inputUsername, inputPassword) => {
     if (isLoggingIn) return;
@@ -92,25 +97,80 @@ const Login = () => {
   }
 
   const handleEmailReset = async (email) => {
+    if (isResetDisabled) return;
+
     try {
-      const response = await axios.get(`${API_BASE_URL}user/password-reset/${email}/`);
+      const response = await axios.post(`${API_BASE_URL}user/password-reset/`, { email });
       console.log(response.data);
-      Alert.alert(i18n.t('resetSent',  { locale: language }))
+      Alert.alert(i18n.t('resetSent',  { locale: language }));
+
+      setIsResetDisabled(true);
+      setResetCooldown(180);
+
+      const now = Date.now();
+      const expiresAt = now + 180000;
+      await AsyncStorage.setItem('resetCooldownExpiresAt', String(expiresAt));
+
+      const interval = setInterval(() => {
+        setResetCooldown(prev => {
+          if (prev <= 1) {
+            clearInterval(interval);
+            setIsResetDisabled(false);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+      setResetIntervalId(interval);
+
     } catch (error) {
       if (error.response) {
-        console.log('Error response data:', error.response.data);
-        console.log('Status code:', error.response.status);
         Alert.alert(translatedReset[error.response.data.message] || i18n.t('resetFailed', { locale: language }));
       } else {
         console.log('Error message:', error.message);
       }
     }
-  }
+  };
+
+
+  useEffect(() => {
+    const checkCooldown = async () => {
+      const stored = await AsyncStorage.getItem('resetCooldownExpiresAt');
+      if (stored) {
+        const expiresAt = parseInt(stored, 10);
+        const now = Date.now();
+        const remaining = Math.floor((expiresAt - now) / 1000);
+
+        if (remaining > 0) {
+          setIsResetDisabled(true);
+          setResetCooldown(remaining);
+
+          const interval = setInterval(() => {
+            setResetCooldown(prev => {
+              if (prev <= 1) {
+                clearInterval(interval);
+                AsyncStorage.removeItem('resetCooldownExpiresAt');
+                setIsResetDisabled(false);
+                return 0;
+              }
+              return prev - 1;
+            });
+          }, 1000);
+          setResetIntervalId(interval);
+        } else {
+          await AsyncStorage.removeItem('resetCooldownExpiresAt');
+        }
+      }
+    };
+
+    checkCooldown();
+  }, []);
+
 
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
-        behavior={'height'}
+        behavior={'padding'}
         style={{ flex: 1 }}
         keyboardVerticalOffset={60}
       >
@@ -187,10 +247,14 @@ const Login = () => {
         {resetPasswordToggle && (
           <View style={styles.resetSection}>
             <View style={styles.buttonWrapper}>
-            <Button 
-              title={i18n.t('resetLink',  { locale: language })} 
-              onPress={() => handleEmailReset(emailReset)} 
-              disabled={!emailReset}/>
+            <Button
+              title={isResetDisabled 
+                ? `${i18n.t('resetLink', { locale: language })} (${resetCooldown}s)`
+                : i18n.t('resetLink', { locale: language })
+              }
+              onPress={() => handleEmailReset(emailReset)}
+              disabled={!emailReset || isResetDisabled}
+            />
             </View>
             <TextInput
               style={styles.input}

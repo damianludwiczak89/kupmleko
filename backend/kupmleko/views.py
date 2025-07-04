@@ -8,6 +8,9 @@ from django.utils.encoding import force_bytes, force_str
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.utils import timezone
+from django_ratelimit.decorators import ratelimit
+from django.utils.decorators import method_decorator
+
 
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework import generics, status
@@ -104,7 +107,9 @@ class PasswordResetEmailVerifyAPIView(APIView):
     permission_classes = [AllowAny]
     serializer_class = api_serializer.UserSerializer
 
-    def get(self, request, email):
+    @method_decorator(ratelimit(key='post:email', rate='1/3m', method='POST', block=True))
+    def post(self, request):
+        email = request.data.get('email')
         user = User.objects.filter(email=email).first()
 
         if not user:
@@ -148,7 +153,7 @@ class PasswordResetEmailVerifyAPIView(APIView):
             print(f"SendGrid error: {str(e)}")
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-        
+
     
 
 class PasswordChangeAPIView(APIView):

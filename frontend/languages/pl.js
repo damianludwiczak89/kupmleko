@@ -65,6 +65,7 @@ export default {
     noUserFound: "Nie znaleziono użytkownika o tym adresie e-mail",
     resetGooglePassword: "Nie można zresetować hasła dla konta Google",
     resetSent: "Wysłano e-mail",
-    resetFailed: "Nie udało się wysłać e-maila"
+    resetFailed: "Nie udało się wysłać e-maila",
+    resetWait: "Proszę poczekać przed kolejną próbą"
 
   };

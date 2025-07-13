@@ -65,5 +65,6 @@ export default {
     noUserFound: "No user found for provided e-mail address",
     resetGooglePassword: "Cannot reset password for google type account",
     resetSent: "Password reset email sent successfully",
-    resetFailed: "Password reset failed"
+    resetFailed: "Password reset failed",
+    resetWait: "Please wait before trying again",
   };

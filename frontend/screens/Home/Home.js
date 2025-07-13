@@ -84,7 +84,6 @@ const Home = () => {
   ));
 
   return (
-    <View style={styles.fullscreen}>
       <SafeAreaView style={styles.container}>
         <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
           {lists && lists.length > 0 ? (
@@ -95,7 +94,7 @@ const Home = () => {
               </Text>
           )}
         </ScrollView>
-      </SafeAreaView>
+      
   
       <View style={screenStyle.iconWrapper}>
         <TouchableOpacity onPress={() => navigation.replace('Active')} style={screenStyle.iconButton}>
@@ -106,7 +105,7 @@ const Home = () => {
           <FontAwesomeIcon icon={faCirclePlus} style={screenStyle.icon} size={40} />
         </TouchableOpacity>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 

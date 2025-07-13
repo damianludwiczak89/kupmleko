@@ -1,5 +1,6 @@
 import {
   View,
+  SafeAreaView,
   Text,
   TextInput,
   TouchableOpacity,
@@ -7,8 +8,10 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   TouchableWithoutFeedback,
-  Keyboard
+  Keyboard,
+  Platform
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useState, useEffect } from 'react';
 import apiInstance from '../../utils/axios';
 import { Alert } from 'react-native';
@@ -54,6 +57,8 @@ const ShoppingListForm = (existingValues) => {
             })
         }
     }, [existingValues]);
+
+    const insets = useSafeAreaInsets();
 
     const addItem = () => {
         setItems(prevItems => [
@@ -163,114 +168,146 @@ const ShoppingListForm = (existingValues) => {
       )
     );
   }
+const [isKeyboardVisible, setKeyboardVisible] = useState(false);
 
-    return (
-        <View style={styles.container}>
-        <KeyboardAvoidingView
-          behavior={'padding'}
-          style={{ flex: 1 }}
-          keyboardVerticalOffset={60}
-        >
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
-          <TextInput
-            style={styles.input}
-            value={name}
-            onChangeText={setName}
-            placeholder={i18n.t('listName', { locale: language })}
-            maxLength={25}
-            autoFocus
-          />
-    
-          {items.map(item => (
-            <View key={item.id} style={styles.itemRow}>
-                <TextInput style={styles.itemName}
+useEffect(() => {
+  const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
+    setKeyboardVisible(true);
+  });
+  const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+    setKeyboardVisible(false);
+  });
+
+  return () => {
+    keyboardDidShowListener.remove();
+    keyboardDidHideListener.remove();
+  };
+}, []);
+
+console.log(Platform.OS);
+return (
+  <KeyboardAvoidingView
+    behavior={'height'}
+    style={{ flex: 1 }}
+    keyboardVerticalOffset={60}
+  >
+    <SafeAreaView style={{ flex: 1 }}>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View style={{ flex: 1 }}>
+          <ScrollView
+            contentContainerStyle={styles.scrollContent}
+            keyboardShouldPersistTaps="handled"
+          >
+            <TextInput
+              style={styles.input}
+              value={name}
+              onChangeText={setName}
+              placeholder={i18n.t('listName', { locale: language })}
+              maxLength={25}
+              autoFocus
+            />
+
+            {items.map(item => (
+              <View key={item.id} style={styles.itemRow}>
+                <TextInput
+                  style={styles.itemName}
                   value={item.name}
                   onChangeText={(newName) => handleItemEdit(item.id, newName)}
                   maxLength={25}
                 />
+                <View style={styles.amountSection}>
+                  <TouchableOpacity onPress={() => decrementAmount(item.id)}>
+                    <Text style={styles.smallStepperText}>➖</Text>
+                  </TouchableOpacity>
+                  <Text style={styles.amountText}>{item.amount}</Text>
+                  <TouchableOpacity onPress={() => incrementAmount(item.id)}>
+                    <Text style={styles.smallStepperText}>➕</Text>
+                  </TouchableOpacity>
+                </View>
+                <TouchableOpacity onPress={() => removeItem(item.id)}>
+                  <Text style={styles.deleteText}>🗑</Text>
+                </TouchableOpacity>
+              </View>
+            ))}
 
-              <View style={styles.amountSection}>
-                <TouchableOpacity onPress={() => decrementAmount(item.id)}>
-                  <Text style={styles.smallStepperText}>➖</Text>
-                </TouchableOpacity>
-                
-                <Text style={styles.amountText}>{item.amount}</Text>
-                
-                <TouchableOpacity onPress={() => incrementAmount(item.id)}>
-                  <Text style={styles.smallStepperText}>➕</Text>
-                </TouchableOpacity>
-              </View>
+            {!existingValues?.route?.params?.id && (
+              <>
+                <View style={styles.checkboxRow}>
+                  <TouchableOpacity
+                    onPress={() => setActiveBox(!activeBox)}
+                    style={styles.checkboxRow}
+                  >
+                    <CheckBox
+                      value={activeBox}
+                      disabled={true}
+                      tintColors={{ true: 'blue', false: 'gray' }}
+                    />
+                    <Text style={styles.checkboxText}>
+                      {i18n.t('addToShopping', { locale: language })}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
 
-              <TouchableOpacity onPress={() => removeItem(item.id)}>
-                <Text style={styles.deleteText}>🗑</Text>
-              </TouchableOpacity>
-            </View>
-          ))}
-    
-          {!existingValues?.route?.params?.id && (
-            <>
-              <View style={styles.checkboxRow}>
-                <TouchableOpacity onPress={() => setActiveBox(!activeBox)} style={styles.checkboxRow}>
-                  <CheckBox
-                    value={activeBox}
-                    disabled={true}
-                    tintColors={{ true: 'blue', false: 'gray' }}
-                  />
-                  <Text style={styles.checkboxText}>{i18n.t('addToShopping', { locale: language })}</Text>
-                </TouchableOpacity>
-              </View>
-    
-              <View style={styles.checkboxRow}>
-                <TouchableOpacity onPress={() => setDraftBox(!draftBox)} style={styles.checkboxRow}>
-                  <CheckBox
-                    value={draftBox}
-                    disabled={true}
-                    tintColors={{ true: 'blue', false: 'gray' }}
-                  />
-                  <Text style={styles.checkboxText}>{i18n.t('addToDrafts', { locale: language })}</Text>
-                </TouchableOpacity>
-              </View>
-            </>
-          )}
-    
-          <View style={styles.saveButton}>
-            <Button 
+                <View style={styles.checkboxRow}>
+                  <TouchableOpacity
+                    onPress={() => setDraftBox(!draftBox)}
+                    style={styles.checkboxRow}
+                  >
+                    <CheckBox
+                      value={draftBox}
+                      disabled={true}
+                      tintColors={{ true: 'blue', false: 'gray' }}
+                    />
+                    <Text style={styles.checkboxText}>
+                      {i18n.t('addToDrafts', { locale: language })}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </>
+            )}
+
+            <View style={styles.saveButton}>
+              <Button
                 title={i18n.t('save', { locale: language })}
                 disabled={!(name && items.length > 0 && (activeBox || draftBox))}
-                onPress={() => handleSave(name, items)} />
+                onPress={() => handleSave(name, items)}
+              />
+            </View>
+          </ScrollView>
+
+          {/* 👇 Bottom bar inside KeyboardAvoidingView */}
+          <View style={[styles.bottomBar, { paddingBottom: isKeyboardVisible ? 65 : 15, }]}>
+            <TextInput
+              style={styles.itemInput}
+              value={newItem}
+              onChangeText={setNewItem}
+              placeholder={i18n.t('item', { locale: language })}
+              maxLength={25}
+            />
+            <TouchableOpacity onPress={() => setNewAmount(Math.max(1, newAmount - 1))}>
+              <Text style={styles.stepperText}>➖</Text>
+            </TouchableOpacity>
+            <TextInput
+              style={styles.amountInput}
+              value={newAmount.toString()}
+              inputMode="numeric"
+              onChangeText={text => setNewAmount(Number(text))}
+            />
+            <TouchableOpacity onPress={() => setNewAmount(newAmount + 1)}>
+              <Text style={styles.stepperText}>➕</Text>
+            </TouchableOpacity>
+            <Button
+              title={i18n.t('add', { locale: language })}
+              onPress={addItem}
+              disabled={!newItem}
+            />
           </View>
-        </ScrollView>
-        </TouchableWithoutFeedback>
-        </KeyboardAvoidingView>
-    
-        <View style={styles.bottomBar}>
-          <TextInput
-            style={styles.itemInput}
-            value={newItem}
-            onChangeText={setNewItem}
-            placeholder={i18n.t('item', { locale: language })}
-            maxLength={25}
-          />
-          <TouchableOpacity onPress={() => setNewAmount(Math.max(1, newAmount - 1))}>
-            <Text style={styles.stepperText}>➖</Text>
-          </TouchableOpacity>
-          <TextInput
-            style={styles.amountInput}
-            value={newAmount.toString()}
-            inputMode="numeric"
-            onChangeText={text => setNewAmount(Number(text))}
-          />
-          <TouchableOpacity onPress={() => setNewAmount(newAmount + 1)}>
-            <Text style={styles.stepperText}>➕</Text>
-          </TouchableOpacity>
-          <Button 
-            title={i18n.t('add', { locale: language })} 
-            onPress={addItem} 
-            disabled={newItem ? false : true} />
         </View>
-      </View>
-    )
+      </TouchableWithoutFeedback>
+    </SafeAreaView>
+  </KeyboardAvoidingView>
+);
+
     };
 
 

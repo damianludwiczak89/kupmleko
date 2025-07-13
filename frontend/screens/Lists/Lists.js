@@ -60,7 +60,6 @@ const Lists = () => {
   }
 
   return (
-    <View style={styles.fullscreen}>
       <SafeAreaView style={styles.container}>
         <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
           {lists && lists.length > 0 ? (
@@ -79,7 +78,6 @@ const Lists = () => {
           </View>
         
       </SafeAreaView>
-    </View>
   );
 }
 

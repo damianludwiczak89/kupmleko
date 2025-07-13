@@ -6,7 +6,7 @@ const styles = StyleSheet.create({
       },
       scrollContent: {
         padding: 20,
-        paddingBottom: 100,
+        paddingBottom: 50,
         backgroundColor: '#fff8b3', 
         padding: 16,
         borderRadius: 10,
@@ -25,10 +25,6 @@ const styles = StyleSheet.create({
         marginBottom: 10,
       },
       bottomBar: {
-        position: 'absolute',
-        bottom: 0,
-        left: 0,
-        right: 0,
         padding: 10,
         backgroundColor: '#fff',
         borderTopWidth: 1,

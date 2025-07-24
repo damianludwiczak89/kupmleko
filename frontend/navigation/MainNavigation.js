@@ -62,7 +62,7 @@ const MainNavigation = () => {
         };
     
         checkAuth();
-    }, []); // Run once on component mount
+    }, []);
     
 
     if (loading) {

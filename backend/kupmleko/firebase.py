@@ -25,6 +25,6 @@ def send_push_notification(token, title, body, type):
     )
     try:
         return messaging.send(message)
-    except (TransportError, ProxyError, MaxRetryError, OSError) as e:
-        logging.warning(f"Push notification failed due to network error: {e}")
+    except (TransportError, ProxyError, MaxRetryError, OSError, firebase_admin.exceptions.UnregisteredError) as e:
+        logging.warning(f"Push notification failed due to error: {e}")
         return None

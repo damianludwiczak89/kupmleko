@@ -2,6 +2,7 @@ import firebase_admin
 from firebase_admin import messaging, credentials
 from django.conf import settings
 import os
+from firebase_admin._messaging_utils import UnregisteredError
 from google.auth.exceptions import TransportError
 from requests.exceptions import ProxyError
 from urllib3.exceptions import MaxRetryError
@@ -25,6 +26,6 @@ def send_push_notification(token, title, body, type):
     )
     try:
         return messaging.send(message)
-    except (TransportError, ProxyError, MaxRetryError, OSError, firebase_admin.exceptions.UnregisteredError) as e:
+    except (TransportError, ProxyError, MaxRetryError, OSError, UnregisteredError) as e:
         logging.warning(f"Push notification failed due to error: {e}")
         return None

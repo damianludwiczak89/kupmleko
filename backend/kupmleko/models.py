@@ -69,6 +69,7 @@ class Item(models.Model):
     name = models.CharField(max_length=100)
     amount = models.IntegerField(default=1)
     bought = models.BooleanField(default=False)
+    order = models.IntegerField(default=0)
 
     def __str__(self):
         return self.name

@@ -96,7 +96,7 @@ class ShoppingListSerializer(serializers.ModelSerializer):
 
         incoming_ids = set()
         items_to_create = []
-        for item_data in incoming_items:
+        for index, item_data in enumerate(incoming_items):
             item_id = item_data.get('id')
             try:
                 item_id = int(item_id) if item_id is not None else None
@@ -107,12 +107,14 @@ class ShoppingListSerializer(serializers.ModelSerializer):
                 item = existing_items[item_id]
                 item.name = item_data.get('name', item.name)
                 item.amount = item_data.get('amount', item.amount)
+                item.order = item_data.get('order', index)
                 item.save()
                 incoming_ids.add(item_id)
             else:
                 items_to_create.append(Item(
                     name=item_data['name'],
                     amount=item_data['amount'],
+                    order=index,
                     bought=item_data.get('bought', False),
                     shopping_list=instance
                 ))
@@ -162,19 +164,21 @@ class DraftSerializer(serializers.ModelSerializer):
         incoming_ids = set()
         items_to_create = []
 
-        for item_data in incoming_items:
+        for index, item_data in enumerate(incoming_items):
             item_id = item_data.get('id')
             if item_id and item_id in existing_items:
                 item = existing_items[item_id]
                 item.name = item_data.get('name', item.name)
                 item.amount = item_data.get('amount', item.amount)
                 item.bought = item_data.get('bought', item.bought)
+                item.order = item_data.get('order', index)
                 item.save()
                 incoming_ids.add(item_id)
             else:
                 items_to_create.append(Item(
                     name=item_data['name'],
                     amount=item_data['amount'],
+                    order=index,
                     bought=item_data.get('bought', False),
                     draft=instance
                 ))

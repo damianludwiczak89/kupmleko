@@ -10,6 +10,7 @@ from django.core.exceptions import ValidationError
 from django.utils import timezone
 from django_ratelimit.decorators import ratelimit
 from django.utils.decorators import method_decorator
+from django.db.models import Prefetch
 
 
 from rest_framework_simplejwt.views import TokenObtainPairView
@@ -210,12 +211,14 @@ class ShoppingListAPIView(APIView):
 
     def get(self, request, id=None, *args, **kwargs):
 
+        items_prefetch = Prefetch('items', queryset=Item.objects.order_by('order'))
+
         if id:
-            shopping_list = get_object_or_404(ShoppingList.objects.prefetch_related('items'), id=id)
+            shopping_list = get_object_or_404(ShoppingList.objects.prefetch_related(items_prefetch), id=id)
             serializer = self.serializer_class(shopping_list)
             return Response(serializer.data)
 
-        queryset = ShoppingList.objects.filter(users=request.user, archived=False).prefetch_related('items')
+        queryset = ShoppingList.objects.filter(users=request.user, archived=False).prefetch_related(items_prefetch)
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)
     

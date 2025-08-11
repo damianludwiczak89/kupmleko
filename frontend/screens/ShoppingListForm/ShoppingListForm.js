@@ -9,10 +9,8 @@ import {
   KeyboardAvoidingView,
   TouchableWithoutFeedback,
   Keyboard,
-  Platform
 } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import apiInstance from '../../utils/axios';
 import { Alert } from 'react-native';
 import CheckBox from '@react-native-community/checkbox';
@@ -22,12 +20,40 @@ import styles from './styles';
 import uuid from 'react-native-uuid';
 import i18n from '../../i18n';
 import { useAuthStore } from '../../store/auth';
+import DraggableFlatList from 'react-native-draggable-flatlist';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import { runOnJS } from 'react-native-reanimated';
 
-// Consider what to do with active/draft checkboxes if editing existing list
-// probably add a prop to check if editing and hide them
-// -- also need to edit a draft
+const dismissKeyboardIfNeeded = () => {
+  const focusedInput = TextInput.State.currentlyFocusedInput();
+  if (focusedInput) {
+    focusedInput.blur();
+  }
+};
+
 
 const ShoppingListForm = (existingValues) => {
+
+const DragHandle = ({ drag }) => {
+  const panGesture = Gesture.Pan()
+    .onTouchesDown(() => {
+      runOnJS(dismissKeyboardIfNeeded)();
+      runOnJS(drag)();
+    });
+
+  return (
+    <GestureDetector gesture={panGesture}>
+      <TouchableOpacity 
+        activeOpacity={1}
+        onPressIn={drag}
+      >
+        <View style={{ paddingHorizontal: 8, paddingVertical: 6 }}>
+          <Text style={{ fontSize: 18 }}>☰</Text>
+        </View>
+      </TouchableOpacity>
+    </GestureDetector>
+  );
+};
 
     const language = useAuthStore((state) => state.language);
 
@@ -44,7 +70,7 @@ const ShoppingListForm = (existingValues) => {
 
     const[activeBox, setActiveBox] = useState(true)
     const[draftBox, setDraftBox] = useState(false)
-    // If user is editing an existing list, populate fields with existing data
+
     // If user is editing an existing list, populate fields with existing data
     useEffect(() => {
         if (existingValues?.route?.params?.name) {
@@ -58,7 +84,6 @@ const ShoppingListForm = (existingValues) => {
         }
     }, [existingValues]);
 
-    const insets = useSafeAreaInsets();
 
     const addItem = () => {
         setItems(prevItems => [
@@ -184,7 +209,7 @@ useEffect(() => {
   };
 }, []);
 
-console.log(Platform.OS);
+
 return (
   <KeyboardAvoidingView
     behavior={'height'}
@@ -207,28 +232,37 @@ return (
               autoFocus
             />
 
-            {items.map(item => (
-              <View key={item.id} style={styles.itemRow}>
-                <TextInput
-                  style={styles.itemName}
-                  value={item.name}
-                  onChangeText={(newName) => handleItemEdit(item.id, newName)}
-                  maxLength={25}
-                />
-                <View style={styles.amountSection}>
-                  <TouchableOpacity onPress={() => decrementAmount(item.id)}>
-                    <Text style={styles.smallStepperText}>➖</Text>
-                  </TouchableOpacity>
-                  <Text style={styles.amountText}>{item.amount}</Text>
-                  <TouchableOpacity onPress={() => incrementAmount(item.id)}>
-                    <Text style={styles.smallStepperText}>➕</Text>
-                  </TouchableOpacity>
-                </View>
-                <TouchableOpacity onPress={() => removeItem(item.id)}>
-                  <Text style={styles.deleteText}>🗑</Text>
-                </TouchableOpacity>
-              </View>
-            ))}
+              <DraggableFlatList
+                data={items}
+                keyExtractor={(item) => item.id.toString()}
+                onDragEnd={({ data }) => setItems(data)}
+                activationDistance={5}
+                renderItem={({ item, drag, isActive }) => (
+                    <View style={[styles.itemRow, isActive && { opacity: 0.7, transform: [{ scale: 1.03 }], shadowOpacity: 0.9, }]}>
+                      <DragHandle drag={drag} />
+                      <TextInput
+                        style={styles.itemName}
+                        value={item.name}
+                        onChangeText={(newName) => handleItemEdit(item.id, newName)}
+                        maxLength={25}
+                      />
+                      <View style={styles.amountSection}>
+                        <TouchableOpacity onPress={() => decrementAmount(item.id)}>
+                          <Text style={styles.smallStepperText}>➖</Text>
+                        </TouchableOpacity>
+                        <Text style={styles.amountText}>{item.amount}</Text>
+                        <TouchableOpacity onPress={() => incrementAmount(item.id)}>
+                          <Text style={styles.smallStepperText}>➕</Text>
+                        </TouchableOpacity>
+                      </View>
+                      <TouchableOpacity onPress={() => removeItem(item.id)}>
+                        <Text style={styles.deleteText}>🗑</Text>
+                      </TouchableOpacity>
+                    </View>
+                )}
+
+                scrollEnabled={false}
+              />
 
             {!existingValues?.route?.params?.id && (
               <>
@@ -269,13 +303,15 @@ return (
             <View style={styles.saveButton}>
               <Button
                 title={i18n.t('save', { locale: language })}
-                disabled={!(name && items.length > 0 && (activeBox || draftBox))}
+                disabled={
+                  !(name && items.length > 0 && (activeBox || draftBox)) ||
+                  items.some(item => !item.name || item.name.trim() === '')
+                }
                 onPress={() => handleSave(name, items)}
               />
             </View>
           </ScrollView>
 
-          {/* 👇 Bottom bar inside KeyboardAvoidingView */}
           <View style={[styles.bottomBar, { paddingBottom: isKeyboardVisible ? 65 : 15, }]}>
             <TextInput
               style={styles.itemInput}

@@ -208,6 +208,7 @@ const Login = () => {
           value={username}
           onChangeText={setUsername}
           placeholder="Email"
+          placeholderTextColor='grey'
         />
 
         <TextInput
@@ -215,6 +216,7 @@ const Login = () => {
           value={password}
           onChangeText={setPassword}
           placeholder={i18n.t('password',  { locale: language })}
+          placeholderTextColor='grey'
           secureTextEntry
         />
 
@@ -261,6 +263,7 @@ const Login = () => {
               value={emailReset}
               onChangeText={setEmailReset}
               placeholder="Email"
+              placeholderTextColor='grey'
             />
           </View>
         )}

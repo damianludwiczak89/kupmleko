@@ -175,6 +175,7 @@ const Friends = () => {
             value={email}
             onChangeText={setEmail}
             placeholder={i18n.t('friendEmail',  { locale: language })}
+            placeholderTextColor='grey'
           />
           <Button 
             title={i18n.t('invite',  { locale: language })} 

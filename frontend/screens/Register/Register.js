@@ -70,6 +70,7 @@ const Register = () => {
           value={username}
           onChangeText={setUsername}
           placeholder={i18n.t('username',  { locale: language })}
+          placeholderTextColor='grey'
           autoFocus
         />
 
@@ -78,6 +79,7 @@ const Register = () => {
           value={email}
           onChangeText={setEmail}
           placeholder="Email"
+          placeholderTextColor='grey'
           keyboardType="email-address"
         />
 
@@ -86,6 +88,7 @@ const Register = () => {
           value={password}
           onChangeText={setPassword}
           placeholder={i18n.t('password',  { locale: language })}
+          placeholderTextColor='grey'
           secureTextEntry
         />
 
@@ -94,6 +97,7 @@ const Register = () => {
           value={confirmPassword}
           onChangeText={setConfirmPassword}
           placeholder={i18n.t('passwordConfirm',  { locale: language })}
+          placeholderTextColor='grey'
           secureTextEntry
         />
 

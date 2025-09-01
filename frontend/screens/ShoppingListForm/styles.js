@@ -5,12 +5,10 @@ const styles = StyleSheet.create({
         flex: 1,
       },
       scrollContent: {
-        padding: 20,
-        paddingBottom: 50,
         backgroundColor: '#fff8b3', 
-        padding: 16,
+        padding: 2,
+        paddingBottom: 100,
         borderRadius: 10,
-        marginVertical: 8,
         marginHorizontal: 16,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
@@ -22,7 +20,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         padding: 10,
         borderRadius: 4,
-        marginBottom: 10,
+        margin: 10,
       },
       bottomBar: {
         padding: 10,
@@ -43,9 +41,10 @@ const styles = StyleSheet.create({
         fontSize: 20,
         paddingHorizontal: 6,
       },
-      smallStepperText: {
-        fontSize: 6,
-        paddingHorizontal: 6,
+
+      dragHandle: {
+        paddingHorizontal: 8,
+        paddingVertical: 6,
       },
       amountInput: {
         width: 50,
@@ -65,6 +64,9 @@ const styles = StyleSheet.create({
       },
       saveButton: {
         marginTop: 20,
+        marginRight: 60,
+        marginLeft: 60,
+        marginBottom: 20,
       },
       itemRow: {
         flexDirection: 'row',
@@ -74,6 +76,7 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1,
         borderBottomColor: '#e0e0e0',
       },
+
       itemText: {
         fontSize: 16,
       },
@@ -81,32 +84,23 @@ const styles = StyleSheet.create({
         color: 'red',
         fontWeight: 'bold',
         fontSize: 18,
-        paddingHorizontal: 10,
+        paddingHorizontal: 15,
       },
-      itemRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingVertical: 8,
-      },
+
       
       itemName: {
         flex: 1,
-        fontSize: 16,
-        borderWidth: 1,
-        borderColor: '#ccc',
-        paddingHorizontal: 8,
+        borderBottomWidth: 1,
+        borderBottomColor: "#ccc",
+        marginHorizontal: 8,
         paddingVertical: 4,
-        borderRadius: 4,
-        backgroundColor: '#fff8b3',
-        minWidth: 100,
       },
       
       amountSection: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        width: 100,
+        width: 60,
       },
       
       amountText: {
@@ -117,11 +111,6 @@ const styles = StyleSheet.create({
       smallStepperText: {
         fontSize: 18,
         paddingHorizontal: 6,
-      },
-      
-      deleteText: {
-        fontSize: 18,
-        paddingHorizontal: 10,
       },
       
 });

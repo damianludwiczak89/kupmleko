@@ -15,11 +15,10 @@ const Tabs = () => {
     
     return (
         <Tab.Navigator
-
+            
             screenOptions={({ route }) => ({
                 headerTitleAlign: 'center',
                 headerStyle: {
-                  height: 40,
                   backgroundColor: 'white',
                 },
                 headerTitleStyle: {

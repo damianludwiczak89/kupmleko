@@ -199,16 +199,20 @@ const ShoppingListForm = (existingValues) => {
           />
 
           <View style={styles.amountSection}>
-            <TouchableOpacity onPress={() => decrementAmount(item.id)}>
+            <TouchableOpacity onPress={() => decrementAmount(item.id)}
+              hitSlop={{ top: 10, bottom: 10, left: 20, right: 20 }}>
               <Text style={styles.smallStepperText}>➖</Text>
             </TouchableOpacity>
-            <Text style={styles.amountText}>{item.amount}</Text>
-            <TouchableOpacity onPress={() => incrementAmount(item.id)}>
+            
+            <TouchableOpacity onPress={() => incrementAmount(item.id)}
+              hitSlop={{ top: 10, bottom: 10, left: 20, right: 20 }}>
               <Text style={styles.smallStepperText}>➕</Text>
             </TouchableOpacity>
+            <Text style={styles.amountText}>{item.amount}</Text>
           </View>
 
-          <TouchableOpacity onPress={() => removeItem(item.id)}>
+          <TouchableOpacity onPress={() => removeItem(item.id)}
+            hitSlop={{ top: 1, bottom: 1, left: 0, right: 1 }}>
             <Text style={styles.deleteText}>🗑</Text>
           </TouchableOpacity>
         </View>
@@ -216,16 +220,29 @@ const ShoppingListForm = (existingValues) => {
     );
   }, []);
 
-const insets = useSafeAreaInsets();
-const [bottomBarHeight, setBottomBarHeight] = useState(0);
 
 
+const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+
+useEffect(() => {
+  const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
+    setKeyboardVisible(true);
+  });
+  const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+    setKeyboardVisible(false);
+  });
+
+  return () => {
+    keyboardDidShowListener.remove();
+    keyboardDidHideListener.remove();
+  };
+}, []);
 
 return (
   <KeyboardAvoidingView
-    behavior={'padding'}
+    behavior={'height'}
     style={{ flex: 1 }}
-    keyboardVerticalOffset={insets.bottom + bottomBarHeight}
+    keyboardVerticalOffset={60}
   >
       <View style={styles.container}>
         
@@ -302,8 +319,7 @@ return (
         </View>
 
         <View 
-        onLayout={(e) => setBottomBarHeight(e.nativeEvent.layout.height)}
-        style={[styles.bottomBar, ]}>
+        style={[styles.bottomBar, { paddingBottom: isKeyboardVisible ? 90 : 15, } ]}>
           <TextInput
             style={styles.itemInput}
             value={newItem}

@@ -81,10 +81,9 @@ const styles = StyleSheet.create({
         fontSize: 16,
       },
       deleteText: {
-        color: 'red',
-        fontWeight: 'bold',
         fontSize: 18,
-        paddingHorizontal: 15,
+        marginHorizontal: 10,
+        marginLeft: 20
       },
 
       
@@ -110,7 +109,7 @@ const styles = StyleSheet.create({
       
       smallStepperText: {
         fontSize: 18,
-        paddingHorizontal: 6,
+        marginHorizontal: 8,
       },
       
 });

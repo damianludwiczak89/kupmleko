@@ -68,7 +68,7 @@ class GoogleLoginView(APIView):
             return Response({'error': 'ID token is required'}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            decoded_token = firebase_auth.verify_id_token(id_token)
+            decoded_token = firebase_auth.verify_id_token(id_token, clock_skew_seconds=60)
             email = decoded_token.get('email', '')
             name = decoded_token.get('name', '')
 

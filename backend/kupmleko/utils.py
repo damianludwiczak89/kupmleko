@@ -1,5 +1,9 @@
 from .models import Item, Draft, ShoppingList
-import random
+import random, requests, os
+from pathlib import Path
+
+from dotenv import load_dotenv
+load_dotenv(dotenv_path=Path(__file__).resolve().parent / '.env')
 
 def update_and_delete_items(instance):
     '''
@@ -49,3 +53,12 @@ def uuid_to_none(data):
             item["id"] = None
 
     return sanitized
+
+def send_email(to, subject, text):
+  	return requests.post(
+  		f"https://api.mailgun.net/v3/{os.environ["MAILGUN_DOMAIN"]}/messages",
+  		auth=("api", os.environ["MAILGUN_API_KEY"]),
+  		data={"from": f"Kup Mleko  postmaster@{os.environ["MAILGUN_DOMAIN"]}",
+			"to": to,
+  			"subject": subject,
+  			"html": text})

@@ -1,6 +1,4 @@
 from django.shortcuts import render, get_object_or_404
-from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import Mail
 from django.template.loader import render_to_string
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode 
 from django.conf import settings
@@ -24,7 +22,7 @@ from rest_framework.exceptions import AuthenticationFailed
 from . import serializer as api_serializer
 from .models import User, ShoppingList, Item, Draft, Invite
 from firebase_admin import auth as firebase_auth
-from .utils import generate_random_otp, uuid_to_none
+from .utils import generate_random_otp, uuid_to_none, send_email
 
 import traceback
 
@@ -138,20 +136,11 @@ class PasswordResetEmailVerifyAPIView(APIView):
         html_body = render_to_string(template, email_data)
 
 
-        message = Mail(
-            from_email='damiankonin@gmail.com',
-            to_emails=email,
-            subject=subject,
-            html_content=html_body
-        )
-
         try:
-            sg = SendGridAPIClient(settings.SENDGRID_API_KEY)
-            response = sg.send(message)
-            print(f"SendGrid response: {response.status_code}")
+            send_email(email, subject, html_body)
             return Response({"message": "Password reset email sent successfully"}, status=status.HTTP_200_OK)
         except Exception as e:
-            print(f"SendGrid error: {str(e)}")
+            print(f"error: {str(e)}")
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 

@@ -56,9 +56,9 @@ def uuid_to_none(data):
 
 def send_email(to, subject, text):
   	return requests.post(
-  		f"https://api.mailgun.net/v3/{os.environ["MAILGUN_DOMAIN"]}/messages",
+  		f"https://api.mailgun.net/v3/{os.environ['MAILGUN_DOMAIN']}/messages",
   		auth=("api", os.environ["MAILGUN_API_KEY"]),
-  		data={"from": f"Kup Mleko  postmaster@{os.environ["MAILGUN_DOMAIN"]}",
+  		data={"from": f"Kup Mleko  postmaster@{os.environ['MAILGUN_DOMAIN']}",
 			"to": to,
   			"subject": subject,
   			"html": text})
